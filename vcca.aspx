@@ -380,12 +380,10 @@
 			function q_popPost(s1) {
                 switch (s1) {
                 	case 'txtCustno':
-                		var patt = /(.*)\+(.*)/;
-                		$('#txtComp').val($('#txtComp').val().replace(patt,'$2'));
+                		$('#txtComp').val($('#txtComp').val().replace(/(.*)\+(.*)/,'$2'));
                 		break;
                 	case 'txtBuyerno':
-                		var patt = /(.*)\+(.*)/;
-                		$('#txtBuyer').val($('#txtBuyer').val().replace(patt,'$2'));
+                		$('#txtBuyer').val($('#txtBuyer').val().replace(/(.*)\+(.*)/,'$2'));
                 		break;
                     case 'txtCno':
                         q_func('qtxt.query.checkdata', 'vcca.txt,checkdata,' +q_cur+';'+$('#txtNoa').val()+';'+$('#txtCno').val()+';'+$('#txtDatea').val());
