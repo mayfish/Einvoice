@@ -15,9 +15,6 @@
 		<script src="css/jquery/ui/jquery.ui.widget.js"></script>
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"></script>
 		<script type="text/javascript">
-			if (location.href.indexOf('?') < 0) {
-				location.href = location.href + "?;;;;" + ((new Date()).getUTCFullYear() - 1911);
-			}
 			$(document).ready(function() {
 				q_getId();
 				q_gf('', 'z_vccap');
@@ -35,7 +32,19 @@
 					}]
 				});
 				q_popAssign();
-				var t_noa = typeof (q_getId()[4]) == 'undefined' ? '' : q_getId()[4];
+				
+				var t_para = new Array();
+	            try{
+	            	t_para = JSON.parse(q_getId()[3]);
+	            }catch(e){
+	            }    
+	            if(t_para.length==0 || t_para.noa==undefined){
+	            }else{
+	            	$('#txtXnoa1').val(t_para.noa);
+	            	$('#txtXnoa2').val(t_para.noa);
+	            }
+	            
+				/*var t_noa = typeof (q_getId()[4]) == 'undefined' ? '' : q_getId()[4];
 				t_noa = t_noa.replace('noa=', '');
 				$('#txtXnoa1').val(t_noa);
                 $('#txtXnoa2').val(t_noa);
@@ -45,7 +54,7 @@
 							$('#cmbPcPrinter option:eq('+index+')').prop('selected', true);
 						}
 					});
-				});
+				});*/
 			}
 
 			function q_getPrintPost(){
