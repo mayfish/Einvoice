@@ -676,7 +676,15 @@
 	                    	var n = $(this).attr('id').replace('txtVccno__','');
 	                    	var t_accy = $('#txtVccaccy__'+n).val();
 	                    	var t_tablea = 'vccst';
-	                    	if(t_tablea.length>0 && $(this).val().indexOf('TAX')==-1 && !($(this).val().indexOf('-')>-1 && $(this).val().indexOf('/')>-1)){//稅額和月結排除
+	                    	
+	                    	if (q_getPara('sys.project').toUpperCase()=='VU'){
+	                    		if($(this).val().val().substr(0,1)=='G')
+	                    			q_box("get_vu.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + t_accy, t_tablea, "95%", "95%", q_getMsg("pop"+t_tablea));
+	                    		else
+	                    			q_box("vcc_vu.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + t_accy, t_tablea, "95%", "95%", q_getMsg("pop"+t_tablea));
+	                    	}else if (q_getPara('sys.project').toUpperCase()=='SF'){
+	                    		q_box("vcc_sf.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + t_accy, t_tablea, "95%", "95%", q_getMsg("pop"+t_tablea));	                    		
+	                    	}else if(t_tablea.length>0 && $(this).val().indexOf('TAX')==-1 && !($(this).val().indexOf('-')>-1 && $(this).val().indexOf('/')>-1)){//稅額和月結排除
 	                    		//t_tablea = t_tablea + q_getPara('sys.project');
 	                    		//q_box(t_tablea+".aspx?;;;noa='" + $(this).val() + "'", t_tablea, "95%", "95%", q_getMsg("pop"+t_tablea));	
 	                    		q_box(t_tablea+".aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + t_accy, t_tablea, "95%", "95%", q_getMsg("pop"+t_tablea));
