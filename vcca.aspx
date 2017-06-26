@@ -269,15 +269,25 @@
 							return;
 						}
 						if(q_cur==1 || q_cur==2){
-							t_vccano = $('#txtNoa').val();
-							t_custno = $('#txtCustno').val();
-							t_date = $('#txtDatea').val();
-							t_where = "b.typea!='2' and b.custno='"+t_custno+"' and (c.noa='"+t_vccano+"' or c.noa is null) ";
-							if(q_getPara('sys.project').toUpperCase() == 'VU')
+							var t_vccano = $('#txtNoa').val();
+							var t_custno = $('#txtCustno').val();
+							var t_date = $('#txtDatea').val();
+							
+							if(q_getPara('sys.project').toUpperCase() == 'VU'){
+								t_where = "b.typea!='2' and b.custno='"+t_custno+"' and (c.noa='"+t_vccano+"' or c.noa is null) ";
 								t_where +="and b.datea>'2016/02/22' and (ISNULL(b.atax,0)=1 or isnull(b.tax,0)>0)";
-							if(q_getPara('sys.project').toUpperCase() != 'VU')
+								
+								t_where +="^^";
+								
+								t_where += "where[1]=^^b.custno='"+t_custno+"' and (c.noa='"+t_vccano+"' or c.noa is null) ";
+								t_where +="and (ISNULL(b.atax,0)=1 or isnull(b.tax,0)>0)^^";
+								
+								q_box("vccavcc_vu_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where+";"+";"+JSON.stringify({vccano:t_vccano,custno:t_custno}), "vccavcc", "95%", "95%", '');
+							}else{
+								t_where = "b.typea!='2' and b.custno='"+t_custno+"' and (c.noa='"+t_vccano+"' or c.noa is null) ";
 								t_where +="and b.datea<='"+t_date+"'";
-							q_box("vccavcc_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where+";"+";"+JSON.stringify({vccano:t_vccano,custno:t_custno}), "vccavcc", "95%", "95%", '');
+								q_box("vccavcc_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where+";"+";"+JSON.stringify({vccano:t_vccano,custno:t_custno}), "vccavcc", "95%", "95%", '');
+							}
 						}else{
 							if(q_getPara('sys.project').toUpperCase() == 'VU'){
 								return;
@@ -365,8 +375,15 @@
                         	for(var i=0;i<q_bbtCount;i++){
                         		$('#btnMinut__'+i).click();
                         	}
-                    		q_gridAddRow(bbtHtm, 'tbbt', 'txtVccaccy,txtVccno,txtVccnoq,txtProduct,txtMount,txtWeight,txtPrice,txtMoney'
-                        	, as.length, as, 'accy,noa,noq,product,mount,weight,price,total', '','');
+                        	
+                        	for(var i=0;i<as.length;i++){
+								if(as[i].tablea==undefined){
+									as[i].tablea='vccst';
+								}
+                        	}
+                        	
+                    		q_gridAddRow(bbtHtm, 'tbbt', 'txtTablea,txtVccaccy,txtVccno,txtVccnoq,txtProduct,txtMount,txtWeight,txtPrice,txtMoney'
+                        	, as.length, as, 'tablea,accy,noa,noq,product,mount,weight,price,total', '','');
                         }else{
                         	Unlock(1);
                         }
@@ -675,10 +692,10 @@
 	                    	e.preventDefault();
 	                    	var n = $(this).attr('id').replace('txtVccno__','');
 	                    	var t_accy = $('#txtVccaccy__'+n).val();
-	                    	var t_tablea = 'vccst';
+	                    	var t_tablea = emp($('#txtTablea__'+n).val())?'vccst':$('#txtTablea__'+n).val();
 	                    	
 	                    	if (q_getPara('sys.project').toUpperCase()=='VU'){
-	                    		if($(this).val().val().substr(0,1)=='G')
+	                    		if(t_tablea=='get')
 	                    			q_box("get_vu.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + t_accy, t_tablea, "95%", "95%", q_getMsg("pop"+t_tablea));
 	                    		else
 	                    			q_box("vcc_vu.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + t_accy, t_tablea, "95%", "95%", q_getMsg("pop"+t_tablea));
@@ -1639,6 +1656,7 @@
 						<td><a id="lblNo..*" style="font-weight: bold;text-align: center;display: block;"> </a></td>
 						<td>
 							<input class="txt" id="txtVccaccy..*" type="text" style="width:95%;display:none;"/>
+							<input class="txt" id="txtTablea..*" type="hidden"/>
 							<input class="txt" id="txtVccno..*" type="text" style="width:75%;float:left;"/>
 							<input class="txt" id="txtVccnoq..*" type="text" style="width:15%;float:left;"/>
 						</td>
