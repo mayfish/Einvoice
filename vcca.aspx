@@ -879,7 +879,7 @@
 				}*/
 					
 				$('#txtTax').css('color', 'green').css('background', 'RGB(237,237,237)').attr('readonly', 'readonly');
-				var t_mounts, t_prices, t_moneys=0, t_mount = 0, t_money = 0, t_taxrate=0.5, t_tax=0, t_total=0;
+				var t_mounts, t_prices, t_moneys=0, t_mount = 0, t_money = 0, t_tax=0, t_total=0;
 				//銷貨客戶
 				$('#txtCustno').attr('readonly', false);
 				$('#txtComp').attr('readonly', false);
@@ -995,7 +995,7 @@
 				}
 				
 				$('#txtTax').css('color', 'green').css('background', 'RGB(237,237,237)').attr('readonly', 'readonly');
-				var t_mounts, t_prices, t_moneys=0, t_mount = 0, t_money = 0, t_taxrate=0.5, t_tax=0, t_total=0;
+				var t_mounts, t_prices, t_moneys=0, t_mount = 0, t_money = 0, t_tax=0, t_total=0;
 				if (!emp($('#txtVccno').val())){
 					//統一編號
 					$('#txtSerial').attr('readonly', false);
