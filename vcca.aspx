@@ -1045,6 +1045,7 @@
 				}
 
 				t_taxrate = parseFloat(q_getPara('sys.taxrate')) / 100;
+				$('#txtTaxrate').val(t_taxrate);
 				switch ($('#cmbTaxtype').val()) {
 					case '1':
 						// 應稅
