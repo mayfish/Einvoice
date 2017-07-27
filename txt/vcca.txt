@@ -21,6 +21,12 @@ vcca_apv:--vcca_apv  檢查發票抬頭
 	select @cust=case when len(isnull(a.invoicetitle,''))>0 then a.invoicetitle else a.comp end
 	from cust a
 	where a.noa=@t_custno
+	
+	--鉅昕公司名稱 =     負責人+公司名稱
+	if CHARINDEX('+',@cust)>0
+	begin
+		set @cust = SUBSTRING(@cust,CHARINDEX('+',@cust)+1,LEN(@cust))
+	end
 --------------------------------------------------------------------------------------------------	
 	declare @t_date nvarchar(20) = dbo.AD2ChineseEraName(getdate())
 	declare @t_time nvarchar(20) = left(CONVERT(nvarchar,getdate(),108),5)
