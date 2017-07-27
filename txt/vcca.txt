@@ -1,0 +1,578 @@
+vcca_apv:--vcca_apv  檢查發票抬頭
+	declare @t_userno nvarchar(max) = [1]
+	declare @t_form nvarchar(max) = [2]
+	declare @t_guid nvarchar(max) = [3]
+	declare @t_noa nvarchar(max) = [4]
+	declare @t_custno nvarchar(max) = [5]
+	declare @t_cust nvarchar(max) = [6]
+	declare @t_buyer nvarchar(max) = [7]
+
+	declare @t_rank int = 0
+	declare @t_user nvarchar(20) = ''
+	select @t_rank=[RANK],@t_user=namea from nhpe where noa=@t_userno
+	----RANK >=8 不用檢查
+	--if @t_rank>=8
+	--begin
+	--	select 1 val,@t_userno+'等級'+cast(@t_rank as nvarchar)+',不需檢查。' msg
+	--	return 
+	--end
+	declare @cust nvarchar(max) = ''
+	
+	select @cust=case when len(isnull(a.invoicetitle,''))>0 then a.invoicetitle else a.comp end
+	from cust a
+	where a.noa=@t_custno
+--------------------------------------------------------------------------------------------------	
+	declare @t_date nvarchar(20) = dbo.AD2ChineseEraName(getdate())
+	declare @t_time nvarchar(20) = left(CONVERT(nvarchar,getdate(),108),5)
+	declare @number nvarchar(max)
+	declare @sign nvarchar(max) = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+	declare @nn int
+	declare @mm nvarchar(max)
+	declare @noa nvarchar(20) = ''
+	--
+	declare @t_checker nvarchar(max) = ''
+	--declare @t_memo nvarchar(max) = '出貨單號：'+@t_noa
+	--declare @productno nvarchar(max)
+	--declare @product nvarchar(max)
+	--declare @money1 float
+	--declare @money2 float
+	
+	select top 1 @noa = case when noa>isnull(@noa,'') then noa else @noa end from [sign] where noa like REPLACE(@t_date,'/','')+'[0-9,A-Z][0-9][0-9]' order by noa desc
+	if LEN(ISNULL(@noa,'')) = 0
+		set @noa = REPLACE(@t_date,'/','')+'000'
+	set @number  = right(@noa,3)				
+	set @nn = (charindex(left(@number,1),@sign)-1) * 100 + cast(right(@number,2) as int) + 1
+	set @mm = substring(@sign,floor(@nn/100)+1,1)
+	set @noa =  REPLACE(@t_date,'/','')+@mm+RIGHT('00'+cast(@nn as nvarchar),2)
+		
+	
+	if exists(select * from [sign] where zno=@t_guid and sender=@t_user and LTRIM(RTRIM(isnull(enda,'')))='Y')
+	begin
+		select 1 val,'已簽核' msg
+		return
+	end
+	else if exists(select * from [sign] where zno=@t_guid and sender=@t_user and LTRIM(RTRIM(isnull(enda,'')))!='Y')
+	begin
+		select 0 val,'簽核已送，尚未核准，請稍後！' msg
+		return
+	end
+	else if @cust!=@t_cust or @cust!=@t_buyer
+	begin
+		-- 發票抬頭異常
+		begin try
+			select @t_checker=checker from signform where noa='vcca'
+			insert into [sign](noa,datea,timea,form,sender,checker,zno,memo,enda,memochecker)
+			select @noa,@t_date,@t_time,@t_form,@t_user,@t_checker,@t_guid
+				,'發票抬頭異常'+@t_noa+','+@cust+'  '+case when @cust!=@t_cust then @t_cust else @t_buyer end
+				,'N',''
+			select 0 val,'發票抬頭異常，簽核已送，請稍後！' msg
+			return
+		end try
+		begin catch
+			select 0 val,'錯誤：簽核產生異常。' msg
+			return
+		end catch
+	end
+	else
+	begin
+		select 1 val,'沒問題。' msg
+		return
+	end; 
+
+vcca_mount:--vcca_mount 產品庫存, 只查詢一個產品, 不分倉庫, 排除當前的銷貨發票, 有日期	
+	declare @t_vccano nvarchar(20)=[1]
+	declare @t_cno nvarchar(10) = [2]
+	declare @t_date nvarchar(10) = [3]
+	declare @t_productno nvarchar(max) = [4]
+	---------------------------------------------------------------
+	declare @tmp table(
+		sel int identity(1,1)
+		,datea nvarchar(10)
+		,typea nvarchar(20)
+		,noa nvarchar(20)
+		,mount float
+		,result float
+	)
+	
+	insert into @tmp(datea,typea,noa,mount)
+	select a.mon,'0',a.noa,a.beginmount
+	from uccas a
+	left join ucca b on a.noa=b.noa
+	where a.noa=@t_productno 
+	and a.mon<=@t_date
+	and a.cno=@t_cno
+	
+	insert into @tmp(datea,typea,noa,mount)
+	select b.datea,'1',a.noa,a.mount
+	from rc2as a
+	left join rc2a b on a.noa=b.noa
+	where a.productno=@t_productno
+	and b.datea<=@t_date
+	and b.cno=@t_cno
+	
+	insert into @tmp(datea,typea,noa,mount)
+	select b.datea,'3',a.noa,a.mount
+	from vccas a
+	left join vcca b on a.noa=b.noa
+	where a.productno=@t_productno
+	and b.datea<=@t_date
+	and a.noa!=@t_vccano
+	and b.cno=@t_cno
+	
+	insert into @tmp(datea,typea,noa,mount)
+	select b.datea,case when b.typea='1' then '2' else '3' end,a.noa,a.mount
+	from vccbs a
+	left join vccb b on a.noa=b.noa
+	where a.productno=@t_productno
+	and b.datea<=@t_date 
+	and b.cno=@t_cno
+	--------------------------------------------------------------------
+	declare @result float = 0
+	
+	declare @sel int
+	declare @datea nvarchar(20)
+	declare @typea nvarchar(20)
+	declare @mount float
+	
+	declare cursor_table cursor for
+	select sel,datea,typea,mount from @tmp order by datea,typea,sel
+	open cursor_table
+	fetch next from cursor_table
+	into @sel,@datea,@typea,@mount
+	while(@@FETCH_STATUS <> -1)
+	begin		
+		if @typea='0'
+		begin
+			set @result = @mount
+		end
+		else if @typea='1' or @typea='2'
+		begin
+			set @result = @result + @mount
+		end
+		else 
+		begin
+			set @result = @result - @mount
+		end
+		--update @tmp set result=@result where sel=@sel
+		fetch next from cursor_table
+		into @sel,@datea,@typea,@mount
+	end
+	close cursor_table
+	deallocate cursor_table
+	----------------------------------------------------------------------
+	declare @tmpa table(
+		productno nvarchar(30)
+		,mount float
+	)
+	insert into @tmpa(productno,mount)values(@t_productno,@result)
+	select * from @tmpa;
+	
+	
+
+checkMoney:-- vcca.txt  checkMoney 	
+	declare @t_noa nvarchar(20) = N[1]
+	declare @t_custno nvarchar(20) = N[2]
+	declare @t_mon nvarchar(20) = N[3]
+	------------------------------------------------------------------------------------------
+	declare @vcc float = 0
+	declare @vcca float = 0
+	
+	select @vcc=SUM(ISNULL([money],0)) from view_vcc where custno=@t_custno and mon=@t_mon
+	--本月其他張發票金額
+	----項目有預收款排除
+	select @vcca=SUM(ISNULL([money],0)) from vcca 
+	where custno=@t_custno and mon=@t_mon and noa!=@t_noa
+	and not exists(select * from vccas where vcca.noa=vccas.noa and CHARINDEX('預收',productno)>0)
+	
+	declare @tmp table(
+		vcc float
+		,vcca float
+	)
+	insert into @tmp(vcc,vcca)values(ISNULL(@vcc,0),ISNULL(@vcca,0))
+	select * from @tmp;
+
+checkdata:-- vcca.txt  checkdata 
+	declare @q_cur nvarchar(max) = N[1]
+	declare @t_vccano nvarchar(max) = N[2]
+	declare @t_cno nvarchar(max) = N[3]
+	declare @t_datea nvarchar(max) = N[4]
+	--------------------------------------------------------------------
+	if @q_cur='1' and exists(select * from vcca where noa=@t_vccano) 
+	begin
+		--***************--
+		select 0 val,'發票【'+@t_vccano+'】已存在。' msg
+		return
+	end
+	
+	declare @tmp table(
+		sel int identity(1,1)
+		,[key] nvarchar(50)
+		,recno int
+		,invono nvarchar(20)
+		,datea nvarchar(20)
+	)
+	declare @n int
+	declare @m int
+	declare @tmpno nvarchar(20)
+	declare @key nvarchar(max)
+	declare @bdate nvarchar(20) = ''
+	declare @edate nvarchar(20) = char(255)
+	declare @binvono nvarchar(20) = ''
+	declare @einvono nvarchar(20) = '999/12/31'
+	declare @cno nvarchar(20) = ''
+	declare @acomp nvarchar(max) = ''
+	
+	if not exists(select b.bdate,b.edate,a.binvono,a.einvono
+		from vccars a
+		left join vccar b on a.noa=b.noa
+		where @t_vccano between a.binvono and a.einvono)
+	begin
+		--***************--
+		select 0 val,'發票主檔沒有設定' msg
+		return
+	end
+
+	select @cno=b.cno,@acomp=b.acomp,@bdate=b.bdate,@edate=b.edate,@binvono=a.binvono,@einvono=a.einvono
+	from vccars a
+	left join vccar b on a.noa=b.noa
+	where @t_vccano between a.binvono and a.einvono
+	
+	if @cno!=@t_cno
+	begin
+		--***************--
+		select 0 val,'公司錯誤，應為【'+@cno+' '+@acomp+'】' msg
+		return
+	end
+	
+	set @n = CAST(RIGHT(@binvono,2) as int)
+	set @m = 1
+	set @tmpno = LEFT(@binvono,8)+right('00'+CAST(@n as nvarchar),2)
+	while @tmpno<=@einvono and @m<=50
+	begin
+		insert into @tmp([key],recno,invono)
+		values(@key+'-'+LEFT(@binvono,8),@m,@tmpno)
+		set @n = @n + 1
+		set @tmpno = LEFT(@binvono,8)+right('00'+CAST(@n as nvarchar),2)
+		set @m = @m + 1
+	end
+		
+	update @tmp set datea=ISNULL(b.datea,'')
+	from @tmp a
+	left join vcca b on a.invono=b.noa
+	----------------------------------------------------------
+	declare @datea nvarchar(20)
+	declare @invono nvarchar(20)
+	
+	declare @xbdate nvarchar(20) = ''
+	declare @xedate nvarchar(20) = '999/12/30'
+	
+	declare cursor_table cursor for
+	select invono,datea from @tmp where invono!=@t_vccano order by recno desc
+	open cursor_table
+	fetch next from cursor_table
+	into @invono,@datea
+	while(@@FETCH_STATUS <> -1)
+	begin
+		if @invono<@t_vccano and len(@datea)>0
+		begin
+			set @xbdate = @datea
+			break
+		end
+		fetch next from cursor_table
+		into @invono,@datea
+	end
+	close cursor_table
+	deallocate cursor_table
+	
+	declare cursor_table cursor for
+	select invono,datea from @tmp where invono!=@t_vccano order by recno
+	open cursor_table
+	fetch next from cursor_table
+	into @invono,@datea
+	while(@@FETCH_STATUS <> -1)
+	begin
+		if @invono>@t_vccano and len(@datea)>0
+		begin
+			set @xedate = @datea
+			break
+		end
+		fetch next from cursor_table
+		into @invono,@datea
+	end
+	close cursor_table
+	deallocate cursor_table
+
+	declare @ybdate nvarchar(20) = case when @bdate>@xbdate then @bdate else @xbdate end 
+	declare @yedate nvarchar(20) = case when @edate<@xedate then @edate else @xedate end 
+	--2017/02/02 三順旺郭小姐 發票號碼日期要在發票主檔日期區間內
+	if  (@t_datea not between @ybdate and @yedate)
+	begin
+		--***************--
+		select 0 val,'發票日期需在 '+@ybdate+' ~ '+@yedate+' 之間。' msg
+		return
+	end
+	--***************--
+	select 1 val,'檢查完成' msg
+	return;
+----------------------------------------------------------------------------------------------------------------------------------------
+batchvcca_rb:--batchvcca_rb
+	declare @t_ordeno nvarchar(50) = [1]
+	declare @t_total nvarchar(50) = [2]
+	declare @t_money nvarchar(50) = [3]
+	declare @t_buyerno nvarchar(MAX) = case when '#non'=[4] then '' else [4] end 
+	declare @t_buyer nvarchar(MAX) = case when '#non'=[5] then '' else [5] end 
+	declare @t_serial nvarchar(MAX) = case when '#non'=[6] then '' else [6] end 
+	declare @t_vccano nvarchar(50) = case when '#non'=[7] then '' else [7] end 
+	declare @t_woker nvarchar(50) = case when '#non'=[8] then '' else [8] end 
+	declare @t_err nvarchar(200)=''
+	declare @t_datea nvarchar(20)=''
+	declare @t_mon nvarchar(20)=''
+	declare @t_vccarno nvarchar(20)
+	declare @t_vccno nvarchar(50)
+	declare @t_vccaccy nvarchar(50)
+	declare @x_vccano nvarchar(MAX)
+	declare @t_cno nvarchar(50)
+	--------------------------------------------------------------------------------------------------------
+	SET QUOTED_IDENTIFIER OFF
+	declare @t_vccacount int,@vccacount int
+	set @t_vccacount= cast(@t_total as int)/cast(@t_money as int)
+	set @vccacount= cast(@t_total as int)/cast(@t_money as int)
+	set @t_vccno=isnull((select vccno from view_orde where noa=@t_ordeno ),'')
+	set @t_vccaccy=isnull((select accy from view_vcc where noa=@t_vccno),'')
+	set @t_cno=isnull((select cno from view_orde where noa=@t_ordeno ),'')
+	
+	--現在日期
+	if(len(@t_datea)=0)
+	begin
+		set @t_datea=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
+		set @t_datea=left(@t_datea,3)+'/'+substring(@t_datea,4,2)+'/'+right(@t_datea,2)
+	end
+	set @t_mon=left(@t_datea,3)+'/'+substring(@t_datea,5,2)
+		
+	--批次開立的發票號碼
+	declare @vcca table(
+		recno int identity(1,1),
+		vccano nvarchar(20)
+	)
+	
+	--可開立發票
+	declare @cvcca table(
+		noa nvarchar(20),
+		vccano nvarchar(20)
+	)
+
+	if(@t_vccano!='') --檢查是否被使用或不存在vcca
+	begin
+		if((select count(*) from vcca where noa=@t_vccano)>0)
+		begin
+			set @t_err='發票號碼已存在'
+		end
+		
+		if((select count(*) from vccars where @t_vccano between binvono and einvono)=0)
+		begin
+			set @t_err='發票號碼不存在發票主檔內'
+		end
+	end
+
+	declare @vccarno nvarchar(20)
+	declare @bvccano nvarchar(20)
+	declare @evccano nvarchar(20)
+	declare @xvccano nvarchar(20)
+	
+	if(len(@t_err)=0)
+	begin
+		--抓取可開立的發票
+		declare cursor_table cursor for
+		select a.noa,b.binvono,b.einvono from vccar a left join vccars b on a.noa=b.noa 
+		where (@t_datea between a.bdate and a.edate) and isnull(a.iselectric,0)=1 and a.cno=@t_cno
+		order by a.noa,a.binvono
+		open cursor_table
+		fetch next from cursor_table
+		into @vccarno,@bvccano,@evccano
+		while(@@FETCH_STATUS <> -1)
+		begin
+			set @xvccano=@bvccano
+			while (@xvccano<=@evccano and (@xvccano between @bvccano and @evccano))
+			begin
+				if((select count(*) from vcca where noa=@xvccano)=0)
+				begin
+					insert @cvcca
+					select @vccarno,@xvccano
+				end
+				set @xvccano=LEFT(@xvccano,2)
+				+RIGHT('00000000'+cast(cast(RIGHT(@xvccano,8) as int)+1 as nvarchar(10)),8)
+			end
+
+			fetch next from cursor_table
+			into @vccarno,@bvccano,@evccano
+		end
+		close cursor_table
+		deallocate cursor_table
+	
+		if((select count(*) from @cvcca)=0) 
+		begin
+			set @t_err='當期無可用發票'
+		end
+		else if((select count(*) from @cvcca)<@vccacount) 
+		begin
+			set @t_err='當期發票不足開立'+CAST(@vccacount as nvarchar(10))+'張發票'
+		end
+	end
+	
+	if(len(@t_err)=0)
+	begin
+		set @t_err='vccaok'
+		
+		insert @vcca
+		select TOP (@vccacount) vccano from @cvcca 
+		where vccano>=@t_vccano order by vccano
+		
+		--不足發票數量
+		if((select count(*) from @vcca)<@vccacount)
+		begin
+			--先刪除 已要寫入的發票
+			delete a 
+			from @cvcca a
+			where exists (select * from @vcca where a.vccano=vccano )
+			
+			set @vccacount=@vccacount-(select count(*) from @vcca)
+			
+			insert @vcca
+			select TOP (@vccacount) vccano from @cvcca 
+			order by noa,vccano
+		
+		end
+		
+		insert vcca(noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp,zip,address,taxtype,money,tax,total,trdno,worker,vccno,[type],chkno)
+		select a.vccano,b.custno,b.comp,b.nick--,@t_serial,@t_buyerno,@t_buyer
+		,dbo.split(@t_serial,'^^',recno-1)
+		,dbo.split(@t_buyerno,'^^',recno-1)
+		,dbo.split(@t_buyer,'^^',recno-1)
+		,@t_datea,case when isnull(b.mon,'')!='' then b.mon else @t_mon end
+		,case when isnull(b.cno,'')!='' then b.cno else (select top 1 noa from acomp order by noa) end
+		,case when isnull(b.cno,'')!='' then b.acomp else (select top 1 acomp from acomp order by noa) end
+		,case when isnull((select top 1 zip_invo from cust where noa=dbo.split(@t_buyerno,'^^',recno-1)),'')!='' then 
+		isnull((select top 1 addr_invo from cust where noa=dbo.split(@t_buyerno,'^^',recno-1)),'')
+		else isnull((select top 1 zip_invo from cust where noa=b.custno),'') end
+		,case when isnull((select top 1 addr_invo from cust where noa=dbo.split(@t_buyerno,'^^',recno-1)),'')!='' then 
+		isnull((select top 1 addr_invo from cust where noa=dbo.split(@t_buyerno,'^^',recno-1)),'')
+		else isnull((select top 1 addr_invo from cust where noa=b.custno),'') end
+		,'1'
+		,b.money/@t_vccacount
+		,b.tax/@t_vccacount
+		,b.total/@t_vccacount
+		,@t_ordeno,@t_woker,@t_vccno,'A'
+		,right('000000'+cast(cast(cast(
+			cast(LOG((ascii(SUBSTRING(a.vccano,1,1))*100)+
+			(ascii(SUBSTRING(a.vccano,2,1))*25)+
+			cast(SUBSTRING(a.vccano,3,3) as int))*100 as int)
+		*144 as int)
+		+(SIN(cast(SUBSTRING(a.vccano,6,2) as int))*cast(SUBSTRING(a.vccano,8,3) as int)*100) as int)as nvarchar(10)),6)
+		from @vcca a outer apply (select * from view_orde where noa=@t_ordeno) b
+		
+		
+		if((select taxtype from view_orde where noa=@t_ordeno)='3')
+		begin
+			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,datea,ordeno,no2)
+			select b.vccano,a.no2,a.custno,a.productno,a.product,a.unit,1
+			,round(round(a.total/@t_vccacount,0)/1.05,0)
+			,round(round(a.total/@t_vccacount,0)/1.05,0)
+			,@t_datea,a.noa,a.no2
+			from view_ordes a , @vcca b where a.noa=@t_ordeno
+			
+			update a
+			set money=(select SUM(money) from vccas where noa=a.noa)
+			,tax=total-isnull((select SUM(money) from vccas where noa=a.noa),0)
+			from vcca a 
+			where exists (select * from @vcca where vccano=a.noa)
+		end
+		else
+		begin
+			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,datea,ordeno,no2)
+			select b.vccano,a.no2,a.custno,a.productno,a.product,a.unit,1
+			,round(a.total/@t_vccacount,0),round(a.total/@t_vccacount,0),@t_datea,a.noa,a.no2
+			from view_ordes a , @vcca b where a.noa=@t_ordeno
+		end
+		
+		
+		--set @x_vccano=stuff((select ','+vccano from @vcca for xml path('')),1,1,'') 
+		set @x_vccano=isnull(stuff((select ','+noa from vcca where trdno=@t_ordeno FOR XML PATH('')),1,1,''),'')
+		
+		exec("update vcc"+@t_vccaccy+" set invono='"+@x_vccano+"' where noa='"+@t_vccno+"'")
+		
+		--寫入到orde
+		set @t_vccaccy=isnull((select accy from view_orde where noa=@t_ordeno),'')
+		exec("update orde"+@t_vccaccy+" set ordbno='"+@x_vccano+"' where noa='"+@t_ordeno+"'")  
+		
+	end
+	
+	select @t_err err
+;
+--************************************************************************************
+changeorde_rb:--changeorde_rb
+	declare @vccano nvarchar(max) = [1]	
+	--------------------------------------------------------------------------------------------------------
+	SET QUOTED_IDENTIFIER OFF
+	declare @typea nvarchar(max)=isnull((select [type] from vcca where noa=@vccano),'')
+	declare @taxtype nvarchar(max)=isnull((select taxtype from vcca where noa=@vccano),'')
+	declare @ordeno nvarchar(max)=isnull((select trdno from vcca where noa=@vccano),'')
+	declare @accy nvarchar(max)=isnull((select accy from view_orde where noa=@ordeno),'')
+	declare @kind nvarchar(max)=isnull((select kind from view_orde where noa=@ordeno),'')
+	
+	if(@typea='E' and @taxtype='6' and  (select count(*) from view_orde where noa=@ordeno and charindex(@vccano,ordbno)>0 )>0 )
+	begin
+		exec("update orde"+@accy+" set kind='作廢' where noa='"+@ordeno+"' ")
+	end
+;
+--*************************************************************************************
+getvccano_rb:--getvccano_rb
+	declare @t_cno nvarchar(50) = [1]
+	declare @t_datea nvarchar(50) = [2]
+	declare @t_err nvarchar(200)=''
+	--------------------------------------------------------------------------------------------------------
+	SET QUOTED_IDENTIFIER OFF
+			
+	--可開立發票
+	declare @cvcca table(
+		noa nvarchar(20),
+		vccano nvarchar(20)
+	)
+
+	declare @vccarno nvarchar(20)
+	declare @bvccano nvarchar(20)
+	declare @evccano nvarchar(20)
+	declare @xvccano nvarchar(20)
+	
+	--抓取可開立的發票
+	declare cursor_table cursor for
+	select a.noa,b.binvono,b.einvono from vccar a left join vccars b on a.noa=b.noa 
+	where (@t_datea between a.bdate and a.edate) and isnull(a.iselectric,0)=1 order by a.noa,a.binvono
+	open cursor_table
+	fetch next from cursor_table
+	into @vccarno,@bvccano,@evccano
+	while(@@FETCH_STATUS <> -1)
+	begin
+		set @xvccano=@bvccano
+		while (@xvccano<=@evccano and (@xvccano between @bvccano and @evccano))
+		begin
+			if((select count(*) from vcca where noa=@xvccano)=0)
+			begin
+				insert @cvcca
+				select @vccarno,@xvccano
+			end
+			set @xvccano=LEFT(@xvccano,2)
+			+RIGHT('00000000'+cast(cast(RIGHT(@xvccano,8) as int)+1 as nvarchar(10)),8)
+		end
+			fetch next from cursor_table
+		into @vccarno,@bvccano,@evccano
+	end
+	close cursor_table
+	deallocate cursor_table
+
+	if((select count(*) from @cvcca)=0) 
+	begin
+		set @t_err='當期無可用發票'
+	end
+	
+	select @t_err err,(select top 1 vccano from @cvcca order by vccano) vccano
+;
