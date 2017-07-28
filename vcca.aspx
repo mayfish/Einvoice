@@ -17,7 +17,7 @@
 
 			q_tables = 't';
 			var q_name = "vcca";
-			var q_readonly = ['txtMoney', 'txtTotal', 'txtChkno', 'txtTax', 'txtAccno', 'txtWorker', 'txtTrdno', 'txtVccno'];
+			var q_readonly = ['txtMoney', 'txtTotal', 'txtChkno', 'txtTax', 'txtAccno', 'txtWorker', 'txtTrdno', 'txtVccno','chkIssend','chkIssendconfirm','chkIsvoid','chkIsvoidconfirm'];
 			var q_readonlys = [];
 			var q_readonlyt = ['txtVccaccy','txtVccno','txtVccnoq'];
 			var bbmNum = [['txtMoney', 15, 0,1], ['txtTax', 15, 0,1], ['txtTotal', 15, 0,1]];
@@ -1576,6 +1576,13 @@
 						<td><input id="txtAccno"  type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblVccno' class="lbl btn"> </a></td>
 						<td><input id="txtVccno"  type="text" class="txt c1"/></td>
+					</tr>
+					<tr>
+						<td> </td>
+						<td><input type="checkbox" style="float:left;" id="chkIssend"/><span style="display:block;width:100px;float:left;">開立</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIssendconfirm"/><span style="display:block;width:100px;float:left;">開立接收確認</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIsvoid"/><span style="display:block;width:100px;float:left;">作廢</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIsvoidconfirm"/><span style="display:block;width:100px;float:left;">作廢接收確認</span></td>
 					</tr>
 					<tr style="display:none;">
 						<td> </td>
