@@ -62,7 +62,7 @@ vcca_apv:--vcca_apv  檢查發票抬頭
 		select 0 val,'簽核已送，尚未核准，請稍後！' msg
 		return
 	end
-	else if @cust!=@t_cust or @cust!=@t_buyer
+	else if not(@cust=@t_cust or @cust=@t_buyer)
 	begin
 		-- 發票抬頭異常
 		begin try
