@@ -143,6 +143,8 @@
 				q_xchgView(); //106/05/11 預設仍要先顯示vew (前面先執行到Form載入data再跳回VEW)
 				q_cmbParse("cmbTaxtype", q_getPara('vcca.taxtype'));
 				q_cmbParse("cmbPrintmark","N,Y");
+				q_cmbParse("cmbCcm","@,1@非經海關出口,2@經海關出口");
+				
 				switch(q_getPara('sys.project').toUpperCase()){
 					case 'VU':
 						$('#chkAtax').show();
@@ -595,6 +597,11 @@
 				if(/^0+$/.test($.trim($('txtSerial').val()))){
 					//強制改為10個0
 					$('txtSerial').val('0000000000');
+				}
+				if($('#cmbTaxtype').val()=='2' & $('#cmbCcm').val().length==0){
+					alert($('#lblCcm').text()+"：若為零稅率發票，此為必填欄位");
+					Unlock(1);
+					return;
 				}
 				
 				if($('#cmbTaxtype').val()=='6' && $.trim($('#txtMemo').val()).length==0){
@@ -1583,6 +1590,8 @@
 						<td><input id="txtVccno"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
+						<td><span> </span><a class="lbl" id="lblCcm">通關方式註記</a></td>
+						<td><select id="cmbCcm" class="txt c1" title="若為零稅率發票，此為必填欄位(CustomsClearanceMark)"> </select></td>
 						<td><span> </span><a class="lbl">捐贈註記</a></td>
 						<td><input type="checkbox" style="float:left;" id="chkDonatemark"/></td>
 						<td><span> </span><a class="lbl">列印註記</a></td>
