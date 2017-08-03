@@ -142,7 +142,7 @@
 				q_xchgForm();
 				q_xchgView(); //106/05/11 預設仍要先顯示vew (前面先執行到Form載入data再跳回VEW)
 				q_cmbParse("cmbTaxtype", q_getPara('vcca.taxtype'));
-				
+				q_cmbParse("cmbPrintmark","N,Y");
 				switch(q_getPara('sys.project').toUpperCase()){
 					case 'VU':
 						$('#chkAtax').show();
@@ -592,6 +592,11 @@
 				Lock(1, {
 					opacity : 0
 				});
+				if(/^0+$/.test($.trim($('txtSerial').val()))){
+					//強制改為10個0
+					$('txtSerial').val('0000000000');
+				}
+				
 				if($('#cmbTaxtype').val()=='6' && $.trim($('#txtMemo').val()).length==0){
 					alert('作廢需在"備註"填寫作廢原因。');
 					Unlock(1);
@@ -1576,6 +1581,20 @@
 						<td><input id="txtAccno"  type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblVccno' class="lbl btn"> </a></td>
 						<td><input id="txtVccno"  type="text" class="txt c1"/></td>
+					</tr>
+					<tr>
+						<td><span> </span><a class="lbl">捐贈註記</a></td>
+						<td><input type="checkbox" style="float:left;" id="chkDonatemark"/></td>
+						<td><span> </span><a class="lbl">列印註記</a></td>
+						<td><select id="cmbPrintmark" class="txt c1"> </select></td>
+					</tr>
+					<tr>
+						<td><span> </span><a class="lbl">載具類別號碼</a></td>
+						<td><input type="text" id="txtCarriertype" class="txt c1"/></td>
+						<td><span> </span><a class="lbl">載具顯碼</a></td>
+						<td><input type="text" id="txtCarrierid1" class="txt c1"/></td>
+						<td><span> </span><a class="lbl">載具隱碼</a></td>
+						<td><input type="text" id="txtCarrierid2" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td> </td>
