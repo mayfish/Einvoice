@@ -17,7 +17,7 @@
 
 			q_tables = 't';
 			var q_name = "vcca";
-			var q_readonly = ['txtMoney', 'txtTotal', 'txtChkno', 'txtTax', 'txtAccno', 'txtWorker', 'txtTrdno', 'txtVccno','chkIssend','chkIssendconfirm','chkIsvoid','chkIsvoidconfirm'];
+			var q_readonly = ['txtMoney', 'txtTotal', 'txtChkno', 'txtTax', 'txtAccno', 'txtWorker', 'txtTrdno', 'txtVccno','chkIssend','chkIssendconfirm','chkIscancel','chkIscancelconfirm','txtRandnumber'];
 			var q_readonlys = [];
 			var q_readonlyt = ['txtVccaccy','txtVccno','txtVccnoq'];
 			var bbmNum = [['txtMoney', 15, 0,1], ['txtTax', 15, 0,1], ['txtTotal', 15, 0,1]];
@@ -137,7 +137,9 @@
 						break;
 				}
 				q_getFormat();
-				bbmMask = [['txtCanceldate', r_picd],['txtCanceltime', '99:99:99'], ['txtDatea', r_picd], ['txtMon', r_picm]];
+				bbmMask = [['txtCanceldate', r_picd],['txtCanceltime', '99:99:99']
+					, ['txtVoiddate', r_picd],['txtVoidtime', '99:99:99']
+					, ['txtDatea', r_picd], ['txtMon', r_picm]];
 				q_mask(bbmMask);
 				q_xchgForm();
 				q_xchgView(); //106/05/11 預設仍要先顯示vew (前面先執行到Form載入data再跳回VEW)
@@ -594,11 +596,28 @@
 				Lock(1, {
 					opacity : 0
 				});
+				if($.trim($('#txtRandnumber').val()).length==0){
+					//定義 [0-9,A][0-9,A][0-9,A][0-9,A]
+					//var key = "0123456789A";
+					//先用數字就好
+					var key = "0123456789";
+					var randNumber = "",n=0;
+					for(var i=0;i<4;i++){
+						n = Math.round(Math.random()*100)%key.length;
+						randNumber += key.substring(n,n+1);
+					}
+					$('#txtRandnumber').val(randNumber);
+				}
 				if(/^0+$/.test($.trim($('txtSerial').val()))){
 					//強制改為10個0
 					$('txtSerial').val('0000000000');
 				}
-				if($('#cmbTaxtype').val()=='2' & $('#cmbCcm').val().length==0){
+				if($('#chkDonatemark').prop('checked') && $('#txtNpoban').val().length==0){
+					alert("發票捐贈對象必填");
+					Unlock(1);
+					return;
+				}
+				if($('#cmbTaxtype').val()=='2' && $('#cmbCcm').val().length==0){
 					alert($('#lblCcm').text()+"：若為零稅率發票，此為必填欄位");
 					Unlock(1);
 					return;
@@ -1522,10 +1541,7 @@
 						<td><span> </span><a id='lblMon' class="lbl"> </a></td>
 						<td><input id="txtMon"  type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblChkno' class="lbl"> </a></td>
-						<td>
-							<input id="txtChkno"  type="text" class="txt c1" />
-							<input id="txtRandnumber"  type="text" style="display:none;"/>
-						</td>
+						<td><input id="txtChkno"  type="text" class="txt c1" /></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblCust" class="lbl btn"> </a></td>
@@ -1592,10 +1608,10 @@
 					<tr>
 						<td><span> </span><a class="lbl" id="lblCcm">通關方式註記</a></td>
 						<td><select id="cmbCcm" class="txt c1" title="若為零稅率發票，此為必填欄位(CustomsClearanceMark)"> </select></td>
-						<td><span> </span><a class="lbl">捐贈註記</a></td>
-						<td><input type="checkbox" style="float:left;" id="chkDonatemark"/></td>
 						<td><span> </span><a class="lbl">列印註記</a></td>
 						<td><select id="cmbPrintmark" class="txt c1"> </select></td>
+						<td><span> </span><a class="lbl">隨機碼</a></td>
+						<td><input type="text" id="txtRandnumber" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a class="lbl">載具類別號碼</a></td>
@@ -1607,10 +1623,28 @@
 					</tr>
 					<tr>
 						<td> </td>
+						<td><input type="checkbox" style="float:left;" id="chkDonatemark"/><span style="display:block;width:100px;float:left;">捐贈註記</span></td>
+						<td><span> </span><a class="lbl">發票捐贈對象</a></td>
+						<td><input type="text" id="txtNpoban" class="txt c1"/></td>
+					</tr>
+					<tr>
+						<td> </td>
 						<td><input type="checkbox" style="float:left;" id="chkIssend"/><span style="display:block;width:100px;float:left;">開立</span></td>
 						<td><input type="checkbox" style="float:left;" id="chkIssendconfirm"/><span style="display:block;width:100px;float:left;">開立接收確認</span></td>
-						<td><input type="checkbox" style="float:left;" id="chkIsvoid"/><span style="display:block;width:100px;float:left;">作廢</span></td>
-						<td><input type="checkbox" style="float:left;" id="chkIsvoidconfirm"/><span style="display:block;width:100px;float:left;">作廢接收確認</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIscancel"/><span style="display:block;width:100px;float:left;">作廢</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIscancelconfirm"/><span style="display:block;width:100px;float:left;">作廢接收確認</span></td>
+						
+					</tr>
+					<tr>
+						<td><input type="checkbox" style="float:left;" id="chkIsvoid"/>
+							<span style="display:block;width:70px;float:left;">註銷</span>
+							<span> </span><a id='lblVoiddate' class="lbl">註銷日期</a>
+						</td>	
+						<td><input id="txtVoiddate" type="text" class="txt c1"/></td>
+						<td><span> </span><a id='lblVoidtime' class="lbl">註銷時間</a></td>
+						<td><input id="txtVoidtime" type="text" class="txt c1"/></td>
+						<td><span> </span><a id='lblVoidreason' class="lbl">註銷原因</a></td>
+						<td><input id="txtVoidreason" type="text" class="txt c1"/></td>
 					</tr>
 					<tr style="display:none;">
 						<td> </td>
