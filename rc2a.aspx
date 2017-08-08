@@ -157,9 +157,88 @@
                 bbmMask = [['txtCanceldate', r_picd],['txtCanceltime', '99:99:99'],['txtDatea', r_picd], ['txtMon', r_picm]];
                 q_mask(bbmMask);
                 
-                if(q_db.toUpperCase()=="ST2"){
-					$('.isST2').show();
+                switch(q_getPara('sys.project').toUpperCase()){
+					case 'RS':
+						$('.einvoice').show();
+						break;
+					case 'XY':
+						$('.einvoice').show();
+						break;
+					case 'ST2':
+						$('.isST2').show();
+						break;
+					default:
+						break;	
 				}
+				$('#btnA0101').click(function(e){
+					
+					$.ajax({
+	                    url: "../einvoice/A0101r.aspx?",
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	if(data.length>0)
+	                    		alert(data);
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});
+				$('#btnA0102').click(function(e){
+					$.ajax({
+	                    url: "../einvoice/A0102g.aspx?bno="+$.trim($('#txtNoa').val())+"&eno="+$.trim($('#txtNoa').val()),
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	if(data.length>0)
+	                    		alert(data);
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});
                 
                 if(q_getPara('sys.project')=='sh')
                 	q_cmbParse("cmbTaxtype",q_getPara('sys.taxtype'));
@@ -685,7 +764,10 @@
 					</tr>
 				</table>
 			</div>
+			<input type="button" class="einvoice" id="btnA0101" value="[A0101]接收發票" style="width:200px;height:50px;white-space:normal;display:none;"/>
+			<input type="button" class="einvoice" id="btnA0102" value="[A0102]確認接收" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		</div>
+		
 		<div class='dbbs'>
 			<table id="tbbs" class='tbbs' style=' text-align:center'>
 				<tr style='color:white; background:#003366;' >

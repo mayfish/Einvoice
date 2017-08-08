@@ -148,6 +148,12 @@
 				q_cmbParse("cmbCcm","@,1@非經海關出口,2@經海關出口");
 				
 				switch(q_getPara('sys.project').toUpperCase()){
+					case 'RS':
+						$('.einvoice').show();
+						break;
+					case 'XY':
+						$('.einvoice').show();
+						break;
 					case 'VU':
 						$('#chkAtax').show();
 						break;
@@ -160,53 +166,149 @@
 				}
 				
 				$('#btnA0101').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-					}else{
-						q_box("generateA0101.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateA0101", "95%", "95%", '');
+					if($.trim($('#txtDatea').val()).length==0){
+						alert('請輸入日期');
+						return;
 					}
+					
+					$.ajax({
+	                    url: "../einvoice/A0101g.aspx?bdate="+$.trim($('#txtDatea').val())+"&edate="+$.trim($('#txtDatea').val()),
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	if(data.length>0)
+	                    		alert(data);
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});
+				$('#btnA0102').click(function(e){
+					$.ajax({
+	                    url: "../einvoice/A0102r.aspx",
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	if(data.length>0)
+	                    		alert(data);
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
 				});
 				$('#btnA0201').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-					}else{
-						q_box("generateA0201.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateA0201", "95%", "95%", '');
+					if($.trim($('#txtNoa').val()).length==0){
+						alert('無單號');
+						return;
 					}
+					$.ajax({
+	                    url: "../einvoice/A0201g.aspx?bno="+$.trim($('#txtNoa').val())+"&eno="+$.trim($('#txtNoa').val()),
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	if(data.length>0)
+	                    		alert(data);
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
 				});
-				$('#btnA0401').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-					}else{
-						q_box("generateA0401.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateA0401", "95%", "95%", '');
-					}
-				});
-				$('#btnA0501').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-					}else{
-						q_box("generateA0501.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateA0501", "95%", "95%", '');
-					}
-				});
-				$('#btnC0401').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-					}else{
-						q_box("generateC0401.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateC0401", "95%", "95%", '');
-					}
-				});
-				$('#btnC0501').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-					}else{
-						q_box("generateC0501.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateC0501", "95%", "95%", '');
-					}
-				});
-				$('#btnC0701').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-					}else{
-						q_box("generateC0701.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateC0701", "95%", "95%", '');
-					}
+				$('#btnA0202').click(function(e){
+					$.ajax({
+	                    url: "../einvoice/A0202r.aspx",
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	if(data.length>0)
+	                    		alert(data);
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
 				});
 				
 				
@@ -1657,13 +1759,10 @@
 				</table>
 			</div>
 		</div>
-		<input type="button" class="einvoice" id="btnA0101" value="[A0101]開立(賣方)發票" style="width:200px;height:50px;white-space:normal;display:none;"/>
-		<input type="button" class="einvoice" id="btnA0201" value="[A0201]作廢(賣方)發票" style="width:200px;height:50px;white-space:normal;display:none;"/>
-		<input type="button" class="einvoice" id="btnA0401" value="[A0401]開立(賣方)發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
-		<input type="button" class="einvoice" id="btnA0501" value="[A0501]作廢(賣方)發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
-		<input type="button" class="einvoice" id="btnC0401" value="[C0401]開立(賣方)發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
-		<input type="button" class="einvoice" id="btnC0501" value="[C0501]作廢(賣方)發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
-		<input type="button" class="einvoice" id="btnC0701" value="[C0701]註銷(賣方)發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input type="button" class="einvoice" id="btnA0101" value="[A0101]開立發票" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input type="button" class="einvoice" id="btnA0102" value="[A0102]確認接收檢查" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input type="button" class="einvoice" id="btnA0201" value="[A0201]發票作廢" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input type="button" class="einvoice" id="btnA0202" value="[A0202]發票作廢確認" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<div class='dbbs'>
 			<table id="tbbs" class='tbbs' style=' text-align:center'>
 				<tr style='color:white; background:#003366;' >
