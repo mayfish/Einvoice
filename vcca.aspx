@@ -165,7 +165,7 @@
 					$('.isST2').show();
 				}
 				
-				$('#btnA0101').click(function(e){
+				$('#btnA0101g').click(function(e){
 					if($.trim($('#txtDatea').val()).length==0){
 						alert('請輸入日期');
 						return;
@@ -204,7 +204,7 @@
 	                    }
 	                });
 				});
-				$('#btnA0102').click(function(e){
+				$('#btnA0102r').click(function(e){
 					$.ajax({
 	                    url: "../einvoice/A0102r.aspx",
 	                    type: 'POST',
@@ -238,7 +238,7 @@
 	                    }
 	                });
 				});
-				$('#btnA0201').click(function(e){
+				$('#btnA0201g').click(function(e){
 					if($.trim($('#txtNoa').val()).length==0){
 						alert('無單號');
 						return;
@@ -276,7 +276,7 @@
 	                    }
 	                });
 				});
-				$('#btnA0202').click(function(e){
+				$('#btnA0202r').click(function(e){
 					$.ajax({
 	                    url: "../einvoice/A0202r.aspx",
 	                    type: 'POST',
@@ -1759,10 +1759,10 @@
 				</table>
 			</div>
 		</div>
-		<input type="button" class="einvoice" id="btnA0101" value="[A0101]開立發票" style="width:200px;height:50px;white-space:normal;display:none;"/>
-		<input type="button" class="einvoice" id="btnA0102" value="[A0102]確認接收檢查" style="width:200px;height:50px;white-space:normal;display:none;"/>
-		<input type="button" class="einvoice" id="btnA0201" value="[A0201]發票作廢" style="width:200px;height:50px;white-space:normal;display:none;"/>
-		<input type="button" class="einvoice" id="btnA0202" value="[A0202]發票作廢確認" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input type="button" class="einvoice" id="btnA0101g" value="[A0101]開立發票　　" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input type="button" class="einvoice" id="btnA0102r" value="[A0102]確認接收檢查" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input type="button" class="einvoice" id="btnA0201g" value="[A0201]發票作廢　　" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input type="button" class="einvoice" id="btnA0202r" value="[A0202]發票作廢確認" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<div class='dbbs'>
 			<table id="tbbs" class='tbbs' style=' text-align:center'>
 				<tr style='color:white; background:#003366;' >
