@@ -188,6 +188,7 @@
 					    return;
 					}
 					$.ajax({
+						invoiceNumber : t_invoiceNumber,
 	                    url: "../einvoice/A0101g.aspx?invoice="+t_invoiceNumber,
 	                    type: 'POST',
 	                    data: '',
@@ -198,7 +199,7 @@
 	                    		if(tmp.status!='OK'){
 	                    			alert(tmp.msg);	                    		
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
-	                    			$('#chkIssend').val('1');
+	                    			$('#chkIssend').prop('checked',true);
 	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 開立完成。");	
 	                    		}
 	                    },
@@ -255,7 +256,7 @@
 	                    		if(tmp.status!='OK'){
 	                    			alert(tmp.msg);	                    		
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
-	                    			$('#chkIscancel').val('1');	
+	                    			$('#chkIscancel').prop('checked',true);
 	                    			$('#cmbTaxtype').val('6');
 	                    			$('#txtTotal').val(0);
 	                    			for(var i=0;i<q_bbsCount;i++){
@@ -319,6 +320,7 @@
 					    return;
 					}
 					$.ajax({
+						invoiceNumber : t_invoiceNumber,
 	                    url: "../einvoice/A0401g.aspx?invoice="+t_invoiceNumber,
 	                    type: 'POST',
 	                    data: '',
@@ -329,7 +331,7 @@
 	                    		if(tmp.status!='OK'){
 	                    			alert(tmp.msg);	                    		
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
-	                    			$('#chkIssend').val('1');
+	                    			$('#chkIssend').prop('checked',true);
 	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 開立完成。");	
 	                    		}
 	                    },
@@ -1844,22 +1846,21 @@
 				</table>
 			</div>
 		</div>
-		<input type="button" id="btnA0101" title="A0101" value="開立發票" style="width:200px;height:50px;white-space:normal"/>
+		<input class="einvoice" type="button" id="btnA0101" title="A0101" value="開立發票" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input type="button" id="btnA0201" title="A0201" value="作廢發票" style="width:200px;height:50px;white-space:normal"/>
+		<input class="einvoice" type="button" id="btnA0201" title="A0201" value="作廢發票" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:200px;height:30px;"> </span>
-		<input type="button" id="btnVccb" value="折讓／退回" style="width:200px;height:50px;white-space:normal"/>
+		<input class="einvoice" type="button" id="btnVccb" value="折讓／退回" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:5px;height:30px;"> </span>
-		<input type="button" id="btnA0401" title="A0401" value="開立發票存證" style="width:200px;height:50px;white-space:normal"/>
+		<input class="einvoice" type="button" id="btnA0401" title="A0401" value="開立發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input type="button" id="btnA0501" title="A0501" value="作廢發票存證" style="width:200px;height:50px;white-space:normal"/>
+		<input class="einvoice" type="button" id="btnA0501" title="A0501" value="作廢發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:200px;height:30px;"> </span>
-		<input type="button" id="btnC0401" title="C0401" value="(B2C)開立發票存證" style="width:200px;height:50px;white-space:normal"/>
+		<input class="einvoice" type="button" id="btnC0401" title="C0401" value="(B2C)開立發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input type="button" id="btnC0501" title="C0501" value="(B2C)作廢發票存證" style="width:200px;height:50px;white-space:normal"/>
+		<input class="einvoice" type="button" id="btnC0501" title="C0501" value="(B2C)作廢發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input type="button" id="btnC0701" title="C0701" value="(B2C)註銷發票存證" style="width:200px;height:50px;white-space:normal"/>
-		<span style="display:block;,width:5px;height:5px;"> </span>
+		<input class="einvoice" type="button" id="btnC0701" title="C0701" value="(B2C)註銷發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<div class='dbbs'>
 			<table id="tbbs" class='tbbs' style=' text-align:center'>
 				<tr style='color:white; background:#003366;' >

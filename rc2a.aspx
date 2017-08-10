@@ -186,6 +186,7 @@
 					    return;
 					}
 					$.ajax({
+						invoiceNumber : t_invoiceNumber,
 	                    url: "../einvoice/A0202g.aspx?invoice="+t_invoiceNumber,
 	                    type: 'POST',
 	                    data: '',
@@ -196,7 +197,7 @@
 	                    		if(tmp.status!='OK'){
 	                    			alert(tmp.msg);	                    		
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
-	                    			$('#chkIssend').val('1');
+	                    			$('#chkIssend').prop('checked',true);
 	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 開立完成。");	
 	                    		}
 	                    },
@@ -265,6 +266,10 @@
 						alert('錯誤:不是接收的發票。');
 						return;
 					}
+					if($('#chkIssendconfirm').prop('checked')){
+						alert('錯誤:已確認發票。');
+						return;
+					}
 					if($('#chkIscancel').prop('checked')){
 						alert('錯誤:發票已作廢。');
 						return;
@@ -282,6 +287,7 @@
 					    return;
 					}
 					$.ajax({
+						invoiceNumber : t_invoiceNumber,
 	                    url: "../einvoice/A0102g.aspx?invoice="+t_invoiceNumber,
 	                    type: 'POST',
 	                    data: '',
@@ -292,8 +298,8 @@
 	                    		if(tmp.status!='OK'){
 	                    			alert(tmp.msg);	                    		
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
-	                    			$('#chkIsconfirm').val('1');
-	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 傳送發票確認。");	
+	                    			$('#chkIssendconfirm').prop('checked',true);
+	                    			alert(tmp.invoiceConfirm[0].InvoiceNumber+" 傳送發票確認。");	
 	                    		}
 	                    },
 	                    complete: function(){
@@ -349,7 +355,7 @@
                     sum();
                 });
                 $('#lblAccno').click(function() {
-                	var t_years=0
+                	var t_years=0;
 					if(q_getPara('sys.project').toUpperCase().substring(0,2)=='VU' && r_len=='4'){
 						t_years=$('#txtDatea').val().substring(0, 4)-1911;
 					}else{
@@ -843,17 +849,17 @@
 					<tr>
 						<td> </td>
 						<td><input type="checkbox" style="float:left;" id="chkIssend"/><span style="display:block;width:100px;float:left;">接收</span></td>
-						<td><input type="checkbox" style="float:left;" id="chkIsconfirm"/><span style="display:block;width:100px;float:left;">開立確認</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIssendconfirm"/><span style="display:block;width:100px;float:left;">開立確認</span></td>
 						<td><input type="checkbox" style="float:left;" id="chkIscancel"/><span style="display:block;width:100px;float:left;">作廢</span></td>
 						<td><input type="checkbox" style="float:left;" id="chkIscancelconfirm"/><span style="display:block;width:100px;float:left;">作廢確認</span></td>
 					</tr>
 				</table>
 			</div>
-			<input type="button" id="btnA0102" title="A0102" value="發票確認" style="width:200px;height:50px;white-space:normal"/>
+			<input class="einvoice" type="button" id="btnA0102" title="A0102" value="發票確認" style="width:200px;height:50px;white-space:normal;display:none;"/>
 			<span style="display:block;,width:5px;height:5px;"> </span>
-			<input type="button" id="btnA0202" title="A0202" value="作廢確認" style="width:200px;height:50px;white-space:normal"/>
+			<input class="einvoice" type="button" id="btnA0202" title="A0202" value="作廢確認" style="width:200px;height:50px;white-space:normal;display:none;"/>
 			<span style="display:block;,width:5px;height:30px;"> </span>
-			<input type="button" id="btnVccb" value="折讓／退回" style="width:200px;height:50px;white-space:normal"/>
+			<input class="einvoice" type="button" id="btnVccb" value="折讓／退回" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		</div>
 		
 		<div class='dbbs'>
