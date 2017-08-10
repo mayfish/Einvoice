@@ -159,18 +159,88 @@
 					$('.isST2').show();
 				}
 				//*******************************************************************
+				$('#btnInvoice').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#chkIssend').prop('checked')){
+						alert('錯誤:已開立。');
+						return;
+					}
+					if($('#chkIssendconfirm').prop('checked')){
+						alert('錯誤:已開立接收確認。');
+						return;
+					}
+					if($('#chkIscancel').prop('checked')){
+						alert('錯誤:已產生作廢XML。');
+						return;
+					}
+					if($('#chkIscancelconfirm').prop('checked')){
+						alert('錯誤:已作廢接收確認。');
+						return;
+					}
+					var t_invoiceNumber = $.trim($('#txtNoa').val());
+					if(t_invoiceNumber.length==0){
+						alert('錯誤:無單號');
+						return;
+					}
+					if (!confirm("確認開立發票?")) {
+					    return;
+					}
+					$.ajax({
+	                    url: "../einvoice/A0101g.aspx?invoice="+t_invoiceNumber,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
+	                    			$('#chkIssend').val('1');	
+	                    			alert('OK');	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});
+				
 				$('#btnInvoiceCancel').click(function(e){
 					if(q_xchg!=2){
 						$('#btnXchg').click();
 					}
 					if($('#chkIscancel').prop('checked')){
-						alert('已產生作廢XML。');
+						alert('錯誤:已產生作廢XML。');
 						return;
 					}
 					var t_invoiceNumber = $.trim($('#txtNoa').val());
 					if(t_invoiceNumber.length==0){
-						alert('無單號');
+						alert('錯誤:無單號');
 						return;
+					}
+					if (!confirm("確認作廢發票?")) {
+					    return;
 					}
 					$.ajax({
 						invoiceNumber: t_invoiceNumber,
@@ -220,7 +290,7 @@
 	                });
 				});
 				
-				$('#btnVccb').click(function(e){
+				$('#btnAllowance').click(function(e){
 					if(q_xchg!=2){
 						$('#btnXchg').click();
 					}
@@ -1852,7 +1922,10 @@
 				</table>
 			</div>
 		</div>
-		<input type="button" id="btnVccb" value="開立折讓" style="width:200px;height:50px;white-space:normal"/>
+		<input type="button" id="btnInvoice" value="開立發票" style="width:200px;height:50px;white-space:normal"/>
+		<span style="display:block;,width:5px;height:5px;"> </span>
+		<input type="button" id="btnAllowance" value="開立折讓" style="width:200px;height:50px;white-space:normal"/>
+		<span style="display:block;,width:5px;height:5px;"> </span>
 		<input type="button" id="btnInvoiceCancel" value="作廢發票" style="width:200px;height:50px;white-space:normal"/>
 		
 		<input type="button" class="einvoice" id="btnA0101g" value="[A0101]開立發票　　" style="width:200px;height:50px;white-space:normal;display:none;"/>
