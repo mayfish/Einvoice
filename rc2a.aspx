@@ -164,16 +164,139 @@
 					default:
 						break;	
 				}
-				$('#btnA0101r').click(function(e){
+//*********************************************************************************************
+				$('#btnCancelInvoiceConfirm').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if(!$('#chkIscancel').prop('checked')){
+						alert('錯誤:發票尚未作廢。');
+						return;
+					}
+					if($('#chkIscancelconfirm').prop('checked')){
+						alert('錯誤:發票已作廢確認。');
+						return;
+					}
+					var t_invoiceNumber = $.trim($('#txtNoa').val());
+					if(t_invoiceNumber.length==0){
+						alert('錯誤:無單號');
+						return;
+					}
+					if (!confirm("傳送發票作廢確認?")) {
+					    return;
+					}
 					$.ajax({
-	                    url: "../einvoice/A0101r.aspx?",
+	                    url: "../einvoice/A0202g.aspx?invoice="+t_invoiceNumber,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
 	                    //timeout: 10000,
 	                    success: function(data){
-	                    	if(data.length>0)
-	                    		alert(data);
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
+	                    			$('#chkIssend').val('1');
+	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 開立完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });	
+				});
+				$('#btnRejectInvoice').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					t_rc2a = {
+						table:'RC2A',
+						noa:$.trim($('#txtNoa').val()),
+						datea:$.trim($('#txtDatea').val()),
+						cno:$.trim($('#txtCno').val()),
+						acomp:$.trim($('#txtAcomp').val()),
+						serial:$.trim($('#txtSerial').val()),
+						tggno:$.trim($('#txtTggno').val()),
+						comp:$.trim($('#txtComp').val()),
+						address:$.trim($('#txtAddress').val()),
+						taxtype:$.trim($('#txtTaxtype').val()),
+						taxrate:q_float('txtTaxrate'),
+						money:q_float('txtMoney'),
+						tax:q_float('txtTax'),
+						total:q_float('txtTotal'),
+						bbs:[]
+					};
+					for(var i=0;i<q_bbsCount;i++){
+						t_rc2a.bbs.push({
+							productno:$.trim($('#txtProductno_'+i).val()),
+							product:$.trim($('#txtProduct_'+i).val()),
+							unit:$.trim($('#txtUnit_'+i).val()),
+							mount:q_float('txtMount_'+i),
+							price:q_float('txtPrice_'+i),
+							money:q_float('txtMoney_'+i),
+						});
+					}
+					t_where = " exists(select noa from vccbs where vccbs.noa=vccb.noa and charindex('" + t_rc2a.noa + "',vccbs.invono)>0)";
+					q_box("vccb.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where+";"+";"+JSON.stringify({data:t_rc2a}), "vccb", "95%", "95%", '');
+				});
+				
+
+				$('#btnInvoiceConfirm').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if(!$('#chkIssend').prop('checked')){
+						alert('錯誤:不是接收的發票。');
+						return;
+					}
+					if($('#chkIscancel').prop('checked')){
+						alert('錯誤:發票已作廢。');
+						return;
+					}
+					if($('#chkIscancelconfirm').prop('checked')){
+						alert('錯誤:發票已作廢確認。');
+						return;
+					}
+					var t_invoiceNumber = $.trim($('#txtNoa').val());
+					if(t_invoiceNumber.length==0){
+						alert('錯誤:無單號');
+						return;
+					}
+					if (!confirm("傳送發票確認?")) {
+					    return;
+					}
+					$.ajax({
+	                    url: "../einvoice/A0102g.aspx?invoice="+t_invoiceNumber,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
+	                    			$('#chkIsconfirm').val('1');
+	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 傳送發票確認。");	
+	                    		}
 	                    },
 	                    complete: function(){
 	                    	              
@@ -198,108 +321,8 @@
 	                    }
 	                });
 				});
-				$('#btnA0102g').click(function(e){
-					$.ajax({
-	                    url: "../einvoice/A0102g.aspx?bno="+$.trim($('#txtNoa').val())+"&eno="+$.trim($('#txtNoa').val()),
-	                    type: 'POST',
-	                    data: '',
-	                    dataType: 'text',
-	                    //timeout: 10000,
-	                    success: function(data){
-	                    	if(data.length>0)
-	                    		alert(data);
-	                    },
-	                    complete: function(){
-	                    	              
-	                    },
-	                    error: function(jqXHR, exception) {
-	                        var errmsg = this.url+' 異常。\n';
-	                        if (jqXHR.status === 0) {
-	                            alert(errmsg+'Not connect.\n Verify Network.');
-	                        } else if (jqXHR.status == 404) {
-	                            alert(errmsg+'Requested page not found. [404]');
-	                        } else if (jqXHR.status == 500) {
-	                            alert(errmsg+'Internal Server Error [500].');
-	                        } else if (exception === 'parsererror') {
-	                            alert(errmsg+'Requested JSON parse failed.');
-	                        } else if (exception === 'timeout') {
-	                            alert(errmsg+'Time out error.');
-	                        } else if (exception === 'abort') {
-	                            alert(errmsg+'Ajax request aborted.');
-	                        } else {
-	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
-	                        }
-	                    }
-	                });
-				});
-				$('#btnA0201r').click(function(e){
-					$.ajax({
-	                    url: "../einvoice/A0201r.aspx?",
-	                    type: 'POST',
-	                    data: '',
-	                    dataType: 'text',
-	                    //timeout: 10000,
-	                    success: function(data){
-	                    	if(data.length>0)
-	                    		alert(data);
-	                    },
-	                    complete: function(){
-	                    	              
-	                    },
-	                    error: function(jqXHR, exception) {
-	                        var errmsg = this.url+' 異常。\n';
-	                        if (jqXHR.status === 0) {
-	                            alert(errmsg+'Not connect.\n Verify Network.');
-	                        } else if (jqXHR.status == 404) {
-	                            alert(errmsg+'Requested page not found. [404]');
-	                        } else if (jqXHR.status == 500) {
-	                            alert(errmsg+'Internal Server Error [500].');
-	                        } else if (exception === 'parsererror') {
-	                            alert(errmsg+'Requested JSON parse failed.');
-	                        } else if (exception === 'timeout') {
-	                            alert(errmsg+'Time out error.');
-	                        } else if (exception === 'abort') {
-	                            alert(errmsg+'Ajax request aborted.');
-	                        } else {
-	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
-	                        }
-	                    }
-	                });
-				});
-				$('#btnA0202g').click(function(e){
-					$.ajax({
-	                    url: "../einvoice/A0202g.aspx?bno="+$.trim($('#txtNoa').val())+"&eno="+$.trim($('#txtNoa').val()),
-	                    type: 'POST',
-	                    data: '',
-	                    dataType: 'text',
-	                    //timeout: 10000,
-	                    success: function(data){
-	                    	if(data.length>0)
-	                    		alert(data);
-	                    },
-	                    complete: function(){
-	                    	              
-	                    },
-	                    error: function(jqXHR, exception) {
-	                        var errmsg = this.url+' 異常。\n';
-	                        if (jqXHR.status === 0) {
-	                            alert(errmsg+'Not connect.\n Verify Network.');
-	                        } else if (jqXHR.status == 404) {
-	                            alert(errmsg+'Requested page not found. [404]');
-	                        } else if (jqXHR.status == 500) {
-	                            alert(errmsg+'Internal Server Error [500].');
-	                        } else if (exception === 'parsererror') {
-	                            alert(errmsg+'Requested JSON parse failed.');
-	                        } else if (exception === 'timeout') {
-	                            alert(errmsg+'Time out error.');
-	                        } else if (exception === 'abort') {
-	                            alert(errmsg+'Ajax request aborted.');
-	                        } else {
-	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
-	                        }
-	                    }
-	                });
-				});
+//*********************************************************************************************
+				
                 
                 if(q_getPara('sys.project')=='sh')
                 	q_cmbParse("cmbTaxtype",q_getPara('sys.taxtype'));
@@ -821,14 +844,18 @@
 					</tr>
 					<tr>
 						<td> </td>
-						<td><input type="checkbox" style="float:left;" id="chkIsconfirm"/><span style="display:block;width:100px;float:left;">確認</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIssend"/><span style="display:block;width:100px;float:left;">接收</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIsconfirm"/><span style="display:block;width:100px;float:left;">開立確認</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIscancel"/><span style="display:block;width:100px;float:left;">作廢</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIscancelconfirm"/><span style="display:block;width:100px;float:left;">作廢確認</span></td>
 					</tr>
 				</table>
 			</div>
-			<input type="button" class="einvoice" id="btnA0101r" value="[A0101]接收發票　　" style="width:200px;height:50px;white-space:normal;display:none;"/>
-			<input type="button" class="einvoice" id="btnA0102g" value="[A0102]確認接收　　" style="width:200px;height:50px;white-space:normal;display:none;"/>
-			<input type="button" class="einvoice" id="btnA0201r" value="[A0201]發票作廢　　" style="width:200px;height:50px;white-space:normal;display:none;"/>
-			<input type="button" class="einvoice" id="btnA0202g" value="[A0202]發票作廢確認" style="width:200px;height:50px;white-space:normal;display:none;"/>
+			<input type="button" id="btnInvoiceConfirm" value="發票確認" style="width:200px;height:50px;white-space:normal"/>
+			<span style="display:block;,width:5px;height:5px;"> </span>
+			<input type="button" id="btnRejectInvoice" value="發票退回" style="width:200px;height:50px;white-space:normal"/>
+			<span style="display:block;,width:5px;height:5px;"> </span>
+			<input type="button" id="btnCancelInvoiceConfirm" value="作廢確認" style="width:200px;height:50px;white-space:normal"/>
 		</div>
 		
 		<div class='dbbs'>

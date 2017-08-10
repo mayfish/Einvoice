@@ -108,54 +108,6 @@
                     $('#txtMon').val($('#txtDatea').val().substr(0,r_picm));
                 });
                 
-                $('#btnB0101').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-						
-					}else{
-						q_box("generateB0101.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateB0101", "95%", "95%", '');
-					}
-				});
-				$('#btnB0201').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-						
-					}else{
-						q_box("generateB0201.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateB0201", "95%", "95%", '');
-					}
-				});
-				$('#btnA0301').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-						
-					}else{
-						q_box("generateA0301.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateA0301", "95%", "95%", '');
-					}
-				});
-				$('#btnA0601').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-						
-					}else{
-						q_box("generateA0601.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateA0601", "95%", "95%", '');
-					}
-				});
-				$('#btnB0401').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-						
-					}else{
-						q_box("generateB0401.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateB0401", "95%", "95%", '');
-					}
-				});
-                $('#btnB0501').click(function(e){
-					var t_noa = $.trim($('#txtNoa').val());
-					if(t_noa.length==0){
-						
-					}else{
-						q_box("generateB0501.aspx?db="+q_db+"&bno="+t_noa+"&eno="+t_noa, "generateB0501", "95%", "95%", '');
-					}
-				});
             }
             function q_boxClose(s2) {///   q_boxClose 2/4
                 var ret;
@@ -284,7 +236,8 @@
 	                	}
 	                }
                 }else if(t_data.table=='VCCA'){
-                	$('#cmbTypea').val('2');
+                	$('#cmbTypea').val('2');//銷貨折讓
+                	typea_chg();
                 	$('#txtMon').val(t_data.mon);	
                 	$('#cmbCno').val(t_data.cno);
                 	$('#txtSerial').val(t_data.serial);
@@ -310,7 +263,33 @@
                 		$('#txtTax_'+i).val(round(q_mul(t_data.bbs[i].money,t_data.taxrate),0));
                 		$('#cmbTaxtype_'+i).val(t_data.taxtype);
                 	}
+                }else if(t_data.table=='RC2A'){
+                	$('#cmbTypea').val('3');//進貨退回
                 	typea_chg();
+                	$('#txtMon').val(t_data.mon);	
+                	$('#cmbCno').val(t_data.cno);
+                	$('#txtSerial').val(t_data.serial);
+                	$('#txtTggno').val(t_data.tggno);
+                	$('#txtTgg').val(t_data.comp);
+                	$('#txtAddr').val(t_data.address);
+                	$('#txtMoney').val(t_data.money);
+                	$('#txtTax').val(t_data.tax);
+                	$('#txtTotal').val(t_data.total);
+                	
+                	while(t_data.bbs.length>q_bbsCount){
+                		$('#btnPlus').click();
+                	}
+                	for(var i=0;i<t_data.bbs.length;i++){
+                		$('#txtInvono_'+i).val(t_data.noa);
+                		$('#txtIdate_'+i).val(t_data.datea);
+                		$('#txtProductno_'+i).val(t_data.bbs[i].productno);
+                		$('#txtProduct_'+i).val(t_data.bbs[i].product);
+                		$('#txtMount_'+i).val(t_data.bbs[i].mount);
+                		$('#txtPrice_'+i).val(t_data.bbs[i].price);
+                		$('#txtTotal_'+i).val(t_data.bbs[i].money);
+                		$('#txtTax_'+i).val(round(q_mul(t_data.bbs[i].money,t_data.taxrate),0));
+                		$('#cmbTaxtype_'+i).val(t_data.taxtype);
+                	}
                 }
             }
 
@@ -469,6 +448,7 @@
 		<style type="text/css">
             #dmain {
                 overflow: hidden;
+                width:1600px;
             }
             .dview {
                 float: left;
@@ -690,13 +670,19 @@
 					</tr>
 				</table>
 			</div>
-			<input type="button" class="einvoice" id="btnA0101g" value="[A0101]退回/折讓開立　　" style="width:200px;height:50px;white-space:normal;display:none;"/>
-			<input type="button" class="einvoice" id="btnA0102r" value="[A0102]退回/折讓確認接收" style="width:200px;height:50px;white-space:normal;display:none;"/>
-			<input type="button" class="einvoice" id="btnA0201g" value="[A0201]發票作廢　　" style="width:200px;height:50px;white-space:normal;display:none;"/>
-			<input type="button" class="einvoice" id="btnA0202r" value="[A0202]發票作廢確認" style="width:200px;height:50px;white-space:normal;display:none;"/>
-			
+			<input type="button" id="btnA0301" value="開立進貨退回發票" style="width:200px;height:50px;white-space:normal"/>
+			<span style="display:block;,width:5px;height:5px;"> </span>
+			<input type="button" id="btnA0302" value="確認銷貨退回發票" style="width:200px;height:50px;white-space:normal"/>
+			<span style="display:block;,width:5px;height:5px;"> </span>
+			<input type="button" id="btnB0101" value="開立折讓單" style="width:200px;height:50px;white-space:normal"/>
+			<span style="display:block;,width:5px;height:5px;"> </span>
+			<input type="button" id="btnB0102" value="確認折讓單" style="width:200px;height:50px;white-space:normal"/>
+			<span style="display:block;,width:5px;height:5px;"> </span>
+			<input type="button" id="btnB0201" value="　　作廢【進貨折讓單】" style="width:200px;height:50px;white-space:normal"/>
+			<span style="display:block;,width:5px;height:5px;"> </span>
+			<input type="button" id="btnB0202" value="確認作廢【銷貨折讓單】" style="width:200px;height:50px;white-space:normal"/>
+			<span style="display:block;,width:5px;height:5px;"> </span>
 		</div>
-		
 		<div class='dbbs' >
 			<table id="tbbs" class='tbbs'  border="1"  cellpadding='2' cellspacing='1'  >
 				<tr style='color:white; background:#003366;' >
