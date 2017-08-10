@@ -165,7 +165,7 @@
 						break;	
 				}
 //*********************************************************************************************
-				$('#btnCancelInvoiceConfirm').click(function(e){
+				$('#btnA0202').click(function(e){
 					if(q_xchg!=2){
 						$('#btnXchg').click();
 					}
@@ -223,7 +223,7 @@
 	                    }
 	                });	
 				});
-				$('#btnRejectInvoice').click(function(e){
+				$('#btnVccb').click(function(e){
 					if(q_xchg!=2){
 						$('#btnXchg').click();
 					}
@@ -257,9 +257,7 @@
 					t_where = " exists(select noa from vccbs where vccbs.noa=vccb.noa and charindex('" + t_rc2a.noa + "',vccbs.invono)>0)";
 					q_box("vccb.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where+";"+";"+JSON.stringify({data:t_rc2a}), "vccb", "95%", "95%", '');
 				});
-				
-
-				$('#btnInvoiceConfirm').click(function(e){
+				$('#btnA0102').click(function(e){
 					if(q_xchg!=2){
 						$('#btnXchg').click();
 					}
@@ -851,11 +849,11 @@
 					</tr>
 				</table>
 			</div>
-			<input type="button" id="btnInvoiceConfirm" value="發票確認" style="width:200px;height:50px;white-space:normal"/>
+			<input type="button" id="btnA0102" title="A0102" value="發票確認" style="width:200px;height:50px;white-space:normal"/>
 			<span style="display:block;,width:5px;height:5px;"> </span>
-			<input type="button" id="btnRejectInvoice" value="發票退回" style="width:200px;height:50px;white-space:normal"/>
-			<span style="display:block;,width:5px;height:5px;"> </span>
-			<input type="button" id="btnCancelInvoiceConfirm" value="作廢確認" style="width:200px;height:50px;white-space:normal"/>
+			<input type="button" id="btnA0202" title="A0202" value="作廢確認" style="width:200px;height:50px;white-space:normal"/>
+			<span style="display:block;,width:5px;height:30px;"> </span>
+			<input type="button" id="btnVccb" value="折讓／退回" style="width:200px;height:50px;white-space:normal"/>
 		</div>
 		
 		<div class='dbbs'>

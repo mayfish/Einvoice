@@ -290,7 +290,74 @@
 	                });
 				});
 				
-				$('#btnB0101').click(function(e){
+				$('#btnA0401').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#chkIssend').prop('checked')){
+						alert('錯誤:已開立。');
+						return;
+					}
+					if($('#chkIssendconfirm').prop('checked')){
+						alert('錯誤:已開立接收確認。');
+						return;
+					}
+					if($('#chkIscancel').prop('checked')){
+						alert('錯誤:已產生作廢XML。');
+						return;
+					}
+					if($('#chkIscancelconfirm').prop('checked')){
+						alert('錯誤:已作廢接收確認。');
+						return;
+					}
+					var t_invoiceNumber = $.trim($('#txtNoa').val());
+					if(t_invoiceNumber.length==0){
+						alert('錯誤:無單號');
+						return;
+					}
+					if (!confirm("確認開立發票?")) {
+					    return;
+					}
+					$.ajax({
+	                    url: "../einvoice/A0401g.aspx?invoice="+t_invoiceNumber,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
+	                    			$('#chkIssend').val('1');
+	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 開立完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});
+				
+				$('#btnVccb').click(function(e){
 					if(q_xchg!=2){
 						$('#btnXchg').click();
 					}
@@ -1777,21 +1844,21 @@
 				</table>
 			</div>
 		</div>
-		<input type="button" id="btnA0101" value="開立發票" style="width:200px;height:50px;white-space:normal"/>
+		<input type="button" id="btnA0101" title="A0101" value="開立發票" style="width:200px;height:50px;white-space:normal"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input type="button" id="btnB0101" value="開立折讓" style="width:200px;height:50px;white-space:normal"/>
-		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input type="button" id="btnA0201" value="作廢發票" style="width:200px;height:50px;white-space:normal"/>
+		<input type="button" id="btnA0201" title="A0201" value="作廢發票" style="width:200px;height:50px;white-space:normal"/>
 		<span style="display:block;,width:200px;height:30px;"> </span>
-		<input type="button" id="btnA0401" value="開立發票存證" style="width:200px;height:50px;white-space:normal"/>
+		<input type="button" id="btnVccb" value="折讓／退回" style="width:200px;height:50px;white-space:normal"/>
+		<span style="display:block;,width:5px;height:30px;"> </span>
+		<input type="button" id="btnA0401" title="A0401" value="開立發票存證" style="width:200px;height:50px;white-space:normal"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input type="button" id="btnA0501" value="作廢發票存證" style="width:200px;height:50px;white-space:normal"/>
+		<input type="button" id="btnA0501" title="A0501" value="作廢發票存證" style="width:200px;height:50px;white-space:normal"/>
 		<span style="display:block;,width:200px;height:30px;"> </span>
-		<input type="button" id="btnC0401" value="(B2C)開立發票存證" style="width:200px;height:50px;white-space:normal"/>
+		<input type="button" id="btnC0401" title="C0401" value="(B2C)開立發票存證" style="width:200px;height:50px;white-space:normal"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input type="button" id="btnC0501" value="(B2C)作廢發票存證" style="width:200px;height:50px;white-space:normal"/>
+		<input type="button" id="btnC0501" title="C0501" value="(B2C)作廢發票存證" style="width:200px;height:50px;white-space:normal"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input type="button" id="btnC0701" value="(B2C)註銷發票存證" style="width:200px;height:50px;white-space:normal"/>
+		<input type="button" id="btnC0701" title="C0701" value="(B2C)註銷發票存證" style="width:200px;height:50px;white-space:normal"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
 		<div class='dbbs'>
 			<table id="tbbs" class='tbbs' style=' text-align:center'>

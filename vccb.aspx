@@ -236,7 +236,6 @@
 	                	}
 	                }
                 }else if(t_data.table=='VCCA'){
-                	$('#cmbTypea').val('2');//銷貨折讓
                 	typea_chg();
                 	$('#txtMon').val(t_data.mon);	
                 	$('#cmbCno').val(t_data.cno);
@@ -264,7 +263,6 @@
                 		$('#cmbTaxtype_'+i).val(t_data.taxtype);
                 	}
                 }else if(t_data.table=='RC2A'){
-                	$('#cmbTypea').val('3');//進貨退回
                 	typea_chg();
                 	$('#txtMon').val(t_data.mon);	
                 	$('#cmbCno').val(t_data.cno);
@@ -670,18 +668,21 @@
 					</tr>
 				</table>
 			</div>
-			<input type="button" id="btnA0301" value="開立進貨退回發票" style="width:200px;height:50px;white-space:normal"/>
+			<input type="button" id="btnA0301" title="A0301" value="開立【進貨退回】" style="width:200px;height:30px;white-space:normal"/>
 			<span style="display:block;,width:5px;height:5px;"> </span>
-			<input type="button" id="btnA0302" value="確認銷貨退回發票" style="width:200px;height:50px;white-space:normal"/>
+			<input type="button" id="btnA0302" title="A0302" value="確認【銷貨退回】" style="width:200px;height:30px;white-space:normal"/>
 			<span style="display:block;,width:5px;height:5px;"> </span>
-			<input type="button" id="btnB0101" value="開立折讓單" style="width:200px;height:50px;white-space:normal"/>
+			<input type="button" id="btnB0101" title="B0101" value="開立折讓單" style="width:200px;height:30px;white-space:normal"/>
 			<span style="display:block;,width:5px;height:5px;"> </span>
-			<input type="button" id="btnB0102" value="確認折讓單" style="width:200px;height:50px;white-space:normal"/>
+			<input type="button" id="btnB0102" title="B0102" value="確認折讓單" style="width:200px;height:30px;white-space:normal"/>
 			<span style="display:block;,width:5px;height:5px;"> </span>
-			<input type="button" id="btnB0201" value="　　作廢【進貨折讓單】" style="width:200px;height:50px;white-space:normal"/>
+			<input type="button" id="btnB0201" title="B0201" value="　　作廢【進貨折讓】" style="width:200px;height:30px;white-space:normal"/>
 			<span style="display:block;,width:5px;height:5px;"> </span>
-			<input type="button" id="btnB0202" value="確認作廢【銷貨折讓單】" style="width:200px;height:50px;white-space:normal"/>
+			<input type="button" id="btnB0202" title="B0202" value="確認作廢【銷貨折讓】" style="width:200px;height:30px;white-space:normal"/>
+			<span style="display:block;,width:200px;height:20px;"> </span>
+			<input type="button" id="btnB0401" title="B0401" value="開立折讓存證" style="width:200px;height:30px;white-space:normal"/>
 			<span style="display:block;,width:5px;height:5px;"> </span>
+			<input type="button" id="btnB0501" title="B0501" value="作廢折讓存證" style="width:200px;height:30px;white-space:normal"/>
 		</div>
 		<div class='dbbs' >
 			<table id="tbbs" class='tbbs'  border="1"  cellpadding='2' cellspacing='1'  >
