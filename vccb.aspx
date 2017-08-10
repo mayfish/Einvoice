@@ -37,6 +37,7 @@
             , ['txtProductno_', 'btnProductno_', 'ucca', 'noa,product', 'txtProductno_,txtProduct_', 'ucca_b.aspx']);
 			
 			var t_acomp = '';
+			var t_data='';//VCCA,RC2A的資料 
             $(document).ready(function() {
                 bbmKey = ['noa'];
                 bbsKey = ['noa', 'noq'];
@@ -50,7 +51,13 @@
                     dataErr = false;
                     return;
                 }
-
+				var t_para = new Array();
+	            try{
+	            	t_para = JSON.parse(decodeURIComponent(q_getId()[5]));
+	            	t_data= t_para.data;
+	            }catch(e){
+	            	t_data='';
+	            }
                 mainForm(1);
             }
 
@@ -264,16 +271,46 @@
                 _btnIns();
                 $('#txtNoa').val('AUTO');
                 $('#txtDatea').val(q_date());
-                $('#txtMon').val(q_date().substr(0,r_picm));
-                $('#txtDatea').focus();
-                $('#cmbCno')[0].selectedIndex=1;//第一個是空白,所以跳第2個
-                typea_chg();
-                if(q_getPara('sys.project').toUpperCase()=='IT') {
-                	if($('#cmbTypea').val()=='1' || $('#cmbTypea').val()=='3'){
-	                	for (var j = 0; j < q_bbsCount; j++) {
-	                		$('#txtTotal_'+j).attr('disabled', 'disabled');
+                if(t_data.length==0){
+                	$('#txtMon').val(q_date().substr(0,r_picm));
+	                $('#txtDatea').focus();
+	                $('#cmbCno')[0].selectedIndex=1;//第一個是空白,所以跳第2個
+	                typea_chg();
+	                if(q_getPara('sys.project').toUpperCase()=='IT') {
+	                	if($('#cmbTypea').val()=='1' || $('#cmbTypea').val()=='3'){
+		                	for (var j = 0; j < q_bbsCount; j++) {
+		                		$('#txtTotal_'+j).attr('disabled', 'disabled');
+		                	}
 	                	}
+	                }
+                }else if(t_data.table=='VCCA'){
+                	$('#cmbTypea').val('2');
+                	$('#txtMon').val(t_data.mon);	
+                	$('#cmbCno').val(t_data.cno);
+                	$('#txtSerial').val(t_data.serial);
+                	$('#txtCustno').val(t_data.custno);
+                	$('#txtComp').val(t_data.comp);
+                	$('#txtNick').val(t_data.nick);
+                	$('#txtAddr').val(t_data.address);
+                	$('#txtMoney').val(t_data.money);
+                	$('#txtTax').val(t_data.tax);
+                	$('#txtTotal').val(t_data.total);
+                	
+                	while(t_data.bbs.length>q_bbsCount){
+                		$('#btnPlus').click();
                 	}
+                	for(var i=0;i<t_data.bbs.length;i++){
+                		$('#txtInvono_'+i).val(t_data.noa);
+                		$('#txtIdate_'+i).val(t_data.datea);
+                		$('#txtProductno_'+i).val(t_data.bbs[i].productno);
+                		$('#txtProduct_'+i).val(t_data.bbs[i].product);
+                		$('#txtMount_'+i).val(t_data.bbs[i].mount);
+                		$('#txtPrice_'+i).val(t_data.bbs[i].price);
+                		$('#txtTotal_'+i).val(t_data.bbs[i].money);
+                		$('#txtTax_'+i).val(round(q_mul(t_data.bbs[i].money,t_data.taxrate),0));
+                		$('#cmbTaxtype_'+i).val(t_data.taxtype);
+                	}
+                	typea_chg();
                 }
             }
 
@@ -456,7 +493,7 @@
             }
             .dbbm {
                 float: left;
-                width: 700px;
+                width: 800px;
                 /*margin: -1px;
                  border: 1px black solid;*/
                 border-radius: 5px;
@@ -653,13 +690,11 @@
 					</tr>
 				</table>
 			</div>
+			<input type="button" class="einvoice" id="btnA0101g" value="[A0101]退回/折讓開立　　" style="width:200px;height:50px;white-space:normal;display:none;"/>
+			<input type="button" class="einvoice" id="btnA0102r" value="[A0102]退回/折讓確認接收" style="width:200px;height:50px;white-space:normal;display:none;"/>
+			<input type="button" class="einvoice" id="btnA0201g" value="[A0201]發票作廢　　" style="width:200px;height:50px;white-space:normal;display:none;"/>
+			<input type="button" class="einvoice" id="btnA0202r" value="[A0202]發票作廢確認" style="width:200px;height:50px;white-space:normal;display:none;"/>
 			
-			<input type="button" class="einvoice" id="btnA0301" value="[A0301]退回(買方)發票" style="float:left;width:200px;height:50px;white-space:normal;display:none;"/>
-			<input type="button" class="einvoice" id="btnA0601" value="[A0601]退回(買方)發票存證" style="float:left;width:200px;height:50px;white-space:normal;display:none;"/>
-			<input type="button" class="einvoice" id="btnB0101" value="[B0101]開立(買方)/傳送(賣方)折讓證明" style="float:left;width:200px;height:50px;white-space:normal;display:none;"/>
-			<input type="button" class="einvoice" id="btnB0201" value="[B0201]作廢(買方)折讓證明單" style="float:left;width:200px;height:50px;white-space:normal;display:none;"/>
-			<input type="button" class="einvoice" id="btnB0401" value="[B0401]開立(買方)/傳送(賣方)折讓證明單存證" style="float:left;width:200px;height:50px;white-space:normal;display:none;"/>
-			<input type="button" class="einvoice" id="btnB0501" value="[B0501]作廢折讓證明單存證" style="float:left;width:200px;height:50px;white-space:normal;display:none;"/>
 		</div>
 		
 		<div class='dbbs' >

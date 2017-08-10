@@ -148,12 +148,6 @@
 				q_cmbParse("cmbCcm","@,1@非經海關出口,2@經海關出口");
 				
 				switch(q_getPara('sys.project').toUpperCase()){
-					case 'RS':
-						$('.einvoice').show();
-						break;
-					case 'XY':
-						$('.einvoice').show();
-						break;
 					case 'VU':
 						$('#chkAtax').show();
 						break;
@@ -164,6 +158,105 @@
 				if(q_db.toUpperCase()=="ST2"){
 					$('.isST2').show();
 				}
+				//*******************************************************************
+				$('#btnInvoiceCancel').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#chkIscancel').prop('checked')){
+						alert('已產生作廢XML。');
+						return;
+					}
+					var t_invoiceNumber = $.trim($('#txtNoa').val());
+					if(t_invoiceNumber.length==0){
+						alert('無單號');
+						return;
+					}
+					$.ajax({
+						invoiceNumber: t_invoiceNumber,
+	                    url: "../einvoice/A0201g.aspx?invoice="+t_invoiceNumber,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	try{
+	                    		tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
+	                    			$('#chkIscancel').val('1');	
+	                    			$('#cmbTaxtype').val('6');
+	                    			$('#txtTotal').val(0);
+	                    			for(var i=0;i<q_bbsCount;i++){
+	                    				$('#txtMoney_'+i).val(0);
+	                    			}
+	                    			alert('OK');	
+	                    		}
+	                    	}catch(e){
+	                    	}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});
+				
+				$('#btnVccb').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					t_vcca = {
+						table:'VCCA',
+						noa:$.trim($('#txtNoa').val()),
+						datea:$.trim($('#txtDatea').val()),
+						cno:$.trim($('#txtCno').val()),
+						acomp:$.trim($('#txtAcomp').val()),
+						serial:$.trim($('#txtSerial').val()),
+						custno:$.trim($('#txtCustno').val()),
+						comp:$.trim($('#txtComp').val()),
+						nick:$.trim($('#txtNick').val()),
+						address:$.trim($('#txtAddress').val()),
+						taxtype:$.trim($('#txtTaxtype').val()),
+						taxrate:q_float('txtTaxrate'),
+						money:q_float('txtMoney'),
+						tax:q_float('txtTax'),
+						total:q_float('txtTotal'),
+						bbs:[]
+					};
+					for(var i=0;i<q_bbsCount;i++){
+						t_vcca.bbs.push({
+							productno:$.trim($('#txtProductno_'+i).val()),
+							product:$.trim($('#txtProduct_'+i).val()),
+							unit:$.trim($('#txtUnit_'+i).val()),
+							mount:q_float('txtMount_'+i),
+							price:q_float('txtPrice_'+i),
+							money:q_float('txtMoney_'+i),
+						});
+						
+					}
+					
+					t_where = " exists(select noa from vccbs where vccbs.noa=vccb.noa and charindex('" + t_vcca.noa + "',vccbs.invono)>0)";
+					q_box("vccb.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where+";"+";"+JSON.stringify({data:t_vcca}), "vccb", "95%", "95%", '');
+				});
 				
 				$('#btnA0101g').click(function(e){
 					if($.trim($('#txtDatea').val()).length==0){
@@ -1759,6 +1852,9 @@
 				</table>
 			</div>
 		</div>
+		<input type="button" id="btnVccb" value="開立折讓" style="width:200px;height:50px;white-space:normal"/>
+		<input type="button" id="btnInvoiceCancel" value="作廢發票" style="width:200px;height:50px;white-space:normal"/>
+		
 		<input type="button" class="einvoice" id="btnA0101g" value="[A0101]開立發票　　" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<input type="button" class="einvoice" id="btnA0102r" value="[A0102]確認接收檢查" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<input type="button" class="einvoice" id="btnA0201g" value="[A0201]發票作廢　　" style="width:200px;height:50px;white-space:normal;display:none;"/>
