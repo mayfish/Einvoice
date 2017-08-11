@@ -69,7 +69,7 @@
                     t_money = q_add(t_money,t_moneys);
                 }
                 
-                t_taxrate = parseFloat(q_getPara('sys.taxrate')) / 100;
+                t_taxrate = q_float('txtTaxrate'); 
                 switch ($('#cmbTaxtype').val()) {
                     case '1':
                         // 應稅
@@ -156,14 +156,6 @@
                 q_getFormat();
                 bbmMask = [['txtCanceldate', r_picd],['txtCanceltime', '99:99:99'],['txtDatea', r_picd], ['txtMon', r_picm]];
                 q_mask(bbmMask);
-                
-                switch(q_getPara('sys.project').toUpperCase()){
-					case 'ST2':
-						$('.isST2').show();
-						break;
-					default:
-						break;	
-				}
 //*********************************************************************************************
 				$('#btnA0202').click(function(e){
 					if(q_xchg!=2){
@@ -197,8 +189,8 @@
 	                    		if(tmp.status!='OK'){
 	                    			alert(tmp.msg);	                    		
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
-	                    			$('#chkIssend').prop('checked',true);
-	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 開立完成。");	
+	                    			$('#chkIscancelconfirm').prop('checked',true);
+	                    			alert(this.invoiceNumber+" 確認完成。");	
 	                    		}
 	                    },
 	                    complete: function(){
@@ -238,7 +230,7 @@
 						tggno:$.trim($('#txtTggno').val()),
 						comp:$.trim($('#txtComp').val()),
 						address:$.trim($('#txtAddress').val()),
-						taxtype:$.trim($('#txtTaxtype').val()),
+						taxtype:$.trim($('#cmbTaxtype').val()),
 						taxrate:q_float('txtTaxrate'),
 						money:q_float('txtMoney'),
 						tax:q_float('txtTax'),
@@ -387,6 +379,7 @@
                         $('#txtDatea').val(q_date());
                         $('#txtDatea').focus();
                         $('#cmbTaxtype').val(1);
+                        $('#txtTaxrate').val(parseFloat(q_getPara('sys.taxrate')) / 100);
                         break;
                     case 'checkRc2aNoa':
                         var as = _q_appendData("rc2a", "", true);
@@ -810,8 +803,10 @@
 						<td><input id="txtMon" type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblTaxtype' class="lbl"> </a></td>
 						<td><select id="cmbTaxtype" class="txt c1"> </select></td>
-						<td><span> </span><a id='lblCobtype' class="lbl"> </a></td>
-						<td><input id="txtCobtype"  type="text" style="float:left;width:50%;"/></td>
+						
+						<td><span> </span><a id='lblTaxrate' class="lbl">稅率</a></td>
+						<td><input id="txtTaxrate" type="text" class="txt c1 num"/></td>
+						
 						<!--<td><span> </span><a id='lblBuyer' class="lbl btn"> </a></td>
 						<td colspan="3">
 							<input id="txtBuyerno"  type="text" style="float:left;width:30%;"/>
@@ -839,8 +834,9 @@
 						<td><input id="txtWorker" type="text" class="txt c1" /></td>
 						<td><span> </span><a id='lblAccno' class="lbl"> </a></td>
 						<td><input id="txtAccno"  type="text" class="txt c1" /></td>
-						<td></td>
-						<td><input id="txtProduct" type="text" class="txt c1 isST2" style="display: none;"/></td>
+						<td><span> </span><a id='lblCobtype' class="lbl"> </a></td>
+						<td><input id="txtCobtype"  type="text" style="float:left;width:50%;"/></td>
+						<!--<td><input id="txtProduct" type="text" class="txt c1 isST2" style="display: none;"/></td>-->
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblMemo" class="lbl" > </a></td>

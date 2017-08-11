@@ -107,6 +107,214 @@
                 $('#txtDatea').change(function() {
                     $('#txtMon').val($('#txtDatea').val().substr(0,r_picm));
                 });
+//*********************************************************************************************
+				$('#btnA0301').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#cmbTypea').val()!='3'){
+						alert('錯誤:非進貨退回。');
+						return;
+					}
+					if($.trim($('#txtWdate').val()).length==0){
+						alert('錯誤:請輸入退回日期。');
+						return;
+					}
+					if($.trim($('#txtWtime').val()).length==0){
+						alert('錯誤:請輸入退回時間。');
+						return;
+					}
+					if($.trim($('#txtWmemo').val()).length==0){
+						alert('錯誤:請輸入退回原因。');
+						return;
+					}
+					if($('#chkIssend').prop('checked')){
+						alert('錯誤:已開立。');
+						return;
+					}
+					if($('#chkIsconfirm').prop('checked')){
+						alert('錯誤:已確認。');
+						return;
+					}
+					var t_vccbno = $.trim($('#txtNoa').val());
+					if(t_vccbno.length==0){
+						alert('錯誤:無單號');
+						return;
+					}
+					if (!confirm("確認進貨退回?")) {
+					    return;
+					}
+					$.ajax({
+						vccbno : t_vccbno,
+	                    url: "../einvoice/A0301g.aspx?vccbno="+t_vccbno,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.vccbno==$.trim($('#txtNoa').val())){
+	                    			$('#chkIssend').prop('checked',true);
+	                    			alert(this.vccbno+" 開立完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});     
+				$('#btnA0302').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#cmbTypea').val()!='1'){
+						alert('錯誤:非銷貨退回。');
+						return;
+					}
+					if(!$('#chkIssend').prop('checked')){
+						alert('錯誤:未開立(匯入的資料，開立是勾選的)。');
+						return;
+					}
+					if($('#chkIsconfirm').prop('checked')){
+						alert('錯誤:已確認。');
+						return;
+					}
+					var t_vccbno = $.trim($('#txtNoa').val());
+					if(t_vccbno.length==0){
+						alert('錯誤:無單號');
+						return;
+					}
+					if (!confirm("確認銷貨退回?")) {
+					    return;
+					}
+					$.ajax({
+						vccbno : t_vccbno,
+	                    url: "../einvoice/A0302g.aspx?vccbno="+t_vccbno,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.vccbno==$.trim($('#txtNoa').val())){
+	                    			$('#chkIsconfirm').prop('checked',true);
+	                    			alert(this.vccbno+" 確認完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});    
+				
+				$('#btnB0101').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#cmbTypea').val()!='2' && $('#cmbTypea').val()!='4'){
+						alert('類別錯誤:非折讓。');
+						return;
+					}
+					if($('#chkIssend').prop('checked')){
+						alert('錯誤:已開立。');
+						return;
+					}
+					if($('#chkIsconfirm').prop('checked')){
+						alert('錯誤:已確認。');
+						return;
+					}
+					if($('#chkCancle').prop('checked')){
+						alert('錯誤:已作廢。');
+						return;
+					}
+					var t_vccbno = $.trim($('#txtNoa').val());
+					if(t_vccbno.length==0){
+						alert('錯誤:無單號');
+						return;
+					}
+					if (!confirm("確認開立折讓單?")) {
+					    return;
+					}
+					$.ajax({
+						vccbno : t_vccbno,
+	                    url: "../einvoice/B0101g.aspx?vccbno="+t_vccbno,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.vccbno==$.trim($('#txtNoa').val())){
+	                    			$('#chkIssend').prop('checked',true);
+	                    			alert(this.vccbno+" 開立完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});             
+//*********************************************************************************************                
                 
             }
             function q_boxClose(s2) {///   q_boxClose 2/4

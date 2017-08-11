@@ -231,6 +231,18 @@
 					if(q_xchg!=2){
 						$('#btnXchg').click();
 					}
+					if($('#cmbTaxtype').val()!='6'){
+						alert('錯誤:發票未修改為作廢。');
+						return;
+					}
+					if($.trim($('#txtCanceldate').val()).length==0){
+						alert('錯誤:請輸入作廢日期。');
+						return;
+					}
+					if($.trim($('#txtCanceltime').val()).length==0){
+						alert('錯誤:請輸入作廢時間。');
+						return;
+					}
 					if($('#chkIscancel').prop('checked')){
 						alert('錯誤:已產生作廢XML。');
 						return;
@@ -374,7 +386,7 @@
 						comp:$.trim($('#txtComp').val()),
 						nick:$.trim($('#txtNick').val()),
 						address:$.trim($('#txtAddress').val()),
-						taxtype:$.trim($('#txtTaxtype').val()),
+						taxtype:$.trim($('#cmbTaxtype').val()),
 						taxrate:q_float('txtTaxrate'),
 						money:q_float('txtMoney'),
 						tax:q_float('txtTax'),
