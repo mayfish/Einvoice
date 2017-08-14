@@ -346,6 +346,9 @@
                 $('#txtMoney').change(function() {
                     sum();
                 });
+                $('#txtTaxrate').change(function() {
+                    sum();
+                });
                 $('#lblAccno').click(function() {
                 	var t_years=0;
 					if(q_getPara('sys.project').toUpperCase().substring(0,2)=='VU' && r_len=='4'){

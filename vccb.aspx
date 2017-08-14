@@ -73,9 +73,6 @@
                 
                 typea_chg();
                 
-                $('#chkCancel').click(function(e){
-                	typea_chg();
-                });
 	            $('#lblAccno').click(function () {
 			        q_pop('txtAccno', "accc.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";accc3='" + $('#txtAccno').val() + "';" + $('#txtDatea').val().substring(0,3) + '_1', 'accc', 'accc3', 'accc2', "92%", "1054px", q_getMsg('popAccc'), true);
 			    });
@@ -263,14 +260,6 @@
 						alert('錯誤:已確認。');
 						return;
 					}
-					if($('#chkCancle').prop('checked')){
-						alert('錯誤:已作廢。');
-						return;
-					}
-					if($.trim($('#txtNob').val()).length>0){
-						alert('錯誤:有折讓單號的是對方開立');
-						return;
-					}
 					var t_vccbno = $.trim($('#txtNoa').val());
 					if(t_vccbno.length==0){
 						alert('錯誤:無單據編號');
@@ -327,16 +316,12 @@
 						alert('類別錯誤:非折讓。');
 						return;
 					}
-					if($('#chkIssend').prop('checked')){
-						alert('錯誤:已開立。');
+					if(!$('#chkIssend').prop('checked')){
+						alert('錯誤:未開立。');
 						return;
 					}
-					if($('#chkCancle').prop('checked')){
-						alert('錯誤:已作廢。');
-						return;
-					}
-					if($.trim($('#txtNob').val()).length==0){
-						alert('錯誤:有折讓單號的才是對方開立');
+					if($('#chkIsconfirm').prop('checked')){
+						alert('錯誤:已確認。');
 						return;
 					}
 					var t_vccbno = $.trim($('#txtNoa').val());
@@ -344,7 +329,7 @@
 						alert('錯誤:無單據編號');
 						return;
 					}
-					if (!confirm("確認開立折讓單?")) {
+					if (!confirm("確認折讓單?")) {
 					    return;
 					}
 					$.ajax({
@@ -359,7 +344,7 @@
 	                    		if(tmp.status!='OK'){
 	                    			alert(tmp.msg);	                    		
 	                    		}else if(this.vccbno==$.trim($('#txtNoa').val())){
-	                    			$('#chkIssend').prop('checked',true);
+	                    			$('#chkIsconfirm').prop('checked',true);
 	                    			alert(this.vccbno+" 確認完成。");	
 	                    		}
 	                    },
@@ -385,7 +370,288 @@
 	                        }
 	                    }
 	                });
-				});             
+				}); 
+				
+				$('#btnB0201').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#cmbTypea').val()!='4'){
+						alert('類別錯誤:非進貨折讓。');
+						return;
+					}
+					if($.trim($('#txtWdate').val()).length==0){
+						alert('錯誤:請輸入作廢日期。');
+						return;
+					}
+					if($.trim($('#txtWtime').val()).length==0){
+						alert('錯誤:請輸入作廢時間。');
+						return;
+					}
+					if($.trim($('#txtWmemo').val()).length==0){
+						alert('錯誤:請輸入作廢原因。');
+						return;
+					}
+					if($('#chkIscancel').prop('checked')){
+						alert('錯誤:已作廢開立。');
+						return;
+					}
+					if($('#chkIscancelconfirm').prop('checked')){
+						alert('錯誤:已作廢確認。');
+						return;
+					}
+					var t_vccbno = $.trim($('#txtNoa').val());
+					if(t_vccbno.length==0){
+						alert('錯誤:無單據編號');
+						return;
+					}
+					if (!confirm("確認作廢折讓單?")) {
+					    return;
+					}
+					$.ajax({
+						vccbno : t_vccbno,
+	                    url: "../einvoice/B0201g.aspx?vccbno="+t_vccbno,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.vccbno==$.trim($('#txtNoa').val())){
+	                    			$('#chkIscancel').prop('checked',true);
+	                    			alert(this.vccbno+" 作廢完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});  
+				
+				$('#btnB0202').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#cmbTypea').val()!='2'){
+						alert('類別錯誤:非銷貨折讓。');
+						return;
+					}
+					if(!$('#chkIscancel').prop('checked')){
+						alert('錯誤:非作廢開立。');
+						return;
+					}
+					if($('#chkIscancelconfirm').prop('checked')){
+						alert('錯誤:已作廢確認。');
+						return;
+					}
+					var t_vccbno = $.trim($('#txtNoa').val());
+					if(t_vccbno.length==0){
+						alert('錯誤:無單據編號');
+						return;
+					}
+					if (!confirm("是否確認作廢折讓單?")) {
+					    return;
+					}
+					$.ajax({
+						vccbno : t_vccbno,
+	                    url: "../einvoice/B0202g.aspx?vccbno="+t_vccbno,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.vccbno==$.trim($('#txtNoa').val())){
+	                    			$('#chkIscancelconfirm').prop('checked',true);
+	                    			alert(this.vccbno+" 確認完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});       
+				
+				$('#btnB0401').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#cmbTypea').val()!='2' && $('#cmbTypea').val()!='4'){
+						alert('類別錯誤:非折讓。');
+						return;
+					}
+					if($('#chkIssend').prop('checked')){
+						alert('錯誤:已開立。');
+						return;
+					}
+					if($('#chkIsconfirm').prop('checked')){
+						alert('錯誤:已確認。');
+						return;
+					}
+					var t_vccbno = $.trim($('#txtNoa').val());
+					if(t_vccbno.length==0){
+						alert('錯誤:無單據編號');
+						return;
+					}
+					if (!confirm("確認開立折讓單?")) {
+					    return;
+					}
+					$.ajax({
+						vccbno : t_vccbno,
+	                    url: "../einvoice/B0401.aspx?vccbno="+t_vccbno,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.vccbno==$.trim($('#txtNoa').val())){
+	                    			$('#chkIssend').prop('checked',true);
+	                    			$('#chkIsconfirm').prop('checked',true);
+	                    			alert(this.vccbno+" 開立完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				}); 
+				$('#btnB0501').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#cmbTypea').val()!='4'){
+						alert('類別錯誤:非進貨折讓。');
+						return;
+					}
+					if($.trim($('#txtWdate').val()).length==0){
+						alert('錯誤:請輸入作廢日期。');
+						return;
+					}
+					if($.trim($('#txtWtime').val()).length==0){
+						alert('錯誤:請輸入作廢時間。');
+						return;
+					}
+					if($.trim($('#txtWmemo').val()).length==0){
+						alert('錯誤:請輸入作廢原因。');
+						return;
+					}
+					if($('#chkIscancel').prop('checked')){
+						alert('錯誤:已作廢開立。');
+						return;
+					}
+					if($('#chkIscancelconfirm').prop('checked')){
+						alert('錯誤:已作廢確認。');
+						return;
+					}
+					var t_vccbno = $.trim($('#txtNoa').val());
+					if(t_vccbno.length==0){
+						alert('錯誤:無單據編號');
+						return;
+					}
+					if (!confirm("確認作廢折讓單?")) {
+					    return;
+					}
+					$.ajax({
+						vccbno : t_vccbno,
+	                    url: "../einvoice/B0501.aspx?vccbno="+t_vccbno,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.vccbno==$.trim($('#txtNoa').val())){
+	                    			$('#chkIscancel').prop('checked',true);
+	                    			$('#chkIscancelconfirm').prop('checked',true);
+	                    			alert(this.vccbno+" 作廢完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});     
 //*********************************************************************************************                
                 
             }
@@ -909,8 +1175,6 @@
 					<tr>
 						<td><span> </span><a id='lblAddr' class="lbl"> </a></td>
 						<td colspan="3"><input id="txtAddr"  type="text" class="txt c1"/></td>
-						<td><span> </span><a class="lbl">作廢</a></td>
-						<td><input id="chkCancel"  type="checkbox"/></td>
 					</tr>
 					<tr class="Cancel">
 						<td><span> </span><a id='lblWdate' class="lbl">退回/作廢日期</a></td>
@@ -942,12 +1206,15 @@
 						<td colspan="5"><input id="txtMemo"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
+						<td><span> </span><a id='lblNob' class="lbl">折讓單號</a></td>
+						<td><input id="txtNob"  type="text" class="txt c1"/></td>
+					</tr>
+					<tr>
 						<td> </td>
 						<td><input type="checkbox" style="float:left;" id="chkIssend"/><span style="display:block;width:100px;float:left;">開立</span></td>
 						<td><input type="checkbox" style="float:left;" id="chkIsconfirm"/><span style="display:block;width:100px;float:left;">確認</span></td>
-						<td> </td>
-						<td><span> </span><a id='lblNob' class="lbl">折讓單號</a></td>
-						<td><input id="txtNob"  type="text" class="txt c1"/></td>
+						<td><input type="checkbox" style="float:left;" id="chkIscancel"/><span style="display:block;width:100px;float:left;">作廢開立</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIscancelconfirm"/><span style="display:block;width:100px;float:left;">作廢確認</span></td>
 					</tr>
 				</table>
 			</div>

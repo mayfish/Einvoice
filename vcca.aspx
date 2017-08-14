@@ -344,7 +344,77 @@
 	                    			alert(tmp.msg);	                    		
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
 	                    			$('#chkIssend').prop('checked',true);
+	                    			$('#chkIssendconfirm').prop('checked',true);
 	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 開立完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});
+				
+				$('#btnA0501').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#cmbTaxtype').val()!='6'){
+						alert('錯誤:發票未修改為作廢。');
+						return;
+					}
+					if($.trim($('#txtCanceldate').val()).length==0){
+						alert('錯誤:請輸入作廢日期。');
+						return;
+					}
+					if($.trim($('#txtCanceltime').val()).length==0){
+						alert('錯誤:請輸入作廢時間。');
+						return;
+					}
+					if($('#chkIscancel').prop('checked')){
+						alert('錯誤:已產生作廢XML。');
+						return;
+					}
+					var t_invoiceNumber = $.trim($('#txtNoa').val());
+					if(t_invoiceNumber.length==0){
+						alert('錯誤:無單號');
+						return;
+					}
+					if (!confirm("確認作廢發票?")) {
+					    return;
+					}
+					$.ajax({
+						invoiceNumber : t_invoiceNumber,
+	                    url: "../einvoice/A0501g.aspx?invoice="+t_invoiceNumber,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
+	                    			$('#chkIscancel').prop('checked',true);
+	                    			$('#chkIscancelconfirm').prop('checked',true);
+	                    			alert(this.invoiceNumber+" 作廢完成。");	
 	                    		}
 	                    },
 	                    complete: function(){
