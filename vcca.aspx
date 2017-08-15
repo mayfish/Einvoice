@@ -514,7 +514,7 @@
 					}
 					$.ajax({
 						invoiceNumber : t_invoiceNumber,
-	                    url: "../einvoice/C0401g.aspx?invoice="+t_invoiceNumber,
+	                    url: "../einvoice/C0401.aspx?invoice="+t_invoiceNumber,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
