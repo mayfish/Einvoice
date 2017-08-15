@@ -24,7 +24,8 @@
             var q_name = "rc2a";
             var decbbs = ['mount', 'price', 'money', 'tax'];
             var decbbm = ['total', 'money', 'tax'];
-            var q_readonly = ['txtMoney', 'txtTotal', 'txtTax', 'txtWorker', 'txtAccno','txtProduct'];
+            var q_readonly = ['txtMoney', 'txtTotal', 'txtTax', 'txtWorker', 'txtAccno','txtProduct'
+            	,'chkIssend','chkIssendconfirm','chkIscancel','chkIscancelconfirm'];
             var q_readonlys = [];
             var bbmNum = [['txtMoney', 15, 0], ['txtTax', 15, 0], ['txtTotal', 15, 0]];
             var bbsNum = [['txtMount', 15, 3], ['txtPrice', 15, 3], ['txtMoney', 15, 0]];

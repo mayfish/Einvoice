@@ -17,7 +17,8 @@
 
             q_tables = 's';
             var q_name = "vccb";
-            var q_readonly = ['txtNoa','txtAccno','txtWorker','txtMoney','txtTax','txtTotal','txtVccno','txtNob'];
+            var q_readonly = ['txtNoa','txtAccno','txtWorker','txtMoney','txtTax','txtTotal','txtVccno','txtNob'
+            	,'chkIssend','chkconfirm','chkIscancel','chkIscancelconfirm'];
             var q_readonlys = [];
             var bbmNum = [['txtMoney', 10, 0, 1], ['txtTotal', 10, 0, 1], ['txtTax', 10, 0, 1]];
             var bbsNum = [['txtMount', 10, 3, 1], ['txtPrice', 10, 3, 1], ['txtTotal', 10, 0, 1], ['txtTax', 10, 0, 1]];

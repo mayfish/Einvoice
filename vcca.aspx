@@ -17,7 +17,8 @@
 
 			q_tables = 't';
 			var q_name = "vcca";
-			var q_readonly = ['txtMoney', 'txtTotal', 'txtChkno', 'txtTax', 'txtAccno', 'txtWorker', 'txtTrdno', 'txtVccno','chkIssend','chkIssendconfirm','chkIscancel','chkIscancelconfirm','txtRandnumber'];
+			var q_readonly = ['txtMoney', 'txtTotal', 'txtChkno', 'txtTax', 'txtAccno', 'txtWorker', 'txtTrdno', 'txtVccno'
+				,'chkIssend','chkIssendconfirm','chkIscancel','chkIscancelconfirm','txtRandnumber'];
 			var q_readonlys = [];
 			var q_readonlyt = ['txtVccaccy','txtVccno','txtVccnoq'];
 			var bbmNum = [['txtMoney', 15, 0,1], ['txtTax', 15, 0,1], ['txtTotal', 15, 0,1]];
@@ -1886,7 +1887,7 @@
 					</tr>
 					<tr>
 						<td><span> </span><a class="lbl">載具類別號碼</a></td>
-						<td><input type="text" id="txtCarriertype" class="txt c1"/></td>
+						<td><input type="text" id="txtCarriertype" class="txt c1" list="listCarriertype"/></td>
 						<td><span> </span><a class="lbl">載具顯碼</a></td>
 						<td><input type="text" id="txtCarrierid1" class="txt c1"/></td>
 						<td><span> </span><a class="lbl">載具隱碼</a></td>
@@ -1894,8 +1895,8 @@
 					</tr>
 					<tr>
 						<td> </td>
-						<td><input type="checkbox" style="float:left;" id="chkDonatemark"/><span style="display:block;width:100px;float:left;">捐贈註記</span></td>
-						<td><span> </span><a class="lbl">發票捐贈對象</a></td>
+						<td><input type="checkbox" style="float:left;" id="chkDonatemark"/><span style="display:block;width:100px;float:left;">捐贈發票</span></td>
+						<td><span> </span><a class="lbl">捐贈對象(愛心碼)</a></td>
 						<td><input type="text" id="txtNpoban" class="txt c1"/></td>
 					</tr>
 					<tr>
@@ -1928,6 +1929,10 @@
 				</table>
 			</div>
 		</div>
+		<datalist id="listCarriertype"> 
+			<option value="3J0002">手機條碼</option>
+			<option value="CQ0001">自然人憑證條碼</option>
+		</datalist>
 		<input class="einvoice" type="button" id="btnA0101" title="A0101" value="開立發票" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
 		<input class="einvoice" type="button" id="btnA0201" title="A0201" value="作廢發票" style="width:200px;height:50px;white-space:normal;display:none;"/>
