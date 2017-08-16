@@ -1459,28 +1459,13 @@
 						t_total = t_money + t_tax;
 						break;
 					case '6':
+						//只清總金額....2017/08/16
 						// 作廢-清空資料
 						t_money = 0, t_tax = 0, t_total = 0;
-						//銷貨客戶
-						$('#txtCustno').val('').attr('readonly', true);
-						$('#txtComp').val('').attr('readonly', true);
-						//統一編號
-						$('#txtSerial').val('').attr('readonly', true);
-						//產品金額
-						$('#txtMoney').val(0).attr('readonly', true);
 						//帳款月份
 						$('#txtMon').val('').attr('readonly', true);
-						//營業稅
-						$('#txtTax').val(0).attr('readonly', true);
 						//總計
 						$('#txtTotal').val(0).attr('readonly', true);
-						//買受人
-						$('#txtBuyerno').val('').attr('readonly', true);
-						$('#txtBuyer').val('').attr('readonly', true);
-						for (var k = 0; k < q_bbsCount; k++) {
-							$('#txtMount_'+k).val(0).attr('readonly', true);
-							$('#txtMoney_'+k).val(0).attr('readonly', true);
-						}
 						break;
 					default:
 				}
