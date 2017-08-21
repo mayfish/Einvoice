@@ -1,0 +1,118 @@
+invnoapply:--zxls_invnoapply  電子發票字軌匯入
+	SET QUOTED_IDENTIFIER OFF
+	declare @cmd nvarchar(max)
+	declare @workerno nvarchar(max) = [1]
+	declare @worker nvarchar(max) = [2]
+	declare @filename nvarchar(max) = [3]
+	declare @curdate nvarchar(max) = convert(nvarchar,getDate(),120)
+		
+	----------------------------------------------------------------------------	
+	declare @a nvarchar(max)
+	declare @b nvarchar(max)
+	declare @c nvarchar(max)
+	declare @d nvarchar(max)
+	declare @e nvarchar(max)
+	declare @f nvarchar(max)
+	declare @g nvarchar(max)
+
+	declare @tmp table(
+		sel int identity(1,1)
+		,cno nvarchar(20)
+		,acomp nvarchar(50)
+		,nick nvarchar(20)
+		,bdate nvarchar(20)
+		,edate nvarchar(20)
+		,binvono nvarchar(20)
+		,einvono nvarchar(20)
+		,rev nvarchar(20)
+		,seq nvarchar(20)
+		,iselectric bit
+		,invoicetype nvarchar(10)
+	)
+	declare @tmps table(
+		sel int
+		,noq nvarchar(20)
+		,binvono nvarchar(20)
+		,einvono nvarchar(20)
+	)
+	
+	declare @cno nvarchar(20)
+	declare @acomp nvarchar(50)
+	declare @nick nvarchar(20)
+	declare @bdate nvarchar(20)
+	declare @edate nvarchar(20)
+	
+	declare @n int
+	declare @cursel int
+	declare @bnumber nvarchar(20)
+	declare @enumber nvarchar(20)
+	
+	declare cursor_table cursor for
+	select a,b,c,d,e,f,g from ztmpxls where  cast(noa as int)!=1 order by CAST(noa as int)
+	open cursor_table
+	fetch next from cursor_table
+	into @a,@b,@c,@d,@e,@f,@g
+	while(@@FETCH_STATUS <> -1)
+	begin
+		if len(ISNULL(@a,''))>0
+		begin
+			begin try
+				select @cno='',@acomp='',@nick='',@bdate='',@edate=''
+				select @cno=noa,@acomp=acomp,@nick=nick from acomp where serial=@a
+				select @bdate = LEFT(@d,6)+'/01'
+				select @edate = dbo.AD2ChineseEraName(DATEADD(DD,-1,DATEADD(MM,2,dbo.ChineseEraName2AD(@bdate))))
+				
+				insert into @tmp(cno,acomp,nick,bdate,edate,binvono,einvono,rev,seq,iselectric,invoicetype)
+				select @cno,@acomp,@nick,@bdate,@edate
+					,@e+@f binvono,@e+@g einvono
+					,'' rev
+					,cast(floor((CAST(@g as int)-CAST(@f as int)+1)/50) as nvarchar) seq
+					,1 iselectric,@b invoicetype
+				set @cursel = @@IDENTITY
+				set @bnumber = @f
+				set @enumber = right('00000000'+cast(CAST(@bnumber as int)+49 as nvarchar),8)
+				set @n = 1
+				while @enumber<=@g
+				begin
+					insert into @tmps(sel,noq,binvono,einvono)
+					select @cursel,RIGHT('000'+CAST(@n as nvarchar),3),@bnumber,@enumber
+					set @n = @n + 1
+					set @bnumber = right('00000000'+cast(CAST(@enumber as int)+1 as nvarchar),8)
+					set @enumber = right('00000000'+cast(CAST(@bnumber as int)+49 as nvarchar),8)
+				end	
+				--select @@IDENTITY	
+			end try
+			begin catch 
+				--nothing
+			end catch
+		end
+		fetch next from cursor_table
+		into @a,@b,@c,@d,@e,@f,@g
+	end
+	close cursor_table
+	deallocate cursor_table
+	-----------------------------------------------------------------------------------
+	Begin Transaction [Trans_Name]
+	begin try
+		insert into vccar(noa,cno,acomp,nick,bdate,edate,binvono,einvono,rev,seq,iselectric,invoicetype)
+		select replace(left(a.bdate,6),'/','')+a.binvono 
+			,a.cno,a.acomp,a.nick,a.bdate,a.edate,a.binvono,a.einvono,a.rev,a.seq,a.iselectric,a.invoicetype 
+		from @tmp a
+		left join vccar b on replace(left(a.bdate,6),'/','')+a.binvono = b.noa
+		where b.noa is null
+		
+		insert into vccars(noa,noq,binvono,einvono,no2)
+		select replace(left(b.bdate,6),'/','')+b.binvono 
+			,a.noq,a.binvono,a.einvono,a.noq
+		from @tmps a
+		left join @tmp b on a.sel=b.sel
+		left join vccar c on replace(left(b.bdate,6),'/','')+b.binvono = c.noa
+		where c.noa is null
+		
+		Commit Transaction [Trans_Name] -- 提交所有操作所造成的變更
+	end try
+	begin catch
+		Rollback Transaction [Trans_Name] -- 復原所有操作所造成的變更
+		select ERROR_MESSAGE()
+	end catch
+	
