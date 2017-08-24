@@ -1,4 +1,4 @@
-invnoapply:--zxls_invnoapply  電子發票字軌匯入
+zxls_invnoapply:--zxls_invnoapply  電子發票字軌匯入
 	SET QUOTED_IDENTIFIER OFF
 	declare @cmd nvarchar(max)
 	declare @workerno nvarchar(max) = [1]
@@ -114,5 +114,5 @@ invnoapply:--zxls_invnoapply  電子發票字軌匯入
 	begin catch
 		Rollback Transaction [Trans_Name] -- 復原所有操作所造成的變更
 		select ERROR_MESSAGE()
-	end catch
+	end catch;
 	
