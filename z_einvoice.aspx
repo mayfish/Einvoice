@@ -21,8 +21,10 @@
 			});
 			
 			function q_gfPost() {
-				//var a = '[{"date":"20170719"},{"date":"20170801"},{"date":"20170802"},{"date":"20170807"},{"date":"20170808"},{"date":"20170810"},{"date":"20170811"},{"date":"20170814"},{"date":"20170815"},{"date":"20170821"},{"date":"20170822"}]';
-				//finish(JSON.parse(a));
+				var a = '[{"date":"20170719"},{"date":"20170801"},{"date":"20170802"},{"date":"20170807"},{"date":"20170808"},{"date":"20170810"},{"date":"20170811"},{"date":"20170814"},{"date":"20170815"},{"date":"20170821"},{"date":"20170822"}]';
+				finish(JSON.parse(a));
+				return;
+				
 				$.ajax({
 					rdate : [],
                     url: "../einvoice/SummaryResult.aspx",
@@ -92,6 +94,47 @@
 	            	$('#txtXnoa1').val(t_para.noa);
 	            	$('#txtXnoa2').val(t_para.noa);
 	            }*/
+				$('#btnOk').before($('#btnOk').clone().attr('id', 'btnOk2').show()).hide();
+				$('#btnOk2').click(function() {
+					//$('#btnOk').click();
+					$.ajax({
+	                    url: "../einvoice/SummaryResult.aspx?date="+$('#txtXdate').val(),
+	                    headers: { 'db': q_db },
+	                    type: 'POST',
+	                    //data: JSON.stringify(datea[0]),
+	                    dataType: 'text',
+	                    timeout: 10000,
+	                    success: function(data){
+	                        if(data.length>0){
+	                        	//rdate = JSON.parse(data);
+	                        	console.log(JSON.parse(data));
+	                        }else{
+	                        	console.log("no data");
+	                        }
+	                    },
+	                    complete: function(){ 
+	                    	
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+'資料寫入異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});
 			}
 
 			function q_getPrintPost(){
