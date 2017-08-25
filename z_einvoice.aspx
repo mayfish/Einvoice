@@ -108,6 +108,54 @@
 	                        if(data.length>0){
 	                        	//rdate = JSON.parse(data);
 	                        	console.log(JSON.parse(data));
+	                        	var result = JSON.parse(data);
+	                        	
+	                        	var errTable = "";
+	                        	
+	                        	var t_good=0,t_failed=0,t_total=0;
+	                        	var n=1;
+	                        	for(var i=0; i<result.length;i++){
+	                        		for(var j=0;j<result[i].summaryResult.DetailList.Message.length;j++){
+	                        			t_good += parseInt(result[i].summaryResult.DetailList.Message[j].ResultType.Good.ResultDetailType.Count);
+	                        			t_failed += parseInt(result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Count);
+	                        			t_total += parseInt(result[i].summaryResult.DetailList.Message[j].ResultType.Total.ResultDetailType.Count);
+	                        			if(result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Count!="0"){
+	                        				for(k=0;k<result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices.length;k++){
+	                        					errTable += '<tr>';
+	                        					errTable += '<td style="text-align:center">'+ "<a href=\"JavaScript:q_box('vcca.aspx',' ;noa=\\'"+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].ReferenceNumber+"\\' and 1=1;106','95%','95%','106')\">"+ (n++) +'</a></td>';
+	                        					errTable += '<td style="text-align:center">'+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].ReferenceNumber+'</td>';	
+	                        					errTable += '<td style="text-align:center">'+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].InvoiceDate+'</td>';	
+	                        					errTable += '<td style="text-align:center">'+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].ERRCODE+'</td>';	
+	                        					/*errTable += '<td>'
+	                        						+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].INFORMATION1
+	                        						+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].INFORMATION2
+	                        						+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].INFORMATION3
+	                        						+'</td>';	*/
+	                        					errTable += '<td>'
+	                        						+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].MESSAGE1
+	                        						+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].MESSAGE2
+	                        						+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].MESSAGE3
+	                        						+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].MESSAGE4
+	                        						+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].MESSAGE5
+	                        						+result[i].summaryResult.DetailList.Message[j].ResultType.Failed.ResultDetailType.Invoices[k].MESSAGE6
+	                        						+'</td>';
+                        						errTable += '</tr>';	
+	                        				}
+	                        				
+	                        			}
+	                        		}
+	                        	}
+	                        	//result[0].summaryResult.DetailList.Message[0].ResultType.Failed.ResultDetailType.Invoices[0].ReferenceNumber
+	                        	$('#result').empty();
+	                        	$('#result').append('<table id="SummaryResult" border="1"></table>');
+	                        	$('#SummaryResult').append("<tr><th style='width:80px;'>成功</th><th style='width:80px;'>失敗</th><th style='width:80px;'>總計</th></tr>");
+	                        	$('#SummaryResult').append("<tr><td style='text-align:right'>"+t_good+"</td><td style='text-align:right'>"+t_failed+"</td><th style='text-align:right'>"+t_total+"</td></tr>");
+	                        	if(errTable.length>0){
+                        			$('#result').append('<table id="Failed" border="1" style="width:1500px;"></table>');
+	                        		$('#Failed').append("<tr style='width:50px;'><th></th style='width:120px;'><th>發票號碼</th><th style='width:100px;'>日期</th><th style='width:70px;'>錯誤代碼</th><th style='width:1000px;'>資訊</th></tr>");
+	                        		$('#Failed').append(errTable);
+	                        	}
+	                        
 	                        }else{
 	                        	console.log("no data");
 	                        }
@@ -151,19 +199,25 @@
 			}
 		</script>
 	</head>
+	<style type="text/css">
+	</style>
 	<body ondragstart="return false" draggable="false"
 	ondragenter="event.dataTransfer.dropEffect='none'; event.stopPropagation(); event.preventDefault();"
 	ondragover="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();"
 	ondrop="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();">
-		<div id="q_menu"></div>
+		<div id="q_menu"> </div>
 		<div style="position: absolute;top: 10px;left:50px;z-index: 1;width:2000px;">
 			<div id="container">
-				<div id="q_report"></div>
+				<div id="q_report"> </div>
 			</div>
 			<div class="prt" style="margin-left: -40px;">
 				<!--#include file="../inc/print_ctrl.inc"-->
 			</div>
+			<div id="result">
+			
+			</div>
 		</div>
+		
 		<datalist id="listDate"> </datalist>
 	</body>
 </html>
