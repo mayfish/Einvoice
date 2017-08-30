@@ -15,6 +15,8 @@
 		<script src="css/jquery/ui/jquery.ui.widget.js"></script>
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"></script>
 		<script type="text/javascript">
+			var xdate=[],ydate=[];
+			
 			$(document).ready(function() {
 				q_getId();
 				q_gf('', 'z_einvoice');
@@ -24,9 +26,12 @@
 				//var a = '[{"date":"20170719"},{"date":"20170801"},{"date":"20170802"},{"date":"20170807"},{"date":"20170808"},{"date":"20170810"},{"date":"20170811"},{"date":"20170814"},{"date":"20170815"},{"date":"20170821"},{"date":"20170822"}]';
 				//finish(JSON.parse(a));
 				//return;
+				getDate_SummaryResult();
 				
+			}
+			
+			function getDate_SummaryResult(){
 				$.ajax({
-					rdate : [],
                     url: "../einvoice/SummaryResult.aspx",
                     headers: { 'db': q_db },
                     type: 'POST',
@@ -35,11 +40,10 @@
                     timeout: 10000,
                     success: function(data){
                         if(data.length>0){
-                        	rdate = JSON.parse(data);
+                        	xdate = JSON.parse(data);
                         }
                     },
-                    complete: function(){ 
-                    	finish(rdate);
+                    complete: function(){
                     },
                     error: function(jqXHR, exception) {
                         var errmsg = this.url+'資料寫入異常。\n';
@@ -61,8 +65,45 @@
                     }
                 });
 			}
+			function getDate_ProcessResult(){
+				$.ajax({
+                    url: "../einvoice/SummaryResult.aspx",
+                    headers: { 'db': q_db },
+                    type: 'POST',
+                    //data: JSON.stringify(datea[0]),
+                    dataType: 'text',
+                    timeout: 10000,
+                    success: function(data){
+                        if(data.length>0){
+                        	ydate = JSON.parse(data);
+                        }
+                    },
+                    complete: function(){ 
+                    	finish();
+                    },
+                    error: function(jqXHR, exception) {
+                        var errmsg = this.url+'資料寫入異常。\n';
+                        if (jqXHR.status === 0) {
+                            alert(errmsg+'Not connect.\n Verify Network.');
+                        } else if (jqXHR.status == 404) {
+                            alert(errmsg+'Requested page not found. [404]');
+                        } else if (jqXHR.status == 500) {
+                            alert(errmsg+'Internal Server Error [500].');
+                        } else if (exception === 'parsererror') {
+                            alert(errmsg+'Requested JSON parse failed.');
+                        } else if (exception === 'timeout') {
+                            alert(errmsg+'Time out error.');
+                        } else if (exception === 'abort') {
+                            alert(errmsg+'Ajax request aborted.');
+                        } else {
+                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+                        }
+                    }
+                });
+				
+			}
 			
-			function finish(rdate){
+			function finish(){
 				$('#q_report').q_report({
 					fileName : 'z_einvoice',
 					options : [{
@@ -76,14 +117,23 @@
 					}, {
 						type : '6', //[3]  1
 						name : 'xdate'
+					}, {
+						type : '6', //[4]  2
+						name : 'ydate'
 					}]
 				});
 				q_popAssign();
 				
-				for(var i=0;i<rdate.length;i++){
-					$('#listDate').append('<option value="'+rdate[i].date+'"></option>');
+				for(var i=0;i<xdate.length;i++){
+					$('#listXdate').append('<option value="'+xdate[i].date+'"></option>');
 				}
-				$('#txtXdate').attr("list","listDate");
+				$('#txtXdate').attr("list","listXdate");
+				
+				for(var i=0;i<xdate.length;i++){
+					$('#listYdate').append('<option value="'+ydate[i].date+'"></option>');
+				}
+				$('#txtYdate').attr("list","listYdate");
+				
 				/*var t_para = new Array();
 	            try{
 	            	t_para = JSON.parse(q_getId()[3]);
@@ -218,6 +268,7 @@
 			</div>
 		</div>
 		
-		<datalist id="listDate"> </datalist>
+		<datalist id="listXdate"> </datalist>
+		<datalist id="listYdate"> </datalist>
 	</body>
 </html>
