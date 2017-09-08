@@ -44,6 +44,7 @@
                         }
                     },
                     complete: function(){
+                    	finish();
                     },
                     error: function(jqXHR, exception) {
                         var errmsg = this.url+'資料寫入異常。\n';
