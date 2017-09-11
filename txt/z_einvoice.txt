@@ -1,0 +1,484 @@
+
+z_einvoice02:--z_einvoice02	
+	SET QUOTED_IDENTIFIER OFF 
+	declare @cmd nvarchar(max)
+	declare @t_path nvarchar(max) = '[1]'
+	declare @t_db nvarchar(max) = '[2]'
+	declare @t_bdate nvarchar(20) = case when '#non' = [5] then '' else [5] end
+	declare @t_edate nvarchar(20) = case when '#non' = [6] then char(255) else [6] end
+	-------------------------------------------------------------------
+	declare @tmpVcca table(
+		sel int identity(1,1)
+		,recno int
+		,gno nvarchar(20)
+		,pno int
+		,messagetype nvarchar(20)  
+		,invoiceNumber nvarchar(10)
+		,invoiceDate nvarchar(10)
+		,seller nvarchar(100)
+		,seller_serial nvarchar(20)
+		,buyer nvarchar(100)
+		,buyer_serial nvarchar(20)
+		,money float
+		,tax float
+		,total float
+		,memo nvarchar(max)
+		,taxtype nvarchar(20)
+		,vcca_issend bit          --產生XML
+		,vcca_issendconfirm bit   --開立確認回傳
+		,vcca_iscancel bit        --作廢
+		,vcca_iscancelconfirm bit --作廢確認回傳
+		,vcca_isvoid bit          --註銷
+		
+		,vcca_canceldate nvarchar(20)
+		,vcca_canceltime nvarchar(20)
+		
+		,vccbno nvarchar(20)
+		,vccb_typea nvarchar(10)
+		,vccb_ctypea nvarchar(10)
+		,vccb_rejectdate nvarchar(20) --退回日期
+		,vccb_rejecttime nvarchar(20) --退回時間
+		,vccb_rejectreason nvarchar(max) --退回原因
+		,vccb_issend bit          --折讓
+		,vccb_issendconfirm bit
+		,vccb_iscancel bit
+		,vccb_iscancelconfirm bit
+	)
+	insert into @tmpVcca(gno,pno,invoiceNumber,invoiceDate,messagetype
+		,seller,seller_serial,buyer,buyer_serial,money,tax,total,memo,taxtype
+		,vcca_issend,vcca_issendconfirm,vcca_iscancel,vcca_iscancelconfirm,vcca_isvoid
+		,vcca_canceldate,vcca_canceltime)
+	select '',2,a.noa,a.datea,e.messagetype
+		,d.acomp,d.serial,e.comp,e.serial,a.money,a.tax,a.total,a.memo,a.taxtype
+		,isnull(a.issend,0),isnull(a.issendconfirm,0),isnull(a.iscancel,0),isnull(a.iscancelconfirm,0),a.isvoid
+		,a.canceldate,a.canceltime
+	from vcca a
+	left join acomp b on a.cno=b.noa
+	outer apply(select top 1 * from cust where serial=a.serial order by noa) c
+	outer apply(select * from acomp where noa=a.cno) d
+	outer apply(select * from cust where noa=a.custno) e
+	where a.datea between @t_bdate and @t_edate
+	order by a.noa
+	
+	update @tmpVcca set vccbno=b.noa, vccb_typea=c.typea
+		,vccb_ctypea = case ISNULL(c.typea,'') when '1' then '銷貨退回' when '2' then '銷貨折讓' when '3' then '進貨退回' when '4' then '進貨折讓' else '' end
+		,vccb_rejectdate = c.wdate, vccb_rejecttime=c.wtime, vccb_rejectreason = c.wmemo
+		, vccb_issend = isnull(c.issend,0), vccb_issendconfirm = isnull(c.isconfirm,0)
+		,vccb_iscancel = isnull(c.iscancel,0), vccb_iscancelconfirm = isnull(c.iscancelconfirm,0)
+	from @tmpVcca a
+	left join vccbs b on a.invoiceNumber=b.invono and a.invoiceDate=b.idate
+	left join vccb c on b.noa=c.noa
+	where len(isnull(b.invono,''))>0
+	-----------------------------------------------------------------------------------------------------
+	--==============================================
+	--賣方送
+	--A0101    開立發票
+	--A0201    作廢發票
+	--A0302    退回發票接收確認
+	--A0401    (平台存證)開立發票
+	--A0501    (平台存證)作廢發票作廢發票	
+	
+	--B0101    開立折讓單
+	--B0102    開立折讓單接收確認
+	--B0202    作廢折讓單接收確認
+	
+	--B0401    (平台存證)開立折讓單
+	--==============================================
+	--買方送
+	--A0102    發票接收確認
+	--A0202    作廢發票接收確認
+	--A0301    退回發票
+	--A0601   (平台存證)作廢發票作廢發票
+	
+	--B0101    開立折讓單
+	--B0102    開立折讓單接收確認
+	--B0201    作廢折讓單
+	
+	--B0401    (平台存證)開立折讓單
+	--B0501    (平台存證)作廢折讓單
+	--==============================================
+	--declare @tmp table(
+	--	sel int identity(1,1)
+	--	,messageType nvarchar(10)
+	--	,invoiceNumber nvarchar(20)
+	--	,invoiceDate nvarchar(10)	
+	--)
+	
+	--賣方送
+	--A0101    開立發票
+	update @tmpVcca set gno='2',messagetype = 'A0101'
+	from @tmpVcca a
+	where a.vcca_issend=0 
+		and a.vcca_issendconfirm=0 
+		and a.vcca_iscancel=0 
+		and a.vcca_iscancelconfirm=0 
+		and len(isnull(a.vccb_typea,''))=0
+		and ISNULL(a.messagetype,'') = 'A0101'
+		and ISNULL(a.taxtype,'')!='6'
+	
+	if exists(select * from @tmpVcca where gno='2')
+	begin
+		insert into @tmpVcca(gno,pno,messagetype)values('1',1,'A0101')
+	end
+		
+	--A0201    作廢發票
+	update @tmpVcca set gno='4', messagetype = 'A0201'
+	from @tmpVcca a
+	where a.vcca_issend=1 and a.vcca_iscancel=0 and a.vcca_iscancelconfirm=0 
+		and len(isnull(a.vccb_typea,''))=0
+		and ISNULL(a.taxtype,'')='6'
+		and ISNULL(a.messagetype,'') = 'A0101'
+		
+	if exists(select * from @tmpVcca where gno='4')
+	begin
+		insert into @tmpVcca(gno,pno,messagetype)values('3',1,'A0201')
+	end
+	
+	--A0302    退回發票接收確認
+	update @tmpVcca set gno='6', messagetype='A0302'
+	from @tmpVcca a
+	left join vccb b on a.invoiceNumber = b.noa
+	where isnull(a.vcca_issend,0) =1 and isnull(b.typea,'') = '1' 
+	and ISNULL(b.issend,0) = 0 
+	if exists(select * from @tmpVcca where gno='6')
+	begin
+		insert into @tmpVcca(gno,pno,messagetype)values('5',1,'A0301')
+	end
+
+	----A0401    (平台存證)開立發票
+	update @tmpVcca set gno='8',messagetype='A0401'
+	from @tmpVcca a
+	where (len(isnull(a.messagetype,''))=0 or a.messagetype='A0401') 
+	and ISNULL(a.vcca_issend,0)=0
+	and len(isnull(a.vccb_typea,''))=0
+	and ISNULL(a.taxtype,'')!='6'
+	
+	if exists(select * from @tmpVcca where gno='8')
+	begin
+		insert into @tmpVcca(gno,pno,messagetype)values('7',1,'A0401')
+	end
+
+	--A0501    (平台存證)作廢發票作廢發票
+	update @tmpVcca set gno='10', messagetype = 'A0501'
+	from @tmpVcca a
+	where a.vcca_issend=1 and a.vcca_iscancel=0 and a.vcca_iscancelconfirm=0 
+		and len(isnull(a.vccb_typea,''))=0
+		and ISNULL(a.taxtype,'')='6'
+		and (len(isnull(a.messagetype,''))=0 or a.messagetype='A0401') 
+	if exists(select * from @tmpVcca where gno='10')
+	begin
+		insert into @tmpVcca(gno,pno,messagetype)values('9',1,'A0501')
+	end
+		
+	--============================================================================================
+	delete @tmpVcca where len(ISNULL(messagetype,''))=0 or len(gno)=0
+	
+	update @tmpVcca set recno=b.recno
+	from @tmpVcca a
+	left join (select sel,ROW_NUMBER()over(partition by messagetype order by invoiceDate,invoiceNumber) recno 
+		from @tmpVcca where pno=2) b on a.sel=b.sel
+	
+
+	--============================================================================================
+	declare @ss nvarchar(max)='<script src="../../script/jquery.min.js" type="text/javascript"></script>'
+	set @ss = @ss + '<script type="text/javascript">'
+	set @ss = @ss +'function Action(){
+				var obj = document.getElementsByClassName("chk_A0101")
+				for(var i=0'+char(59)+'i<obj.length'+char(59)+'i++){
+					if(obj[i].checked){
+						var n = obj[i].id.replace(/(chkA0101)([0-9]+)/,"$2")
+						console.log(n)
+						A0101(n)
+					}
+				}
+				
+				var obj = document.getElementsByClassName("chk_A0201")
+				for(var i=0'+char(59)+'i<obj.length'+char(59)+'i++){
+					if(obj[i].checked){
+						var n = obj[i].id.replace(/(chkA0201)([0-9]+)/,"$2")
+						console.log(n)
+						A0201(n)
+					}
+				}
+				
+				var obj = document.getElementsByClassName("chk_A0302")
+				for(var i=0'+char(59)+'i<obj.length'+char(59)+'i++){
+					if(obj[i].checked){
+						var n = obj[i].id.replace(/(chkA0302)([0-9]+)/,"$2")
+						console.log(n)
+						A0302(n)
+					}
+				}
+				
+				var obj = document.getElementsByClassName("chk_A0401")
+				for(var i=0'+char(59)+'i<obj.length'+char(59)+'i++){
+					if(obj[i].checked){
+						var n = obj[i].id.replace(/(chkA0401)([0-9]+)/,"$2")
+						console.log(n)
+						A0401(n)
+					}
+				}
+				
+				var obj = document.getElementsByClassName("chk_A0501")
+				for(var i=0'+char(59)+'i<obj.length'+char(59)+'i++){
+					if(obj[i].checked){
+						var n = obj[i].id.replace(/(chkA0501)([0-9]+)/,"$2")
+						console.log(n)
+						A0501(n)
+					}
+				}
+			}'
+	set @ss = @ss + '</script>'
+			
+	declare @sa0101 nvarchar(max) ='<script type="text/javascript">
+			function A0101(n){
+				t_invoiceNumber = document.getElementById("txtA0101"+n).text
+				$.ajax({
+					n : n,
+					invoiceNumber : t_invoiceNumber,
+                    url: "../../einvoice/A0101g.aspx?invoice="+t_invoiceNumber,
+                    type: "POST",
+                    data: "",
+                    dataType: "text",
+                    success: function(data){
+                    	tmp = JSON.parse(data)
+                		console.log(tmp)
+                		
+                		if(tmp.status!="OK"){
+                			alert(this.invoiceNumber +"\n"+ tmp.msg)	                    		
+                		}
+                    },
+                    complete: function(){
+                    	              
+                    },
+                    error: function(jqXHR, exception) {
+                        var errmsg = this.url+" 異常。\n"
+                        if (jqXHR.status === 0) {
+                            alert(errmsg+"Not connect.\n Verify Network.")
+                        } else if (jqXHR.status == 404) {
+                            alert(errmsg+"Requested page not found. [404]")
+                        } else if (jqXHR.status == 500) {
+                            alert(errmsg+"Internal Server Error [500].")
+                        } else if (exception === "parsererror") {
+                            alert(errmsg+"Requested JSON parse failed.")
+                        } else if (exception === "timeout") {
+                            alert(errmsg+"Time out error.")
+                        } else if (exception === "abort") {
+                            alert(errmsg+"Ajax request aborted.")
+                        } else {
+                            alert(errmsg+"Uncaught Error.\n" + jqXHR.responseText)
+                        }
+                    }
+                })
+			}</script>'
+		
+		declare @sa0201 nvarchar(max) ='<script type="text/javascript">
+			function A0201(n){
+				t_invoiceNumber = document.getElementById("txtA0201"+n).text
+				$.ajax({
+					n : n,
+					invoiceNumber : t_invoiceNumber,
+                    url: "../../einvoice/A0201g.aspx?invoice="+t_invoiceNumber,
+                    type: "POST",
+                    data: "",
+                    dataType: "text",
+                    success: function(data){
+                    	tmp = JSON.parse(data)
+                		console.log(tmp)
+                    },
+                    complete: function(){
+                    	              
+                    },
+                    error: function(jqXHR, exception) {
+                        var errmsg = this.url+" 異常。\n"
+                        if (jqXHR.status === 0) {
+                            alert(errmsg+"Not connect.\n Verify Network.")
+                        } else if (jqXHR.status == 404) {
+                            alert(errmsg+"Requested page not found. [404]")
+                        } else if (jqXHR.status == 500) {
+                            alert(errmsg+"Internal Server Error [500].")
+                        } else if (exception === "parsererror") {
+                            alert(errmsg+"Requested JSON parse failed.")
+                        } else if (exception === "timeout") {
+                            alert(errmsg+"Time out error.")
+                        } else if (exception === "abort") {
+                            alert(errmsg+"Ajax request aborted.")
+                        } else {
+                            alert(errmsg+"Uncaught Error.\n" + jqXHR.responseText)
+                        }
+                    }
+                })
+			}</script>'
+			declare @sa0302 nvarchar(max) ='<script type="text/javascript">
+			function A0302(n){
+				t_vccbno = document.getElementById("txtVccbnoA0302"+n).text
+				$.ajax({
+					n : n,
+					vccbno : t_vccbno,
+                    url: "../../einvoice/A0302g.aspx?vccbno="+t_vccbno,
+                    type: "POST",
+                    data: "",
+                    dataType: "text",
+                    success: function(data){
+                    	tmp = JSON.parse(data)
+                		console.log(tmp)
+                    },
+                    complete: function(){
+                    	              
+                    },
+                    error: function(jqXHR, exception) {
+                        var errmsg = this.url+" 異常。\n"
+                        if (jqXHR.status === 0) {
+                            alert(errmsg+"Not connect.\n Verify Network.")
+                        } else if (jqXHR.status == 404) {
+                            alert(errmsg+"Requested page not found. [404]")
+                        } else if (jqXHR.status == 500) {
+                            alert(errmsg+"Internal Server Error [500].")
+                        } else if (exception === "parsererror") {
+                            alert(errmsg+"Requested JSON parse failed.")
+                        } else if (exception === "timeout") {
+                            alert(errmsg+"Time out error.")
+                        } else if (exception === "abort") {
+                            alert(errmsg+"Ajax request aborted.")
+                        } else {
+                            alert(errmsg+"Uncaught Error.\n" + jqXHR.responseText)
+                        }
+                    }
+                })
+			}</script>'
+			declare @sa0401 nvarchar(max) ='<script type="text/javascript">
+			function A0401(n){
+				t_invoiceNumber = document.getElementById("txtA0401"+n).text
+				$.ajax({
+					n : n,
+					invoiceNumber : t_invoiceNumber,
+                    url: "../../einvoice/A0401g.aspx?invoice="+t_invoiceNumber,
+                    type: "POST",
+                    data: "",
+                    dataType: "text",
+                    success: function(data){
+                    	tmp = JSON.parse(data)
+                		console.log(tmp)
+                		
+                		if(tmp.status!="OK"){
+                			alert(this.invoiceNumber +"\n"+ tmp.msg)	                    		
+                		}
+                    },
+                    complete: function(){
+                    	              
+                    },
+                    error: function(jqXHR, exception) {
+                        var errmsg = this.url+" 異常。\n"
+                        if (jqXHR.status === 0) {
+                            alert(errmsg+"Not connect.\n Verify Network.")
+                        } else if (jqXHR.status == 404) {
+                            alert(errmsg+"Requested page not found. [404]")
+                        } else if (jqXHR.status == 500) {
+                            alert(errmsg+"Internal Server Error [500].")
+                        } else if (exception === "parsererror") {
+                            alert(errmsg+"Requested JSON parse failed.")
+                        } else if (exception === "timeout") {
+                            alert(errmsg+"Time out error.")
+                        } else if (exception === "abort") {
+                            alert(errmsg+"Ajax request aborted.")
+                        } else {
+                            alert(errmsg+"Uncaught Error.\n" + jqXHR.responseText)
+                        }
+                    }
+                })
+			}</script>'
+		declare @sa0501 nvarchar(max) ='<script type="text/javascript">
+			function A0501(n){
+				t_invoiceNumber = document.getElementById("txtA0501"+n).text
+				$.ajax({
+					n : n,
+					invoiceNumber : t_invoiceNumber,
+                    url: "../../einvoice/A0501g.aspx?invoice="+t_invoiceNumber,
+                    type: "POST",
+                    data: "",
+                    dataType: "text",
+                    success: function(data){
+                    	tmp = JSON.parse(data)
+                		console.log(tmp)
+                    },
+                    complete: function(){
+                    	              
+                    },
+                    error: function(jqXHR, exception) {
+                        var errmsg = this.url+" 異常。\n"
+                        if (jqXHR.status === 0) {
+                            alert(errmsg+"Not connect.\n Verify Network.")
+                        } else if (jqXHR.status == 404) {
+                            alert(errmsg+"Requested page not found. [404]")
+                        } else if (jqXHR.status == 500) {
+                            alert(errmsg+"Internal Server Error [500].")
+                        } else if (exception === "parsererror") {
+                            alert(errmsg+"Requested JSON parse failed.")
+                        } else if (exception === "timeout") {
+                            alert(errmsg+"Time out error.")
+                        } else if (exception === "abort") {
+                            alert(errmsg+"Ajax request aborted.")
+                        } else {
+                            alert(errmsg+"Uncaught Error.\n" + jqXHR.responseText)
+                        }
+                    }
+                })
+			}</script>'
+	
+	select gno
+		,'<input type="button" id="btnAction" value="執行" onclick="Action()"/>' run
+		, @ss ss
+		, @sa0101 sa0101
+		, @sa0201 sa0201
+		, @sa0302 sa0302
+		, @sa0401 sa0401
+		, @sa0501 sa0501
+		,recno rr
+		--A0101
+		,'<input type="checkbox" id="chkA0101'+CAST(recno as nvarchar)+'" class="chk_A0101"/>' a00
+		,'<a id="txtA0101'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' a01--發票號碼
+		, invoiceDate a02
+		, seller a03
+		, buyer a04
+		, dbo.getComma([money],-1) a05
+		, dbo.getComma([tax],-1) a06
+		, dbo.getComma([total],-1) a07
+		--A0201
+		,'<input type="checkbox" id="chkA0201'+CAST(recno as nvarchar)+'" class="chk_A0201"/>' b00
+		,'<a id="txtA0201'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' b01--發票號碼
+		, invoiceDate b02
+		, seller b03
+		, buyer b04
+		, vcca_canceldate b05
+		, vcca_canceltime b06
+		, memo b07
+		--A0302
+		,'<input type="checkbox" id="chkA0302'+CAST(recno as nvarchar)+'" class="chk_A0302"/>' c00
+		,'<a id="txtInvoiceA0302'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' c01--發票號碼
+		, invoiceDate c02
+		, seller c03
+		, buyer c04
+		,'<a id="txtVccbnoA0302'+CAST(recno as nvarchar)+'">'+vccbno+'</a>' c05--退回單號
+		,vccb_rejectdate c06
+		,vccb_rejecttime c07
+		,vccb_rejectreason c08
+		--A0401
+		,'<input type="checkbox" id="chkA0401'+CAST(recno as nvarchar)+'" class="chk_A0401"/>' d00
+		,'<a id="txtA0401'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' d01--發票號碼
+		, invoiceDate d02
+		, seller d03
+		, buyer d04
+		, dbo.getComma([money],-1) d05
+		, dbo.getComma([tax],-1) d06
+		, dbo.getComma([total],-1) d07
+		--A0501
+		,'<input type="checkbox" id="chkA0501'+CAST(recno as nvarchar)+'" class="chk_A0501"/>' e00
+		,'<a id="txtA0501'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' e01--發票號碼
+		, invoiceDate e02
+		, seller e03
+		, buyer e04
+		, vcca_canceldate e05
+		, vcca_canceltime e06
+		, memo e07
+	from @tmpVcca	
+	order by gno,pno,recno;
