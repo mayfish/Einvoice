@@ -68,7 +68,7 @@
 			}
 			function getDate_ProcessResult(){
 				$.ajax({
-                    url: "../einvoice/SummaryResult.aspx",
+                    url: "../einvoice/ProcessResult.aspx",
                     headers: { 'db': q_db },
                     type: 'POST',
                     //data: JSON.stringify(datea[0]),
@@ -116,21 +116,30 @@
 						name : 'db',
 						value : q_db
 					}, {
-						type : '6', //[3]  1
+						type : '6', //[3]    1
 						name : 'xdate'
 					}, {
-						type : '6', //[4]  2
+						type : '6', //[4]    2
 						name : 'ydate'
+					}, {
+						type : '1', //[5][6] 3
+						name : 'zdate'
 					}]
 				});
 				q_popAssign();
+				q_langShow();
+				
+				$('#txtZdate1').mask(r_picd);
+				$('#txtZdate1').datepicker();
+				$('#txtZdate2').mask(r_picd);
+				$('#txtZdate2').datepicker();
 				
 				for(var i=0;i<xdate.length;i++){
 					$('#listXdate').append('<option value="'+xdate[i].date+'"></option>');
 				}
 				$('#txtXdate').attr("list","listXdate");
 				
-				for(var i=0;i<xdate.length;i++){
+				for(var i=0;i<ydate.length;i++){
 					$('#listYdate').append('<option value="'+ydate[i].date+'"></option>');
 				}
 				$('#txtYdate').attr("list","listYdate");
@@ -147,8 +156,9 @@
 	            }*/
 				$('#btnOk').before($('#btnOk').clone().attr('id', 'btnOk2').show()).hide();
 				$('#btnOk2').click(function() {
-					//$('#btnOk').click();
-					$.ajax({
+					switch($('#q_report').data('info').radioIndex) {
+                        case 0:
+                        	$.ajax({
 	                    url: "../einvoice/SummaryResult.aspx?date="+$('#txtXdate').val(),
 	                    headers: { 'db': q_db },
 	                    type: 'POST',
@@ -233,6 +243,12 @@
 	                        }
 	                    }
 	                });
+                        break;
+                  		default:
+                  			$('#btnOk').click();
+                  			break;
+                  	}
+					
 				});
 			}
 
@@ -248,6 +264,8 @@
 
 			function q_gtPost(s2) {
 			}
+			
+			
 		</script>
 	</head>
 	<style type="text/css">
