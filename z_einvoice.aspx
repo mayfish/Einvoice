@@ -158,6 +158,7 @@
 				$('#btnOk2').click(function() {
 					switch($('#q_report').data('info').radioIndex) {
                         case 0:
+                        	$('#result').show();
                         	$.ajax({
 	                    url: "../einvoice/SummaryResult.aspx?date="+$('#txtXdate').val(),
 	                    headers: { 'db': q_db },
@@ -245,6 +246,7 @@
 	                });
                         break;
                   		default:
+                  			$('#result').hide();
                   			$('#btnOk').click();
                   			break;
                   	}
