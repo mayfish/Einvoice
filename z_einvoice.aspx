@@ -265,7 +265,6 @@
 			function q_gtPost(s2) {
 			}
 			
-			
 		</script>
 	</head>
 	<style type="text/css">

@@ -56,7 +56,7 @@
                 	+ q_sqlPara2("custno", t_custno) 
                 	+ q_sqlPara2("datea", t_bdate, t_edate);
 				if(t_typea.length>0)
-					t_where += " and typea='"+t_typea+"'";
+					t_where += " and (len('"+t_typea+"')=0 or typea='"+t_typea+"')";
 				if(t_tgg.length>0)
 					t_where += " and charindex(N'"+t_tgg+"',tgg)>0";
 				if(t_cust.length>0)

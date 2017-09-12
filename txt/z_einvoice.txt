@@ -57,7 +57,12 @@ z_einvoice02:--z_einvoice02
 	outer apply(select top 1 * from cust where serial=a.serial order by noa) c
 	outer apply(select * from acomp where noa=a.cno) d
 	outer apply(select * from cust where noa=a.custno) e
-	where a.datea between @t_bdate and @t_edate
+	outer apply(select top 1 x.noa,y.datea 
+		from vccbs x 
+		left join vccb y on x.noa=y.noa where x.invono=a.noa) f
+	where (f.noa is not null and f.datea between @t_bdate and @t_edate)   
+		or (f.noa is null and a.taxtype!='6' and (a.datea between @t_bdate and @t_edate)) 
+		or (f.noa is null and a.taxtype='6' and (a.canceldate between @t_bdate and @t_edate))
 	order by a.noa
 	
 	update @tmpVcca set vccbno=b.noa, vccb_typea=c.typea
@@ -127,8 +132,7 @@ z_einvoice02:--z_einvoice02
 	where a.vcca_issend=1 and a.vcca_iscancel=0 and a.vcca_iscancelconfirm=0 
 		and len(isnull(a.vccb_typea,''))=0
 		and ISNULL(a.taxtype,'')='6'
-		and ISNULL(a.messagetype,'') = 'A0101'
-		
+		and ISNULL(a.messagetype,'') = 'A0101'	
 	if exists(select * from @tmpVcca where gno='4')
 	begin
 		insert into @tmpVcca(gno,pno,messagetype)values('3',1,'A0201')
@@ -137,14 +141,13 @@ z_einvoice02:--z_einvoice02
 	--A0302    退回發票接收確認
 	update @tmpVcca set gno='6', messagetype='A0302'
 	from @tmpVcca a
-	left join vccb b on a.invoiceNumber = b.noa
-	where isnull(a.vcca_issend,0) =1 and isnull(b.typea,'') = '1' 
-	and ISNULL(b.issend,0) = 0 
+	where isnull(a.vcca_issend,0) =1 and isnull(a.vccb_typea,'') = '1' 
+	and ISNULL(a.vccb_issend,0) = 1
+	and isnull(a.vccb_issendconfirm,0)=0
 	if exists(select * from @tmpVcca where gno='6')
 	begin
-		insert into @tmpVcca(gno,pno,messagetype)values('5',1,'A0301')
+		insert into @tmpVcca(gno,pno,messagetype)values('5',1,'A0302')
 	end
-
 	----A0401    (平台存證)開立發票
 	update @tmpVcca set gno='8',messagetype='A0401'
 	from @tmpVcca a
@@ -169,7 +172,8 @@ z_einvoice02:--z_einvoice02
 	begin
 		insert into @tmpVcca(gno,pno,messagetype)values('9',1,'A0501')
 	end
-		
+
+
 	--============================================================================================
 	delete @tmpVcca where len(ISNULL(messagetype,''))=0 or len(gno)=0
 	
@@ -182,13 +186,23 @@ z_einvoice02:--z_einvoice02
 	--============================================================================================
 	declare @ss nvarchar(max)='<script src="../../script/jquery.min.js" type="text/javascript"></script>'
 	set @ss = @ss + '<script type="text/javascript">'
-	set @ss = @ss +'function Action(){
+	set @ss = @ss +'
+				function sleep(milliseconds) {
+				  var start = new Date().getTime()
+				  for (var i = 0'+char(59)+' i < 1e7'+char(59)+' i++) {
+					if ((new Date().getTime() - start) > milliseconds){
+					  break
+					}
+				  }
+				}
+				function Action(){
 				var obj = document.getElementsByClassName("chk_A0101")
 				for(var i=0'+char(59)+'i<obj.length'+char(59)+'i++){
 					if(obj[i].checked){
 						var n = obj[i].id.replace(/(chkA0101)([0-9]+)/,"$2")
 						console.log(n)
 						A0101(n)
+						sleep(500)
 					}
 				}
 				
@@ -198,6 +212,7 @@ z_einvoice02:--z_einvoice02
 						var n = obj[i].id.replace(/(chkA0201)([0-9]+)/,"$2")
 						console.log(n)
 						A0201(n)
+						sleep(500)
 					}
 				}
 				
@@ -207,6 +222,7 @@ z_einvoice02:--z_einvoice02
 						var n = obj[i].id.replace(/(chkA0302)([0-9]+)/,"$2")
 						console.log(n)
 						A0302(n)
+						sleep(500)
 					}
 				}
 				
@@ -216,6 +232,7 @@ z_einvoice02:--z_einvoice02
 						var n = obj[i].id.replace(/(chkA0401)([0-9]+)/,"$2")
 						console.log(n)
 						A0401(n)
+						sleep(500)
 					}
 				}
 				
@@ -225,6 +242,7 @@ z_einvoice02:--z_einvoice02
 						var n = obj[i].id.replace(/(chkA0501)([0-9]+)/,"$2")
 						console.log(n)
 						A0501(n)
+						sleep(500)
 					}
 				}
 			}'
@@ -246,6 +264,21 @@ z_einvoice02:--z_einvoice02
                 		
                 		if(tmp.status!="OK"){
                 			alert(this.invoiceNumber +"\n"+ tmp.msg)	                    		
+                		}else{
+                			var obj = $(".A0101.invoice")
+                			var n = ""
+                			for(var i=0'+char(59)+'i<tmp.invoice.length'+char(59)+'i++){
+                				n = ""
+                				for(var j=0'+char(59)+'j<obj.length'+char(59)+'j++){
+                					if(obj.eq(j).text()==tmp.invoice[i].Main.InvoiceNumber){
+                						n = obj.eq(j).attr("id").replace(/(txtA0101)([0-9]+)/,"$2")
+                						break
+                					}
+                				}
+                				if(n.length>0){
+                					$(".A0101"+n).css("color","blue")
+                				}
+                			}
                 		}
                     },
                     complete: function(){
@@ -285,6 +318,23 @@ z_einvoice02:--z_einvoice02
                     success: function(data){
                     	tmp = JSON.parse(data)
                 		console.log(tmp)
+                		
+                		if(tmp.status!="OK"){
+                			alert(this.invoiceNumber +"\n"+ tmp.msg)	                    		
+                		}else{
+                			var obj = $(".A0201.invoice")
+                			var n = ""
+                			
+                			for(var i=0'+char(59)+'i<obj.length'+char(59)+'i++){
+                				if(obj.eq(i).text()==this.invoiceNumber){
+                					n = obj.eq(i).attr("id").replace(/(txtA0201)([0-9]+)/,"$2")
+                					break
+                				}
+                			}
+                			if(n.length>0){
+            					$(".A0201"+n).css("color","blue")
+            				}
+                		}
                     },
                     complete: function(){
                     	              
@@ -321,7 +371,25 @@ z_einvoice02:--z_einvoice02
                     dataType: "text",
                     success: function(data){
                     	tmp = JSON.parse(data)
-                		console.log(tmp)
+                		console.log(tmp)       		
+                		if(tmp.status!="OK"){
+                			alert(this.invoiceNumber +"\n"+ tmp.msg)	                    		
+                		}else{
+                			var obj = $(".A0302.invoice")
+                			var n = ""
+                			for(var i=0'+char(59)+'i<tmp.rejectInvoiceConfirm.length'+char(59)+'i++){
+                				n = ""
+                				for(var j=0'+char(59)+'j<obj.length'+char(59)+'j++){
+                					if(obj.eq(j).text()==tmp.rejectInvoiceConfirm[i].RejectInvoiceNumber){
+                						n = obj.eq(j).attr("id").replace(/(txtInvoiceA0302)([0-9]+)/,"$2")
+                						break
+                					}
+                				}
+                				if(n.length>0){
+                					$(".A0302"+n).css("color","blue")
+                				}
+                			}
+                		}
                     },
                     complete: function(){
                     	              
@@ -362,6 +430,21 @@ z_einvoice02:--z_einvoice02
                 		
                 		if(tmp.status!="OK"){
                 			alert(this.invoiceNumber +"\n"+ tmp.msg)	                    		
+                		}else{
+                			var obj = $(".A0401.invoice")
+                			var n = ""
+                			for(var i=0'+char(59)+'i<tmp.invoice.length'+char(59)+'i++){
+                				n = ""
+                				for(var j=0'+char(59)+'j<obj.length'+char(59)+'j++){
+                					if(obj.eq(j).text()==tmp.invoice[i].Main.InvoiceNumber){
+                						n = obj.eq(j).attr("id").replace(/(txtA0401)([0-9]+)/,"$2")
+                						break
+                					}
+                				}
+                				if(n.length>0){
+                					$(".A0401"+n).css("color","blue")
+                				}
+                			}
                 		}
                     },
                     complete: function(){
@@ -400,6 +483,23 @@ z_einvoice02:--z_einvoice02
                     success: function(data){
                     	tmp = JSON.parse(data)
                 		console.log(tmp)
+                		
+                		if(tmp.status!="OK"){
+                			alert(this.invoiceNumber +"\n"+ tmp.msg)	                    		
+                		}else{
+                			var obj = $(".A0501.invoice")
+                			var n = ""
+                			
+                			for(var i=0'+char(59)+'i<obj.length'+char(59)+'i++){
+                				if(obj.eq(i).text()==this.invoiceNumber){
+                					n = obj.eq(i).attr("id").replace(/(txtA0501)([0-9]+)/,"$2")
+                					break
+                				}
+                			}
+                			if(n.length>0){
+            					$(".A0501"+n).css("color","blue")
+            				}
+                		}
                     },
                     complete: function(){
                     	              
@@ -436,49 +536,49 @@ z_einvoice02:--z_einvoice02
 		,recno rr
 		--A0101
 		,'<input type="checkbox" id="chkA0101'+CAST(recno as nvarchar)+'" class="chk_A0101"/>' a00
-		,'<a id="txtA0101'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' a01--發票號碼
-		, invoiceDate a02
-		, seller a03
-		, buyer a04
-		, dbo.getComma([money],-1) a05
-		, dbo.getComma([tax],-1) a06
-		, dbo.getComma([total],-1) a07
+		,'<a id="txtA0101'+CAST(recno as nvarchar)+'" class="invoice A0101 A0101'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' a01--發票號碼
+		,'<a class="A0101 A0101'+CAST(recno as nvarchar)+'">'+invoiceDate+'</a>' a02
+		,'<a class="A0101 A0101'+CAST(recno as nvarchar)+'">'+seller+'</a>' a03
+		,'<a class="A0101 A0101'+CAST(recno as nvarchar)+'">'+buyer+'</a>' a04
+		,'<a class="A0101 A0101'+CAST(recno as nvarchar)+'">'+dbo.getComma([money],-1)+'</a>' a05
+		,'<a class="A0101 A0101'+CAST(recno as nvarchar)+'">'+dbo.getComma([tax],-1)+'</a>' a06
+		,'<a class="A0101 A0101'+CAST(recno as nvarchar)+'">'+dbo.getComma([total],-1)+'</a>' a07
 		--A0201
 		,'<input type="checkbox" id="chkA0201'+CAST(recno as nvarchar)+'" class="chk_A0201"/>' b00
-		,'<a id="txtA0201'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' b01--發票號碼
-		, invoiceDate b02
-		, seller b03
-		, buyer b04
-		, vcca_canceldate b05
-		, vcca_canceltime b06
-		, memo b07
+		,'<a id="txtA0201'+CAST(recno as nvarchar)+'" class="invoice A0201 A0201'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' b01--發票號碼
+		,'<a class="A0201 A0201'+CAST(recno as nvarchar)+'">'+invoiceDate+'</a>' b02
+		,'<a class="A0201 A0201'+CAST(recno as nvarchar)+'">'+seller+'</a>' b03
+		,'<a class="A0201 A0201'+CAST(recno as nvarchar)+'">'+buyer+'</a>' b04
+		,'<a class="A0201 A0201'+CAST(recno as nvarchar)+'">'+vcca_canceldate+'</a>' b05
+		,'<a class="A0201 A0201'+CAST(recno as nvarchar)+'">'+vcca_canceltime+'</a>' b06
+		,'<a class="A0201 A0201'+CAST(recno as nvarchar)+'">'+memo+'</a>' b07
 		--A0302
 		,'<input type="checkbox" id="chkA0302'+CAST(recno as nvarchar)+'" class="chk_A0302"/>' c00
-		,'<a id="txtInvoiceA0302'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' c01--發票號碼
-		, invoiceDate c02
-		, seller c03
-		, buyer c04
-		,'<a id="txtVccbnoA0302'+CAST(recno as nvarchar)+'">'+vccbno+'</a>' c05--退回單號
-		,vccb_rejectdate c06
-		,vccb_rejecttime c07
-		,vccb_rejectreason c08
+		,'<a id="txtInvoiceA0302'+CAST(recno as nvarchar)+'" class="invoice A0302 A0302'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' c01--發票號碼
+		,'<a class="A0302 A0302'+CAST(recno as nvarchar)+'">'+invoiceDate+'</a>' c02
+		,'<a class="A0302 A0302'+CAST(recno as nvarchar)+'">'+seller+'</a>' c03
+		,'<a class="A0302 A0302'+CAST(recno as nvarchar)+'">'+buyer+'</a>' c04
+		,'<a id="txtVccbnoA0302'+CAST(recno as nvarchar)+'" class="vccb A0302 A0302'+CAST(recno as nvarchar)+'">'+vccbno+'</a>' c05--退回單號
+		,'<a class="A0302 A0302'+CAST(recno as nvarchar)+'">'+vccb_rejectdate+'</a>' c06
+		,'<a class="A0302 A0302'+CAST(recno as nvarchar)+'">'+vccb_rejecttime+'</a>' c07
+		,'<a class="A0302 A0302'+CAST(recno as nvarchar)+'">'+vccb_rejectreason+'</a>' c08
 		--A0401
 		,'<input type="checkbox" id="chkA0401'+CAST(recno as nvarchar)+'" class="chk_A0401"/>' d00
-		,'<a id="txtA0401'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' d01--發票號碼
-		, invoiceDate d02
-		, seller d03
-		, buyer d04
-		, dbo.getComma([money],-1) d05
-		, dbo.getComma([tax],-1) d06
-		, dbo.getComma([total],-1) d07
+		,'<a id="txtA0401'+CAST(recno as nvarchar)+'" class="invoice A0401 A0401'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' d01--發票號碼
+		,'<a class="A0401 A0401'+CAST(recno as nvarchar)+'">'+invoiceDate+'</a>' d02
+		,'<a class="A0401 A0401'+CAST(recno as nvarchar)+'">'+seller+'</a>' d03
+		,'<a class="A0401 A0401'+CAST(recno as nvarchar)+'">'+buyer+'</a>' d04
+		,'<a class="A0401 A0401'+CAST(recno as nvarchar)+'">'+dbo.getComma([money],-1)+'</a>' d05
+		,'<a class="A0401 A0401'+CAST(recno as nvarchar)+'">'+dbo.getComma([tax],-1)+'</a>' d06
+		,'<a class="A0401 A0401'+CAST(recno as nvarchar)+'">'+dbo.getComma([total],-1)+'</a>' d07
 		--A0501
 		,'<input type="checkbox" id="chkA0501'+CAST(recno as nvarchar)+'" class="chk_A0501"/>' e00
-		,'<a id="txtA0501'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' e01--發票號碼
-		, invoiceDate e02
-		, seller e03
-		, buyer e04
-		, vcca_canceldate e05
-		, vcca_canceltime e06
-		, memo e07
+		,'<a id="txtA0501'+CAST(recno as nvarchar)+'" class="invoice A0501 A0501'+CAST(recno as nvarchar)+'">'+invoiceNumber+'</a>' e01--發票號碼
+		,'<a class="A0501 A0501'+CAST(recno as nvarchar)+'">'+invoiceDate+'</a>' e02
+		,'<a class="A0501 A0501'+CAST(recno as nvarchar)+'">'+seller+'</a>' e03
+		,'<a class="A0501 A0501'+CAST(recno as nvarchar)+'">'+buyer+'</a>' e04
+		,'<a class="A0501 A0501'+CAST(recno as nvarchar)+'">'+vcca_canceldate+'</a>' e05
+		,'<a class="A0501 A0501'+CAST(recno as nvarchar)+'">'+vcca_canceltime+'</a>' e06
+		,'<a class="A0501 A0501'+CAST(recno as nvarchar)+'">'+memo+'</a>' e07
 	from @tmpVcca	
-	order by gno,pno,recno;
+	order by cast(gno as int),pno,recno;
