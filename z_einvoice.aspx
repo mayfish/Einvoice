@@ -124,6 +124,12 @@
 					}, {
 						type : '1', //[5][6] 3
 						name : 'zdate'
+					}, {
+						type : '6', //[7]    4    
+						name : 'xinvoice'
+					}, {
+						type : '6', //[8]    5
+						name : 'xvccbno'
 					}]
 				});
 				q_popAssign();
