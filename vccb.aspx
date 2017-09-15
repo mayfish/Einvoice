@@ -74,6 +74,12 @@
                 
                 typea_chg();
                 
+                switch(q_getPara('sys.project').toUpperCase()){
+					case 'RS':
+						$('.einvoice').show();
+						break;
+				}
+				
 	            $('#lblAccno').click(function () {
 			        q_pop('txtAccno', "accc.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";accc3='" + $('#txtAccno').val() + "';" + $('#txtDatea').val().substring(0,3) + '_1', 'accc', 'accc3', 'accc2', "92%", "1054px", q_getMsg('popAccc'), true);
 			    });

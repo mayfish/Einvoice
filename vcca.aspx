@@ -99,6 +99,12 @@
 
 			function mainPost() {
 				switch(q_getPara('sys.project').toUpperCase()){
+					case 'RS':
+						$('.einvoice').show();
+						break;
+				}
+				
+				switch(q_getPara('sys.project').toUpperCase()){
 					case 'DC':
 						cust_buyer();
 						break;

@@ -158,6 +158,11 @@
                 bbmMask = [['txtCanceldate', r_picd],['txtCanceltime', '99:99:99'],['txtDatea', r_picd], ['txtMon', r_picm]];
                 q_mask(bbmMask);
 //*********************************************************************************************
+				switch(q_getPara('sys.project').toUpperCase()){
+					case 'RS':
+						$('.einvoice').show();
+						break;
+				}
 				$('#btnA0202').click(function(e){
 					if(q_xchg!=2){
 						$('#btnXchg').click();

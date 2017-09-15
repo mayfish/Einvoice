@@ -37,6 +37,7 @@
                 $('#txtNoa').focus();
 				$('#txtBdate').datepicker();
 				$('#txtEdate').datepicker();
+				
             }
 
             function q_seekStr() {
