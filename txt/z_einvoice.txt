@@ -5,8 +5,11 @@ z_einvoice06:--z_einvoice06   VCCB
 	declare @cmd nvarchar(max)
 	declare @t_path nvarchar(max) = '[1]'
 	declare @t_db nvarchar(max) = '[2]'
-	declare @t_bdate nvarchar(20) = case when '#non' = [5] then '' else [5] end
-	declare @t_edate nvarchar(20) = case when '#non' = [6] then char(255) else [6] end
+	declare @t_bdate nvarchar(20) = case when '#non' = [7] then '' else [7] end
+	declare @t_edate nvarchar(20) = case when '#non' = [8] then char(255) else [8] end
+	declare @t_bzdate nvarchar(20) = case when '#non' = [9] then '' else [9] end
+	declare @t_ezdate nvarchar(20) = case when '#non' = [10] then char(255) else [10] end
+	declare @t_option nvarchar(max) = case when '#non' = [13] then '' else [13] end
 	--------------------------------------------------------------------------------------------------
 	declare @tmpVccb table(
 		sel int identity(1,1)
@@ -704,7 +707,7 @@ z_einvoice06:--z_einvoice06   VCCB
 		
 	
 	select gno
-		,'<input type="button" id="btnAction" value="執行" onclick="Action()"/>' run
+		,'<input type="button" id="btnAction" value="確認" onclick="Action()"/>' run
 		, @ss ss
 		, @sa0301 sa0301
 		, @sa0302 sa0302
@@ -816,6 +819,9 @@ z_einvoice04:--z_einvoice04
 	declare @t_db nvarchar(max) = '[2]'
 	declare @t_bdate nvarchar(20) = case when '#non' = [5] then '' else [5] end
 	declare @t_edate nvarchar(20) = case when '#non' = [6] then char(255) else [6] end
+	declare @t_bzdate nvarchar(20) = case when '#non' = [9] then '' else [9] end
+	declare @t_ezdate nvarchar(20) = case when '#non' = [10] then char(255) else [10] end
+	declare @t_option nvarchar(max) = case when '#non' = [13] then '' else [13] end
 	-------------------------------------------------------------------
 	declare @tmpRc2a table(
 		sel int identity(1,1)
@@ -1149,7 +1155,7 @@ z_einvoice04:--z_einvoice04
 			}</script>'
 				
 	select gno
-		,'<input type="button" id="btnAction" value="執行" onclick="Action()"/>' run
+		,'<input type="button" id="btnAction" value="確認" onclick="Action()"/>' run
 		, @ss ss
 		, @sa0102 sa0102
 		, @sa0202 sa0202
@@ -1196,6 +1202,9 @@ z_einvoice02:--z_einvoice02
 	declare @t_db nvarchar(max) = '[2]'
 	declare @t_bdate nvarchar(20) = case when '#non' = [5] then '' else [5] end
 	declare @t_edate nvarchar(20) = case when '#non' = [6] then char(255) else [6] end
+	declare @t_bzdate nvarchar(20) = case when '#non' = [9] then '' else [9] end
+	declare @t_ezdate nvarchar(20) = case when '#non' = [10] then char(255) else [10] end
+	declare @t_option nvarchar(max) = case when '#non' = [13] then '' else [13] end
 	-------------------------------------------------------------------
 	declare @tmpVcca table(
 		sel int identity(1,1)
@@ -1716,7 +1725,7 @@ z_einvoice02:--z_einvoice02
 			}</script>'
 	
 	select gno
-		,'<input type="button" id="btnAction" value="執行" onclick="Action()"/>' run
+		,'<input type="button" id="btnAction" value="確認" onclick="Action()"/>' run
 		, @ss ss
 		, @sa0101 sa0101
 		, @sa0201 sa0201

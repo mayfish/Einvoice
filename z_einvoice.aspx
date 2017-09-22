@@ -125,20 +125,39 @@
 						type : '1', //[5][6] 3
 						name : 'zdate'
 					}, {
-						type : '6', //[7]    4    
+						type : '1', //[7][8] 4
+						name : 'wdate'
+					}, {
+						type : '1', //[9][10]5
+						name : 'vdate'
+					}, {
+						type : '6', //[11]    6    
 						name : 'xinvoice'
 					}, {
-						type : '6', //[8]    5
+						type : '6', //[12]   7
 						name : 'xvccbno'
+					}, {
+						type : '8', //[13]   8
+						name : 'xoption',
+						value : ["0@異常","1@未確認"]
 					}]
 				});
 				q_popAssign();
 				q_langShow();
-				
+				//異常預設打勾
+				$('#chkXoption').find('input[type="checkbox"]').eq(0).prop('checked',true);
 				$('#txtZdate1').mask(r_picd);
 				$('#txtZdate1').datepicker();
 				$('#txtZdate2').mask(r_picd);
 				$('#txtZdate2').datepicker();
+				$('#txtWdate1').mask(r_picd);
+				$('#txtWdate1').datepicker();
+				$('#txtWdate2').mask(r_picd);
+				$('#txtWdate2').datepicker();
+				$('#txtVdate1').mask(r_picd);
+				$('#txtVdate1').datepicker();
+				$('#txtVdate2').mask(r_picd);
+				$('#txtVdate2').datepicker();
 				
 				for(var i=0;i<xdate.length;i++){
 					$('#listXdate').append('<option value="'+xdate[i].date+'"></option>');
@@ -200,8 +219,8 @@
 	                });
 							break;
 						case 6:
-							var bdate = $('#txtZdate1').val();
-							var edate = $('#txtZdate2').val();
+							var bdate = $('#txtWdate1').val();
+							var edate = $('#txtWdate2').val();
 							var vccbno = $('#txtXvccbno').val();
 							//匯入銷項發票
 							$.ajax({
