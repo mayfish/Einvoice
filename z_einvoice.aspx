@@ -159,6 +159,30 @@
 				$('#txtVdate2').mask(r_picd);
 				$('#txtVdate2').datepicker();
 				
+				//上星期
+				var bdate = new Date(),edate;
+				bdate=bdate.setDate(bdate.getDate()-7-bdate.getDay());
+				edate = new Date(bdate); 
+				bdate = new Date(bdate); 
+				edate=edate.setDate(edate.getDate()+6);
+				edate = new Date(edate);
+				var t_year, t_month, t_day;
+				t_year = bdate.getFullYear() - 1911;
+				t_year = t_year > 99 ? t_year + '' : '0' + t_year;
+				t_month = bdate.getMonth() + 1;
+				t_month = t_month > 9 ? t_month + '' : '0' + t_month;			
+				t_day = bdate.getDate();
+				t_day = t_day > 9 ? t_day + '' : '0' + t_day;
+				$('#txtVdate1').val(t_year + '/' + t_month + '/' + t_day);
+				t_year = edate.getFullYear() - 1911;
+				t_year = t_year > 99 ? t_year + '' : '0' + t_year;
+				t_month = edate.getMonth() + 1;
+				t_month = t_month > 9 ? t_month + '' : '0' + t_month;			
+				t_day = edate.getDate();
+				t_day = t_day > 9 ? t_day + '' : '0' + t_day;
+				$('#txtVdate2').val(t_year + '/' + t_month + '/' + t_day);
+				
+				
 				for(var i=0;i<xdate.length;i++){
 					$('#listXdate').append('<option value="'+xdate[i].date+'"></option>');
 				}
@@ -442,6 +466,7 @@
 			function q_gtPost(s2) {
 			}
 			
+
 		</script>
 	</head>
 	<style type="text/css">
