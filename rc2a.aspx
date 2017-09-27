@@ -575,9 +575,27 @@
 	                    		q_box(t_tablea+".aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + t_accy, t_tablea, "95%", "95%", q_getMsg("pop"+t_tablea));
 	                    	}
 	                    });
+	                    $('#btnMinut__' + i).click(function() {
+							bbtsum();
+						});
+						
+	                    $('#txtMount__'+i).focusout(function() {
+							if(q_cur==1 || q_cur==2)
+								bbtsum();
+						});
+						
+						$('#txtWeight__'+i).focusout(function() {
+							if(q_cur==1 || q_cur==2)
+								bbtsum();
+						});
+						$('#txtMoney__'+i).focusout(function() {
+							if(q_cur==1 || q_cur==2)
+								bbtsum();
+						});
                     }
                 }
                 _bbtAssign();
+                bbtsum();
             }
 
             function btnIns() {
@@ -706,6 +724,27 @@
 				}else{
 					$('.cancelInvoice').hide();
 				}
+            }
+            
+            function bbtsum() {
+            	var tot_mount=0,tot_weight=0,tot_money=0;
+                for (var i = 0; i < q_bbtCount; i++) {
+	                tot_mount=q_add(tot_mount,dec($('#txtMount__'+i).val()));
+	                tot_weight=q_add(tot_weight,dec($('#txtWeight__'+i).val()));
+	                tot_money=q_add(tot_money,dec($('#txtMoney__'+i).val()));
+				}
+				if(tot_mount!=0)
+					$('#lblTot_mount').text(FormatNumber(tot_mount));
+				else
+					$('#lblTot_mount').text('');
+				if(tot_weight!=0)
+					$('#lblTot_weight').text(FormatNumber(tot_weight));
+				else
+					$('#lblTot_weight').text('');
+				if(tot_money!=0)
+					$('#lblTot_money').text(FormatNumber(tot_money));
+				else
+					$('#lblTot_money').text('');
             }
             
             function FormatNumber(n) {
