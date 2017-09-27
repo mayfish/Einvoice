@@ -1118,6 +1118,8 @@
 				_btnIns();
 				curData.paste();
 				$('#btnOk').data('guid',guid());//送簽核用
+				//暫時先給預設值
+				$('#txtTimea').val('10:00:00');
 				
 				switch(q_getPara('sys.project').toUpperCase()){
 					case 'ES':
@@ -1864,7 +1866,11 @@
 					</tr>
 					<tr>
 						<td><span> </span><a id='lblDatea' class="lbl"> </a></td>
-						<td><input id="txtDatea"  type="text"  class="txt c1"/></td>
+						<td>
+							<input id="txtDatea"  type="text" class="txt c1"/>
+							<!-- timea  B2C用 -->
+							<input id="txtTimea"  type="text" style="display:none;"/>
+						</td>
 						<td><span> </span><a id="lblAcomp" class="lbl btn"> </a></td>
 						<td colspan="3">
 							<input id="txtCno" type="text" style="float:left; width:25%;">
