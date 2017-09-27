@@ -27,7 +27,7 @@
             var q_readonly = ['txtMoney', 'txtTotal', 'txtTax', 'txtWorker', 'txtAccno','txtProduct'
             	,'chkIssend','chkIssendconfirm','chkIscancel','chkIscancelconfirm'];
             var q_readonlys = [];
-            var q_readonlyt = ['txtRc2accy','txtRc2no','txtRc2noq','txtUno'];
+            var q_readonlyt = ['txtRc2accy','txtRc2no','txtRc2noq'];
             var bbmNum = [['txtMoney', 15, 0], ['txtTax', 15, 0], ['txtTotal', 15, 0]];
             var bbsNum = [['txtMount', 15, 3], ['txtPrice', 15, 3], ['txtMoney', 15, 0]];
             var bbtNum = [['txtMount', 15, 0, 1],['txtWeight', 15, 2, 1],['txtPrice', 15, 2, 1],['txtMoney', 15, 0, 1]];
