@@ -735,10 +735,13 @@
 								if(as[i].tablea==undefined){
 									as[i].tablea='vccst';
 								}
+								if(as[i].uno==undefined){
+									as[i].uno='';
+								}
                         	}
                         	
-                    		q_gridAddRow(bbtHtm, 'tbbt', 'txtTablea,txtVccaccy,txtVccno,txtVccnoq,txtProduct,txtMount,txtWeight,txtPrice,txtMoney'
-                        	, as.length, as, 'tablea,accy,noa,noq,product,mount,weight,price,total', '','');
+                    		q_gridAddRow(bbtHtm, 'tbbt', 'txtTablea,txtVccaccy,txtVccno,txtVccnoq,txtUno,txtProduct,txtMount,txtWeight,txtPrice,txtMoney'
+                        	, as.length, as, 'tablea,accy,noa,noq,uno,product,mount,weight,price,total', '','');
                         }else{
                         	Unlock(1);
                         }
@@ -1111,6 +1114,9 @@
                 }
                 _bbtAssign();
                 bbtsum();
+                if(q_getPara('sys.project').toUpperCase()=='BD'){
+                	$('.bbtuno').show();
+                }
             }
 
 			function btnIns() {
@@ -1791,7 +1797,7 @@
                 font-size: medium;
             }
             #dbbt {
-                width: 1200px;
+                width: 1260px;
             }
             #tbbt {
                 margin: 0;
@@ -1936,7 +1942,7 @@
 						<td colspan='5'><textarea id="txtMemo" rows="3" class="txt c1" style="height: 50px;" > </textarea></td>
 					</tr>
 					<tr class="isST2" style="display: none;">
-						<td></td>
+						<td> </td>
 						<td colspan='4'><input id="txtProduct" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
@@ -2066,6 +2072,8 @@
 						</td>
 						<td style="width:20px;"> </td>
 						<td style="width:120px; text-align: center;">出貨單號</td>
+						<td style="width:150px; text-align: center;display: none;" class="bbtuno">批號</td>
+						<td style="width:100px; text-align: center;display: none;">品號</td>
 						<td style="width:200px; text-align: center;">品名</td>
 						<td style="width:100px; text-align: center;">數量<BR><a id='lblTot_mount'> </a></td>
 						<td style="width:100px; text-align: center;">重量<BR><a id='lblTot_weight'> </a></td>
@@ -2084,9 +2092,9 @@
 							<input class="txt" id="txtVccno..*" type="text" style="width:75%;float:left;"/>
 							<input class="txt" id="txtVccnoq..*" type="text" style="width:15%;float:left;"/>
 						</td>
-						<td>
-							<input class="txt" id="txtProduct..*" type="text" style="width:95%;float:left;"/>
-						</td>
+						<td style="display: none;" class="bbtuno"><input class="txt" id="txtUno..*" type="text" style="width:95%;float:left;"/></td>
+						<td style="display: none;"><input class="txt" id="txtProductno..*" type="text" style="width:95%;float:left;"/></td>
+						<td><input class="txt" id="txtProduct..*" type="text" style="width:95%;float:left;"/></td>
 						<td><input class="txt" id="txtMount..*" type="text" style="width:95%;text-align: right;"/></td>
 						<td><input class="txt" id="txtWeight..*" type="text" style="width:95%;text-align: right;"/></td>
 						<td><input class="txt" id="txtPrice..*" type="text" style="width:95%;text-align: right;"/></td>
