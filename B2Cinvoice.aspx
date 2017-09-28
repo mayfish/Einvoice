@@ -1,7 +1,3 @@
-<%@ Import Namespace="System" %>
-<%@ Import Namespace="System.Collections.Generic" %>
-<%@ Import Namespace="System.Text" %>
-
 <%@ Page Language="C#" Debug="true"%>
     <script language="c#" runat="server">     
         static string connString = @"Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
