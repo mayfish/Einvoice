@@ -29,6 +29,9 @@
 					}, {
 						type : '1',
 						name : 'xnoa'
+					}, {
+						type : '6',
+						name : 'ynoa'
 					}]
 				});
 				q_popAssign();
@@ -42,19 +45,55 @@
 	            }else{
 	            	$('#txtXnoa1').val(t_para.noa);
 	            	$('#txtXnoa2').val(t_para.noa);
+	            	$('#txtYnoa').val(t_para.noa);
 	            }
 	            
-				/*var t_noa = typeof (q_getId()[4]) == 'undefined' ? '' : q_getId()[4];
-				t_noa = t_noa.replace('noa=', '');
-				$('#txtXnoa1').val(t_noa);
-                $('#txtXnoa2').val(t_noa);
-				$('#btnOk').click(function(){
-					$('#cmbPcPrinter option').each(function(index){
-						if($(this).val().indexOf('電子發票') > 0){
-							$('#cmbPcPrinter option:eq('+index+')').prop('selected', true);
-						}
-					});
-				});*/
+				$('#btnOk').before($('#btnOk').clone().attr('id', 'btnOk2').show()).hide();
+				$('#btnOk2').click(function() {
+					var t_invoice = $.trim($('#txtYnoa').val());
+					
+					switch($('#q_report').data('info').radioIndex) {
+						case 1:
+							$.ajax({
+	                    url: "./B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice,
+	                    type: 'POST',
+	                    //data: JSON.stringify(datea[0]),
+	                    dataType: 'text',
+	                    timeout: 10000,
+	                    success: function(data){
+	                        console.log(data);
+	                        alert(data);
+	                    },
+	                    complete: function(){ 
+	                    	
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+'資料寫入異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+							break;
+                  		default:
+                  			$('#result').hide();
+                  			$('#btnOk').click();
+                  			break;
+                  	}
+					
+				});
 			}
 
 			function q_getPrintPost(){
