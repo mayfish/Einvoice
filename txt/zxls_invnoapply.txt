@@ -5,7 +5,6 @@ zxls_invnoapply:--zxls_invnoapply  電子發票字軌匯入
 	declare @worker nvarchar(max) = [2]
 	declare @filename nvarchar(max) = [3]
 	declare @curdate nvarchar(max) = convert(nvarchar,getDate(),120)
-		
 	----------------------------------------------------------------------------	
 	declare @a nvarchar(max)
 	declare @b nvarchar(max)
@@ -100,19 +99,21 @@ zxls_invnoapply:--zxls_invnoapply  電子發票字軌匯入
 		from @tmp a
 		left join vccar b on replace(left(a.bdate,6),'/','')+a.binvono = b.noa
 		where b.noa is null
-		
+	
 		insert into vccars(noa,noq,binvono,einvono,no2)
 		select replace(left(b.bdate,6),'/','')+b.binvono 
 			,a.noq,a.binvono,a.einvono,a.noq
 		from @tmps a
 		left join @tmp b on a.sel=b.sel
-		left join vccar c on replace(left(b.bdate,6),'/','')+b.binvono = c.noa
+		left join vccars c on replace(left(b.bdate,6),'/','')+b.binvono = c.noa and a.noq=c.noq
 		where c.noa is null
 		
 		Commit Transaction [Trans_Name] -- 提交所有操作所造成的變更
+		select 'done'
 	end try
 	begin catch
 		Rollback Transaction [Trans_Name] -- 復原所有操作所造成的變更
 		select ERROR_MESSAGE()
 	end catch;
+	
 	
