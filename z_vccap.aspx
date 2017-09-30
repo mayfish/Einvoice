@@ -59,7 +59,7 @@
 					switch($('#q_report').data('info').radioIndex) {
 						case 1:
 							$.ajax({
-	                    url: "./B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice,
+	                    url: "/B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice,
 	                    type: 'POST',
 	                    //data: JSON.stringify(datea[0]),
 	                    dataType: 'text',
