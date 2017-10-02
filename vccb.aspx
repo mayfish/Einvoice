@@ -727,10 +727,6 @@
 					if(q_xchg!=2){
 						$('#btnXchg').click();
 					}
-					if($('#cmbTypea').val()!='4'){
-						alert('類別錯誤:非進貨折讓。');
-						return;
-					}
 					if($.trim($('#txtWdate').val()).length==0){
 						alert('錯誤:請輸入作廢日期。');
 						return;

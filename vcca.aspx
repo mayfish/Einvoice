@@ -623,6 +623,65 @@
 	                    }
 	                });
 				});
+				$('#btnC0701').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if(!$('#chkIssend').prop('checked')){
+						alert('錯誤:未開立。');
+						return;
+					}
+					
+					var t_invoiceNumber = $.trim($('#txtNoa').val());
+					if(t_invoiceNumber.length==0){
+						alert('錯誤:無單號');
+						return;
+					}
+					if (!confirm("確認註銷發票(B2C)?")) {
+					    return;
+					}
+					$.ajax({
+						invoiceNumber : t_invoiceNumber,
+	                    url: "../einvoice/C0701.aspx?invoice="+t_invoiceNumber,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
+	                    			$('#chkIssend').prop('checked',false);
+	                    			$('#chkIssendconfirm').prop('checked',false);
+	                    			$('#chkIscancel').prop('checked',false);
+	                    			$('#chkIscancelconfirm').prop('checked',false);
+	                    			alert(tmp.voidInvoice[0].VoidInvoiceNumber+" 註銷完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});
 //*********************************************************************************************				
 				
 				
@@ -1015,6 +1074,22 @@
 				Lock(1, {
 					opacity : 0
 				});
+				if(/^0+$/.test($.trim($('txtSerial').val()))){
+					//強制改為10個0
+					$('txtSerial').val('0000000000');
+				}
+				var t_taxtype = $.trim($('#cmbTaxtype').val());
+				var t_tax = q_float('txtTax');
+				var t_serial = $.trim($('#txtSerial').val());
+				if(t_serial.length==0 || /^[0]{8}$|^[0]{10}$/.test(t_serial)){
+					if(t_tax!=0 && !(t_taxtype=='2' || t_taxtype=='4' || t_taxtype=='6')){
+						//一般消費者,產品單價應含稅
+						alert('一般消費者，稅額應包含在單價上，表頭營業稅應為0。');
+						Unlock(1);
+						return;
+					}
+				}
+				
 				if($.trim($('#txtRandnumber').val()).length==0){
 					//定義 [0-9,A][0-9,A][0-9,A][0-9,A]
 					//var key = "0123456789A";
@@ -1027,10 +1102,7 @@
 					}
 					$('#txtRandnumber').val(randNumber);
 				}
-				if(/^0+$/.test($.trim($('txtSerial').val()))){
-					//強制改為10個0
-					$('txtSerial').val('0000000000');
-				}
+				
 				if($('#chkDonatemark').prop('checked') && $('#txtNpoban').val().length==0){
 					alert("發票捐贈對象必填");
 					Unlock(1);
