@@ -658,7 +658,147 @@
 	                        }
 	                    }
 	                });
-				});     
+				});  
+				$('#btnD0401').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#cmbTypea').val()!='2' && $('#cmbTypea').val()!='4'){
+						alert('類別錯誤:非折讓。');
+						return;
+					}
+					if($('#chkIssend').prop('checked')){
+						alert('錯誤:已開立。');
+						return;
+					}
+					if($('#chkIsconfirm').prop('checked')){
+						alert('錯誤:已確認。');
+						return;
+					}
+					var t_vccbno = $.trim($('#txtNoa').val());
+					if(t_vccbno.length==0){
+						alert('錯誤:無單據編號');
+						return;
+					}
+					if (!confirm("確認開立折讓單?")) {
+					    return;
+					}
+					$.ajax({
+						vccbno : t_vccbno,
+	                    url: "../einvoice/D0401.aspx?vccbno="+t_vccbno,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.vccbno==$.trim($('#txtNoa').val())){
+	                    			$('#chkIssend').prop('checked',true);
+	                    			$('#chkIsconfirm').prop('checked',true);
+	                    			alert(this.vccbno+" 開立完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});    
+				$('#btnD0501').click(function(e){
+					if(q_xchg!=2){
+						$('#btnXchg').click();
+					}
+					if($('#cmbTypea').val()!='4'){
+						alert('類別錯誤:非進貨折讓。');
+						return;
+					}
+					if($.trim($('#txtWdate').val()).length==0){
+						alert('錯誤:請輸入作廢日期。');
+						return;
+					}
+					if($.trim($('#txtWtime').val()).length==0){
+						alert('錯誤:請輸入作廢時間。');
+						return;
+					}
+					if($.trim($('#txtWmemo').val()).length==0){
+						alert('錯誤:請輸入作廢原因。');
+						return;
+					}
+					if($('#chkIscancel').prop('checked')){
+						alert('錯誤:已作廢開立。');
+						return;
+					}
+					if($('#chkIscancelconfirm').prop('checked')){
+						alert('錯誤:已作廢確認。');
+						return;
+					}
+					var t_vccbno = $.trim($('#txtNoa').val());
+					if(t_vccbno.length==0){
+						alert('錯誤:無單據編號');
+						return;
+					}
+					if (!confirm("確認作廢折讓單?")) {
+					    return;
+					}
+					$.ajax({
+						vccbno : t_vccbno,
+	                    url: "../einvoice/D0501.aspx?vccbno="+t_vccbno,
+	                    type: 'POST',
+	                    data: '',
+	                    dataType: 'text',
+	                    //timeout: 10000,
+	                    success: function(data){
+	                    	tmp = JSON.parse(data);
+	                    		if(tmp.status!='OK'){
+	                    			alert(tmp.msg);	                    		
+	                    		}else if(this.vccbno==$.trim($('#txtNoa').val())){
+	                    			$('#chkIscancel').prop('checked',true);
+	                    			$('#chkIscancelconfirm').prop('checked',true);
+	                    			alert(this.vccbno+" 作廢完成。");	
+	                    		}
+	                    },
+	                    complete: function(){
+	                    	              
+	                    },
+	                    error: function(jqXHR, exception) {
+	                        var errmsg = this.url+' 異常。\n';
+	                        if (jqXHR.status === 0) {
+	                            alert(errmsg+'Not connect.\n Verify Network.');
+	                        } else if (jqXHR.status == 404) {
+	                            alert(errmsg+'Requested page not found. [404]');
+	                        } else if (jqXHR.status == 500) {
+	                            alert(errmsg+'Internal Server Error [500].');
+	                        } else if (exception === 'parsererror') {
+	                            alert(errmsg+'Requested JSON parse failed.');
+	                        } else if (exception === 'timeout') {
+	                            alert(errmsg+'Time out error.');
+	                        } else if (exception === 'abort') {
+	                            alert(errmsg+'Ajax request aborted.');
+	                        } else {
+	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+	                        }
+	                    }
+	                });
+				});  
 //*********************************************************************************************                
                 
             }
@@ -1240,6 +1380,10 @@
 			<input class="einvoice" type="button" id="btnB0401" title="B0401" value="開立折讓存證" style="width:200px;height:30px;white-space:normal;display:none;"/>
 			<span style="display:block;,width:5px;height:5px;"> </span>
 			<input class="einvoice" type="button" id="btnB0501" title="B0501" value="作廢折讓存證" style="width:200px;height:30px;white-space:normal;display:none;"/>
+			<span style="display:block;,width:5px;height:5px;"> </span>
+			<input class="einvoice" type="button" id="btnD0401" title="D0401" value="(B2C)開立折讓存證" style="width:200px;height:30px;white-space:normal;display:none;"/>
+			<span style="display:block;,width:5px;height:5px;"> </span>
+			<input class="einvoice" type="button" id="btnD0501" title="D0501" value="(B2C)作廢折讓存證" style="width:200px;height:30px;white-space:normal;display:none;"/>
 		</div>
 		<div class='dbbs' >
 			<table id="tbbs" class='tbbs'  border="1"  cellpadding='2' cellspacing='1'  >
