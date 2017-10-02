@@ -74,7 +74,7 @@ zxls_invnoapply:--zxls_invnoapply  電子發票字軌匯入
 				while @enumber<=@g
 				begin
 					insert into @tmps(sel,noq,binvono,einvono)
-					select @cursel,RIGHT('000'+CAST(@n as nvarchar),3),@bnumber,@enumber
+					select @cursel,RIGHT('000'+CAST(@n as nvarchar),3),@e+@bnumber,@e+@enumber
 					set @n = @n + 1
 					set @bnumber = right('00000000'+cast(CAST(@enumber as int)+1 as nvarchar),8)
 					set @enumber = right('00000000'+cast(CAST(@bnumber as int)+49 as nvarchar),8)
@@ -90,6 +90,7 @@ zxls_invnoapply:--zxls_invnoapply  電子發票字軌匯入
 	end
 	close cursor_table
 	deallocate cursor_table
+
 	-----------------------------------------------------------------------------------
 	Begin Transaction [Trans_Name]
 	begin try
@@ -115,5 +116,7 @@ zxls_invnoapply:--zxls_invnoapply  電子發票字軌匯入
 		Rollback Transaction [Trans_Name] -- 復原所有操作所造成的變更
 		select ERROR_MESSAGE()
 	end catch;
+	
+	
 	
 	
