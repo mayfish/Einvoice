@@ -878,6 +878,9 @@
 			}
 			function q_popPost(s1) {
                 switch (s1) {
+                	case 'txtSerial':
+                		sum();
+                		break;
                 	case 'txtCustno':
                 		$('#txtComp').val($('#txtComp').val().replace(/(.*)\+(.*)/,'$2'));
                 		break;
@@ -1081,14 +1084,14 @@
 				var t_taxtype = $.trim($('#cmbTaxtype').val());
 				var t_tax = q_float('txtTax');
 				var t_serial = $.trim($('#txtSerial').val());
-				if(t_serial.length==0 || /^[0]{8}$|^[0]{10}$/.test(t_serial)){
+				/*if(t_serial.length==0 || /^[0]{8}$|^[0]{10}$/.test(t_serial)){
 					if(t_tax!=0 && !(t_taxtype=='2' || t_taxtype=='4' || t_taxtype=='6')){
 						//一般消費者,產品單價應含稅
 						alert('一般消費者，稅額應包含在單價上，表頭營業稅應為0。');
 						Unlock(1);
 						return;
 					}
-				}
+				}*/
 				
 				if($.trim($('#txtRandnumber').val()).length==0){
 					//定義 [0-9,A][0-9,A][0-9,A][0-9,A]
@@ -1453,10 +1456,32 @@
 						t_total = t_money + t_tax;
 						break;
 					case '3':
-						// 內含
-						t_tax = round(t_money / (1 + t_taxrate) * t_taxrate, 0);
+						// 內含  (單價當做含稅,vccas.total 未稅金額)
+						// 原則上只有B2C才會用到內含
+						// 有統編  vcca.tax 要另外顯示
+						// 無統號  vcca.tax 應為0,vcca.money、vcca.total 皆含稅
+						t_money=0,t_tax=0,t_total=0;
+						for(var i=0;i<q_bbsCount;i++){
+							t_taxs = round(q_float('txtMount_'+i)*q_float('txtPrice_'+i)/ (1 + t_taxrate) * t_taxrate, 0);
+							t_totals = round(q_float('txtMount_'+i)*q_float('txtPrice_'+i),0);
+							t_moneys = t_totals - t_taxs;
+							$('#txtMoney_'+i).val(t_moneys);
+							$('#txtTax_'+i).val(t_taxs);
+							
+							if($.trim($('#txtSerial').val()).length>0 && !(/^[0]{8,10}$/).test($('#txtSerial').val())){
+								t_money = q_add(t_money,t_moneys);
+								t_tax = q_add(t_tax,t_taxs);
+								t_total = q_add(t_total,t_totals);		
+							}else{
+								t_money = q_add(t_money,q_add(t_moneys,t_taxs));
+								t_tax = 0;
+								t_total = q_add(t_total,q_add(t_totals,t_taxs));
+							}
+						}
+						
+						/*t_tax = round(t_money / (1 + t_taxrate) * t_taxrate, 0);
 						t_total = t_money;
-						t_money = t_total - t_tax;
+						t_money = t_total - t_tax;*/
 						break;
 					case '4':
 						// 免稅
@@ -1593,10 +1618,31 @@
 						t_total = t_money + t_tax;
 						break;
 					case '3':
-						// 內含
-						t_tax = round(t_money / (1 + t_taxrate) * t_taxrate, 0);
+						// 內含  (單價當做含稅,vccas.total 未稅金額)
+						// 原則上只有B2C才會用到內含
+						// 有統編  vcca.tax 要另外顯示
+						// 無統號  vcca.tax 應為0,vcca.money、vcca.total 皆含稅
+						t_money=0,t_tax=0,t_total=0;
+						for(var i=0;i<q_bbsCount;i++){
+							t_taxs = round(q_float('txtMount_'+i)*q_float('txtPrice_'+i)/ (1 + t_taxrate) * t_taxrate, 0);
+							t_totals = round(q_float('txtMount_'+i)*q_float('txtPrice_'+i),0);
+							t_moneys = t_totals - t_taxs;
+							$('#txtMoney_'+i).val(t_moneys);
+							$('#txtTax_'+i).val(t_taxs);
+							
+							if($.trim($('#txtSerial').val()).length>0 && !(/^[0]{8,10}$/).test($('#txtSerial').val())){
+								t_money = q_add(t_money,t_moneys);
+								t_tax = q_add(t_tax,t_taxs);
+								t_total = q_add(t_total,t_totals);		
+							}else{
+								t_money = q_add(t_money,q_add(t_moneys,t_taxs));
+								t_tax = 0;
+								t_total = q_add(t_total,q_add(t_totals,t_taxs));
+							}
+						}
+						/*t_tax = round(t_money / (1 + t_taxrate) * t_taxrate, 0);
 						t_total = t_money;
-						t_money = t_total - t_tax;
+						t_money = t_total - t_tax;*/
 						break;
 					case '4':
 						// 免稅
@@ -2174,6 +2220,7 @@
 					<td align="center" style="width:70px;"><a id='lblMount'> </a></td>
 					<td align="center" style="width:70px;"><a id='lblPrice'> </a></td>
 					<td align="center" style="width:80px;"><a id='lblTotals'> </a></td>
+					<td align="center" style="width:80px;"><a id='lblTaxs'>稅額</a></td>
 					<td align="center" style="width:80px;"><a id='lblAprice'>自訂金額</a></td>
 					<td align="center" style="width:80px;display: none;" class="ordeno"><a id='lblOrdeno'> </a></td>
 					<td align="center" style="width:180px;"><a id='lblMemos'> </a></td>
@@ -2193,6 +2240,7 @@
 					<td><input id="txtMount.*" type="text" style="float:left;width: 95%; text-align: right;"/></td>
 					<td><input id="txtPrice.*" type="text" style="float:left;width: 95%; text-align: right;"/></td>
 					<td><input id="txtMoney.*" type="text" style="float:left;width: 95%; text-align: right;"/></td>
+					<td><input id="txtTax.*" type="text" style="float:left;width: 95%; text-align: right;"/></td>
 					<td><input id="chkAprice.*" type="checkbox"/></td>
 					<td class="ordeno" style="display: none;"><input id="txtOrdeno.*" type="text" style="float:left;width: 95%;"/></td>
 					<td><input id="txtMemo.*" type="text" style="float:left;width: 95%;"/></td>
