@@ -1473,9 +1473,9 @@
 								t_tax = q_add(t_tax,t_taxs);
 								t_total = q_add(t_total,t_totals);		
 							}else{
-								t_money = q_add(t_money,q_add(t_moneys,t_taxs));
+								t_money = q_add(t_money,t_totals);
 								t_tax = 0;
-								t_total = q_add(t_total,q_add(t_totals,t_taxs));
+								t_total = q_add(t_total,t_totals);
 							}
 						}
 						
@@ -1635,9 +1635,9 @@
 								t_tax = q_add(t_tax,t_taxs);
 								t_total = q_add(t_total,t_totals);		
 							}else{
-								t_money = q_add(t_money,q_add(t_moneys,t_taxs));
+								t_money = q_add(t_money,t_totals);
 								t_tax = 0;
-								t_total = q_add(t_total,q_add(t_totals,t_taxs));
+								t_total = q_add(t_total,t_totals);
 							}
 						}
 						/*t_tax = round(t_money / (1 + t_taxrate) * t_taxrate, 0);
