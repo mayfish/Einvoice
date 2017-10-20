@@ -52,44 +52,13 @@
 	            	$('#txtYnoa').val(t_para.noa);
 	            }
 	            
-				$('#btnOk').before($('#btnOk').clone().attr('id', 'btnOk2').show()).hide();
+				$('#btnOk').before($('#btnOk').clone().attr('id', 'btnOk2').attr('value','查詢').show()).hide();
 				$('#btnOk2').click(function() {
 					var t_invoice = $.trim($('#txtYnoa').val());
 					
 					switch($('#q_report').data('info').radioIndex) {
 						case 1:
-							$.ajax({
-	                    url: "/B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice,
-	                    type: 'POST',
-	                    //data: JSON.stringify(datea[0]),
-	                    dataType: 'text',
-	                    timeout: 10000,
-	                    success: function(data){
-	                        console.log(data);
-	                        alert(data);
-	                    },
-	                    complete: function(){ 
-	                    	
-	                    },
-	                    error: function(jqXHR, exception) {
-	                        var errmsg = this.url+'資料寫入異常。\n';
-	                        if (jqXHR.status === 0) {
-	                            alert(errmsg+'Not connect.\n Verify Network.');
-	                        } else if (jqXHR.status == 404) {
-	                            alert(errmsg+'Requested page not found. [404]');
-	                        } else if (jqXHR.status == 500) {
-	                            alert(errmsg+'Internal Server Error [500].');
-	                        } else if (exception === 'parsererror') {
-	                            alert(errmsg+'Requested JSON parse failed.');
-	                        } else if (exception === 'timeout') {
-	                            alert(errmsg+'Time out error.');
-	                        } else if (exception === 'abort') {
-	                            alert(errmsg+'Ajax request aborted.');
-	                        } else {
-	                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
-	                        }
-	                    }
-	                });
+							window.open("./B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice);
 							break;
 						case 2:
                         	window.open("./pdf_Einvo01.aspx?table=vcc&noa="+$('#txtNoa').val()+"&noq=&db="+q_db);
