@@ -79,7 +79,7 @@ z_einvoice06:--z_einvoice06   VCCB
 		,vccb_issend,vccb_isconfirm,vccb_iscancel,vccb_iscancelconfirm,vccb_status
 		,s_noq,s_invono,s_idate,s_productno,s_product,s_unit,s_mount,s_price,s_total,s_tax,s_taxtype,s_ctaxtype
 		,seller,buyer)
-	select '',2,'',a.noa,a.nob,a.typea
+	select  top 1000 '',2,'',a.noa,a.nob,a.typea
 		,case ISNULL(a.typea,'') when '1' then '銷貨退回' when '2' then '銷貨折讓' when '3' then '進貨退回' when '4' then '進貨折讓' else '' end ctypea
 		,a.datea,a.cno,a.custno,a.comp,a.nick,a.tggno,a.tgg,a.serial,a.addr,a.vkdate,a.[money],a.[tax],a.[total]
 		,a.issend,a.isconfirm,a.iscancel,a.iscancelconfirm,a.[status]
@@ -864,7 +864,7 @@ z_einvoice04:--z_einvoice04
 		,seller,seller_serial,buyer,buyer_serial,money,tax,total,memo,taxtype
 		,rc2a_issend,rc2a_issendconfirm,rc2a_iscancel,rc2a_iscancelconfirm
 		,rc2a_canceldate,rc2a_canceltime,rc2a_cancelreason)
-	select '',2,a.noa,a.datea
+	select  top 1000 '',2,a.noa,a.datea
 		,e.comp,e.serial,d.acomp,d.serial,a.money,a.tax,a.total,a.memo,a.taxtype
 		,isnull(a.issend,0),isnull(a.issendconfirm,0),isnull(a.iscancel,0),isnull(a.iscancelconfirm,0)
 		,a.canceldate,a.canceltime,a.cancelreason
@@ -1247,7 +1247,7 @@ z_einvoice02:--z_einvoice02
 		,seller,seller_serial,buyer,buyer_serial,money,tax,total,memo,taxtype
 		,vcca_issend,vcca_issendconfirm,vcca_iscancel,vcca_iscancelconfirm,vcca_isvoid
 		,vcca_canceldate,vcca_canceltime)
-	select '',2,a.noa,a.datea,e.messagetype
+	select top 1000 '',2,a.noa,a.datea,e.messagetype
 		,d.acomp,d.serial,e.comp,e.serial,a.money,a.tax,a.total,a.memo,a.taxtype
 		,isnull(a.issend,0),isnull(a.issendconfirm,0),isnull(a.iscancel,0),isnull(a.iscancelconfirm,0),a.isvoid
 		,a.canceldate,a.canceltime
