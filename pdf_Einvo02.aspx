@@ -13,7 +13,7 @@
             public float mount,price,total,total2,total3,total4;
             public string memo;
             public float t_total;
-            public string comp, comp_serial, comp_addr;
+            public string comp, comp_serial, comp_addr,taxtype;
        }
 
         public void drawLine(iTextSharp.text.pdf.PdfContentByte cb)
@@ -97,7 +97,12 @@
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[0]).total2.ToString(), 370, 160, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業稅", 31, 120, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "應稅", 80, 120, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "√", 119, 120, 0);
+            if(((Para)vccLabel[0]).taxtype=="1")
+				cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "√", 125, 120, 0);
+			else if(((Para)vccLabel[0]).taxtype=="2")
+				cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "√", 200, 120, 0);
+			else if(((Para)vccLabel[0]).taxtype=="4")
+				cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "√", 275, 120, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "零稅率", 153, 120, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "免稅", 236, 120, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[0]).total3.ToString(), 370, 120, 0);
@@ -227,10 +232,11 @@
 					
 					comp nvarchar(300),
 					comp_serial nvarchar(50),
-					comp_addr nvarchar(300)
+					comp_addr nvarchar(300),
+					taxtype nvarchar(10)
 				)
-				insert into @tmp(noa,noq,datea,invono,cust,serial,addr,product,mount,price,total,memo,comp,comp_serial,comp_addr,total3)
-				select b.noa,b.noq,a.datea,a.noa,a.comp,a.serial,c.addr_comp,b.product,b.mount,b.price,b.money,a.memo,e.acomp,e.serial,e.addr,a.tax
+				insert into @tmp(noa,noq,datea,invono,cust,serial,addr,product,mount,price,total,memo,comp,comp_serial,comp_addr,total3,taxtype,total4)
+				select b.noa,b.noq,a.datea,a.noa,a.comp,a.serial,c.addr_comp,b.product,b.mount,b.price,b.money,a.memo,e.acomp,e.serial,e.addr,a.tax,a.taxtype,a.money
 				from vcca a
 				left join vccas b on a.noa = b.noa
 				left join cust c on a.custno = c.noa
@@ -242,7 +248,6 @@
 				from @tmp a
 				outer apply (select SUM(total) as total,noa from @tmp where noa=a.noa group by noa)b
 				
-				update @tmp set total4 = ROUND(total2+total3,0)
 				select * from @tmp";
 				
                 System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(queryString, connSource);
@@ -276,6 +281,7 @@
                 pa.comp = System.DBNull.Value.Equals(r.ItemArray[16]) ? "" : (System.String)r.ItemArray[16];
                 pa.comp_serial = System.DBNull.Value.Equals(r.ItemArray[17]) ? "" : (System.String)r.ItemArray[17];
                 pa.comp_addr = System.DBNull.Value.Equals(r.ItemArray[18]) ? "" : (System.String)r.ItemArray[18];
+				pa.taxtype = System.DBNull.Value.Equals(r.ItemArray[19]) ? "" : (System.String)r.ItemArray[19];
                 vccLabel.Add(pa);
             }
             //-----PDF--------------------------------------------------------------------------------------------------
