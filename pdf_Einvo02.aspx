@@ -229,8 +229,8 @@
 					comp_serial nvarchar(50),
 					comp_addr nvarchar(300)
 				)
-				insert into @tmp(noa,noq,datea,invono,cust,serial,addr,product,mount,price,total,memo,comp,comp_serial,comp_addr)
-				select b.noa,b.noq,a.datea,a.noa,a.comp,a.serial,c.addr_comp,b.product,b.mount,b.price,b.money,a.memo,e.acomp,e.serial,e.addr
+				insert into @tmp(noa,noq,datea,invono,cust,serial,addr,product,mount,price,total,memo,comp,comp_serial,comp_addr,total3)
+				select b.noa,b.noq,a.datea,a.noa,a.comp,a.serial,c.addr_comp,b.product,b.mount,b.price,b.money,a.memo,e.acomp,e.serial,e.addr,a.tax
 				from vcca a
 				left join vccas b on a.noa = b.noa
 				left join cust c on a.custno = c.noa
@@ -242,7 +242,6 @@
 				from @tmp a
 				outer apply (select SUM(total) as total,noa from @tmp where noa=a.noa group by noa)b
 				
-				update @tmp set total3 = ROUND((total2*5)/100,0)
 				update @tmp set total4 = ROUND(total2+total3,0)
 				select * from @tmp";
 				
