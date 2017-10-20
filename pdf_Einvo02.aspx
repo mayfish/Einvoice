@@ -205,8 +205,8 @@
                 System.Data.SqlClient.SqlDataAdapter adapter = new System.Data.SqlClient.SqlDataAdapter();
                 connSource.Open();
                 string queryString = @"
-		            declare @tmp table(
-                    accy nvarchar(100),
+		            		            declare @tmp table(
+		            accy nvarchar(10),
 		            noa nvarchar(200),
 		            noq nvarchar(100),
 		   			datea nvarchar(30),
@@ -229,10 +229,10 @@
 					comp_serial nvarchar(50),
 					comp_addr nvarchar(300)
 				)
-				insert into @tmp(accy,noa,noq,datea,invono,cust,serial,addr,product,mount,price,total,memo,comp,comp_serial,comp_addr)
-				select b.accy,b.noa,b.noq,a.datea,invono,a.comp,c.serial,c.addr_comp,b.product,b.mount,b.price,b.total,b.memo,e.acomp,e.serial,e.addr
-				from view_vcc a
-				left join view_vccs b on a.noa = b.noa
+				insert into @tmp(noa,noq,datea,invono,cust,serial,addr,product,mount,price,total,memo,comp,comp_serial,comp_addr)
+				select b.noa,b.noq,a.datea,a.noa,a.comp,a.serial,c.addr_comp,b.product,b.mount,b.price,b.money,a.memo,e.acomp,e.serial,e.addr
+				from vcca a
+				left join vccas b on a.noa = b.noa
 				left join cust c on a.custno = c.noa
 				left join acomp e on a.cno = e.noa
 				where a.noa=@t_noa
