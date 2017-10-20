@@ -32,10 +32,6 @@
 					}, {
 						type : '6',
 						name : 'ynoa'
-					},
-					{
-						type : '6',
-						name : 'noa'
 					}]
 				});
 				q_popAssign();
@@ -61,10 +57,10 @@
 							window.open("./../einvoice/B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice);
 							break;
 						case 2:
-                        	window.open("./pdf_Einvo01.aspx?table=vcc&noa="+$('#txtNoa').val()+"&noq=&db="+q_db);
+                        	window.open("./pdf_Einvo01.aspx?table=vcc&noa="+$('#txtYnoa').val()+"&noq=&db="+q_db);
                             break;
 						case 3:
-                        	window.open("./pdf_Einvo02.aspx?table=vcc&noa="+$('#txtNoa').val()+"&noq=&db="+q_db);
+                        	window.open("./pdf_Einvo02.aspx?table=vcc&noa="+$('#txtYnoa').val()+"&noq=&db="+q_db);
                             break;
                   		default:
                   			$('#result').hide();
