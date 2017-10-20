@@ -78,6 +78,9 @@
 					case 'RS':
 						$('.einvoice').show();
 						break;
+					case 'XY':
+						$('.einvoice').show();
+						break;
 				}
 				
 	            $('#lblAccno').click(function () {

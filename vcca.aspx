@@ -102,6 +102,9 @@
 					case 'RS':
 						$('.einvoice').show();
 						break;
+					case 'XY':
+						$('.einvoice').show();
+						break;
 				}
 				
 				switch(q_getPara('sys.project').toUpperCase()){
