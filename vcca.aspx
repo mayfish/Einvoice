@@ -104,7 +104,7 @@
 						break;
 					case 'XY':
 						$('.einvoice').show();
-						$('#btnPrint').before($('#btnPrint').clone().attr('id', 'btnPrint2').attr('value','電子發票列印').show()).hide();
+						$('#btnPrint').after($('#btnPrint').clone().attr('id', 'btnPrint2').attr('value','電子發票列印').show());
 						$('#btnPrint2').click(function() {
 							q_box("z_vccap.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + JSON.stringify({noa:trim($('#txtNoa').val())}) + ";" + r_accy + "_" + r_cno, 'vcca', "95%", "95%", q_getMsg("popPrint"));
 						});
