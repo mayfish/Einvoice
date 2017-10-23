@@ -1,4 +1,4 @@
-vcca_apv:--vcca_apv  檢查發票抬頭
+vcca_apv:--vcca_apv  檢查發票抬頭 
 	declare @t_userno nvarchar(max) = [1]
 	declare @t_form nvarchar(max) = [2]
 	declare @t_guid nvarchar(max) = [3]

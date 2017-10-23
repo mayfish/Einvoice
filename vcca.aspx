@@ -1139,6 +1139,7 @@
 				
 				if ($('#txtDatea').val().length == 0 || !q_cd($('#txtDatea').val())) {
 					alert(q_getMsg('lblDatea') + '錯誤。');
+					Unlock(1);
 					return;
 				}
 				
