@@ -697,12 +697,19 @@
 					$("#cmbTaxtype").attr('size', len + "");
 				}).blur(function() {
 					$("#cmbTaxtype").attr('size', '1');
+					if($(this).val()=='6')
+						if( $('#txtCanceldate').val().length == 0 && $('#txtCanceltime').val().length == 0){
+							$('#txtCanceldate').val(q_date());
+							var a = new Date();
+							$('#txtCanceltime').val(a.getHours()+':'+a.getMinutes()+':'+a.getSeconds());
+						}
 				}).change(function(e) {
 					sum();
 					refreshBbs();
 				}).click(function(e) {
 					sum();
 					refreshBbs();
+					
 				});
 				
 				$('#txtNoa').change(function(e) {
@@ -1700,6 +1707,12 @@
 			var t_first_ins=true,t_first_ins_count=0;
 			function readonly(t_para, empty) {
 				_readonly(t_para, empty);
+				if (t_para) {
+                    $('#txtCanceldate').datepicker('destroy');
+                } else {	
+                    $('#txtCanceldate').datepicker();
+                }
+                
 				if (!emp($('#txtVccno').val()) && q_getPara('sys.project').toUpperCase()!='XY'){
 					$('#txtNoa').attr('disabled','disabled');
 					$('#cmbTaxtype').attr('disabled','disabled');
