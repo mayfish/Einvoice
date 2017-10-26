@@ -701,7 +701,15 @@
 						if( $('#txtCanceldate').val().length == 0 && $('#txtCanceltime').val().length == 0){
 							$('#txtCanceldate').val(q_date());
 							var a = new Date();
-							$('#txtCanceltime').val(a.getHours()+':'+a.getMinutes()+':'+a.getSeconds());
+							var hh = ''+a.getHours();
+							var mm = ''+a.getMinutes();
+							var ss = ''+a.getSeconds();
+							
+							hh = (hh.length==1?'0':'') + hh;
+							mm = (mm.length==1?'0':'') + mm;
+							ss = (ss.length==1?'0':'') + ss;
+							
+							$('#txtCanceltime').val(hh+':'+mm+':'+ss);
 						}
 				}).change(function(e) {
 					sum();
