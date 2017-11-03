@@ -1,3 +1,4 @@
+
 <%@ Page Language="C#" Debug="true"%>
     <script language="c#" runat="server">     
         static string connString = @"Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
@@ -24,28 +25,45 @@
             public string SellerIdentifier; //銷售店統編
             public string BusinessIdentifier;  //總公司統編   如無總公司，請輸入銷售店統編
             public string AESKey; //加解密金鑰
+            public string Printmark;
+            public string cno;
+            public string acomp;
 
             public DateTime date;
 
             public string code39// 發票期別(5) + 發票字軌號碼(10) + 隨機碼(4)
             {
                 get {
-                    string year = this.InvoiceDate.Substring(0, 3);
-                    string month = "00"+(Int32.Parse(this.InvoiceDate.Substring(3, 2)) + Int32.Parse(this.InvoiceDate.Substring(3, 2))%2).ToString();
-                    month = month.Substring(month.Length - 2, 2);
-                    return year+month+this.InvoiceNumber+this.RandomNumber;
+                    try
+                    {
+                        string year = this.InvoiceDate.Substring(0, 3);
+                        string month = "00" + (Int32.Parse(this.InvoiceDate.Substring(3, 2)) + Int32.Parse(this.InvoiceDate.Substring(3, 2)) % 2).ToString();
+                        month = month.Substring(month.Length - 2, 2);
+                        return year + month + this.InvoiceNumber + this.RandomNumber;
+                    }
+                    catch (Exception e)
+                    {
+                        return "";
+                    }
                 }
             }
             public string qrcode
             {
                 get {
-                    com.tradevan.qrutil.QREncrypter qrEncrypter = new com.tradevan.qrutil.QREncrypter();
-                    return qrEncrypter.QRCodeINV(this.InvoiceNumber, this.InvoiceDate, this.InvoiceTime
-                    , this.RandomNumber, this.SalesAmount, this.TaxAmount, this.TotalAmount
-                    , this.BuyerIdentifier, this.RepresentIdentifier, this.SellerIdentifier, this.BusinessIdentifier, this.AESKey)
-                    + "**********:" + (this.bbs.Length > 11 ? "11" : this.bbs.Length.ToString())// 第一項產品放在 qrcode,剩下的都放在qrcode2,qrcode2最多記錄10筆,所以單張發票最多記載11筆明細
-                    + ":" + this.bbs.Length.ToString() + ":1"  //統一 UTF-8 編碼
-                    + ":" + this.bbs[0].product + ":" + this.bbs[0].mount.ToString("0.########") + ":" + this.bbs[0].price.ToString("0.########") + ":";
+                   // try
+                   // {
+                        com.tradevan.qrutil.QREncrypter qrEncrypter = new com.tradevan.qrutil.QREncrypter();
+                        return qrEncrypter.QRCodeINV(this.InvoiceNumber, this.InvoiceDate, this.InvoiceTime
+                        , this.RandomNumber, this.SalesAmount, this.TaxAmount, this.TotalAmount
+                        , this.BuyerIdentifier, this.RepresentIdentifier, this.SellerIdentifier, this.BusinessIdentifier, this.AESKey)
+                        + "**********:" + (this.bbs.Length > 11 ? "11" : this.bbs.Length.ToString())// 第一項產品放在 qrcode,剩下的都放在qrcode2,qrcode2最多記錄10筆,所以單張發票最多記載11筆明細
+                        + ":" + this.bbs.Length.ToString() + ":1"  //統一 UTF-8 編碼
+                        + ":" + this.bbs[0].product + ":" + this.bbs[0].mount.ToString("0.########") + ":" + this.bbs[0].price.ToString("0.########") + ":";
+                    /*}
+                    catch (Exception e)
+                    {
+                        return "";
+                    }*/
                 }
             }
             public string qrcode2
@@ -149,21 +167,38 @@
             cb.AddImage(barcodeImage);
             
             //二維條碼
-            iTextSharp.text.Image qrcode = iTextSharp.text.Image.GetInstance(QrCode(invoice.qrcode, 100, 100), iTextSharp.text.BaseColor.BLACK);
-            qrcode.ScaleAbsolute(75f, 75f);
-            qrcode.SetAbsolutePosition(10, 10);
-            iTextSharp.text.Image qrcode2 = iTextSharp.text.Image.GetInstance(QrCode(invoice.qrcode2, 100, 100), iTextSharp.text.BaseColor.BLACK);
-            qrcode2.ScaleAbsolute(75f, 75f);
-            qrcode2.SetAbsolutePosition(78, 10);
-            cb.AddImage(qrcode);
-            cb.AddImage(qrcode2);
-            
+            if (invoice.qrcode.Length > 0)
+            {
+                iTextSharp.text.Image qrcode = iTextSharp.text.Image.GetInstance(QrCode(invoice.qrcode, 100, 100), iTextSharp.text.BaseColor.BLACK);
+                qrcode.ScaleAbsolute(75f, 75f);
+                qrcode.SetAbsolutePosition(10, 10);
+                cb.AddImage(qrcode);
+            }
+            if (invoice.qrcode2.Length > 0)
+            {
+                iTextSharp.text.Image qrcode2 = iTextSharp.text.Image.GetInstance(QrCode(invoice.qrcode2, 100, 100), iTextSharp.text.BaseColor.BLACK);
+                qrcode2.ScaleAbsolute(75f, 75f);
+                qrcode2.SetAbsolutePosition(78, 10);
+                cb.AddImage(qrcode2);
+            }
             //文字
             cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
             cb.BeginText();
-            //電子發票證明聯
+            //公司名稱
             cb.SetFontAndSize(bfChinese, 18);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "電子發票證明聯", width/2, 200, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER,invoice.acomp, width / 2, 220, 0);
+            //電子發票證明聯
+
+            if (invoice.Printmark == "Y")
+            {
+                cb.SetFontAndSize(bfChinese, 17);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "電子發票證明聯補印", width / 2, 200, 0);
+            }
+            else
+            {
+                cb.SetFontAndSize(bfChinese, 18);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "電子發票證明聯", width / 2, 200, 0);
+            }
             //期別
             int n = Int32.Parse(invoice.InvoiceDate.Substring(3, 2)) + Int32.Parse(invoice.InvoiceDate.Substring(3, 2)) % 2;
             string value = invoice.InvoiceDate.Substring(0, 3).ToString() + "年"
@@ -184,7 +219,17 @@
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計  " + invoice.TotalAmount.ToString("0.########"), 90, 124, 0);
             //賣方
             cb.SetFontAndSize(bfChinese, 10);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方 " + invoice.SellerIdentifier, 18, 110, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方", 18, 110, 0);
+            cb.SetFontAndSize(bfChinese, 8);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.SellerIdentifier, 40, 110, 0);
+            //買方
+            if (invoice.BuyerIdentifier.Length > 0 && invoice.BuyerIdentifier != "00000000")
+            {
+                cb.SetFontAndSize(bfChinese, 10);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "買方", 90, 110, 0);
+                cb.SetFontAndSize(bfChinese, 8);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.BuyerIdentifier, 112, 110, 0);
+            }
             
             cb.EndText();
             
@@ -233,19 +278,25 @@
         ,BusinessIdentifier nvarchar(10)  --總公司統編   如無總公司，請輸入銷售店統編
         ,[date] datetime
         ,aes nvarchar(max)
+        ,printmark nvarchar(max)
+        ,cno nvarchar(20)
+        ,acomp nvarchar(50)
     )
     insert into @tmp(InvoiceNumber,InvoiceDate,InvoiceTime,RandomNumber
         ,SalesAmount,TaxAmount,TotalAmount
         ,BuyerIdentifier,RepresentIdentifier,SellerIdentifier,BusinessIdentifier
-        ,[date],aes)
+        ,[date],aes,printmark,cno,acomp)
     select a.noa
 		,replace(case when len(a.datea)=10 then dbo.AD2ChineseEraName(cast(a.datea as datetime)) else a.datea end,'/','')
 		,replace(case when len(isnull(a.timea,''))=0 then '000000' else a.timea end,':','')
         ,case when len(isnull(a.randnumber,''))=0 then '0000' else a.randnumber end 
         ,a.[money],a.tax,a.total
-        ,a.serial,'00000000',b.serial,b.serial
+         ,case when len(isnull(a.serial,''))=0 or a.serial='0000000000' then '00000000' else a.serial end
+        ,'00000000',b.serial,b.serial
         ,cast( case when len(a.datea)=10 then a.datea else convert(nvarchar,dbo.ChineseEraName2AD(a.datea),111) end+' '+isnull(a.timea,'') as datetime)
         ,isnull(b.aes,'')
+        ,isnull(a.printmark,'')
+        ,a.cno,isnull(b.acomp,'')
     from vcca a 
     left join acomp b on a.cno=b.noa
     where a.noa=@invoiceNumber
@@ -258,10 +309,13 @@
 	)
 	insert into @tmps(product,mount,price,total)
 	select replace(a.product,':','') --移除 :
-        ,a.mount,a.price,a.[money]
+        ,a.mount,a.price,isnull(a.[money],0)+isnull(a.[tax],0)
 	from vccas a
 	where a.noa=@invoiceNumber
 	order by a.noq
+
+    --回寫已列印
+    update vcca set printmark='Y' where noa=@invoiceNumber
 	
     select * from @tmp
     select * from @tmps
@@ -294,6 +348,9 @@
                 invoice.BusinessIdentifier = System.DBNull.Value.Equals(r.ItemArray[10]) ? null : (System.String)r.ItemArray[10];
                 invoice.date = System.DBNull.Value.Equals(r.ItemArray[11]) ? System.DateTime.MinValue : (System.DateTime)r.ItemArray[11];
                 invoice.AESKey = System.DBNull.Value.Equals(r.ItemArray[12]) ? null : (System.String)r.ItemArray[12];
+                invoice.Printmark = System.DBNull.Value.Equals(r.ItemArray[13]) ? null : (System.String)r.ItemArray[13];
+                invoice.cno = System.DBNull.Value.Equals(r.ItemArray[14]) ? null : (System.String)r.ItemArray[14];
+                invoice.acomp = System.DBNull.Value.Equals(r.ItemArray[15]) ? null : (System.String)r.ItemArray[15];
             }
             invoice.bbs = new Invoices[ds.Tables[1].Rows.Count];
             int n = 0;
