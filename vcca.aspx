@@ -178,19 +178,19 @@
 						$('#btnXchg').click();
 					}
 					if($('#chkIssend').prop('checked')){
-						alert('錯誤:已開立。');
+						alert('錯誤:已產生發票電子檔。');
 						return;
 					}
 					if($('#chkIssendconfirm').prop('checked')){
-						alert('錯誤:已開立接收確認。');
+						alert('錯誤:已確認發票電子檔。');
 						return;
 					}
 					if($('#chkIscancel').prop('checked')){
-						alert('錯誤:已產生作廢XML。');
+						alert('錯誤:已產生作廢電子檔。');
 						return;
 					}
 					if($('#chkIscancelconfirm').prop('checked')){
-						alert('錯誤:已作廢接收確認。');
+						alert('錯誤:已確認作廢電子檔。');
 						return;
 					}
 					var t_invoiceNumber = $.trim($('#txtNoa').val());
@@ -198,7 +198,7 @@
 						alert('錯誤:無單號');
 						return;
 					}
-					if (!confirm("確認開立發票?")) {
+					if (!confirm("確認產生發票電子檔?")) {
 					    return;
 					}
 					$.ajax({
@@ -214,7 +214,7 @@
 	                    			alert(tmp.msg);	                    		
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
 	                    			$('#chkIssend').prop('checked',true);
-	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 開立完成。");	
+	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 發票電子檔產生完成。");	
 	                    		}
 	                    },
 	                    complete: function(){
@@ -258,7 +258,7 @@
 						return;
 					}
 					if($('#chkIscancel').prop('checked')){
-						alert('錯誤:已產生作廢XML。');
+						alert('錯誤:已產生作廢電子檔。');
 						return;
 					}
 					var t_invoiceNumber = $.trim($('#txtNoa').val());
@@ -266,7 +266,7 @@
 						alert('錯誤:無單號');
 						return;
 					}
-					if (!confirm("確認作廢發票?")) {
+					if (!confirm("確認產生作廢發票電子檔?")) {
 					    return;
 					}
 					$.ajax({
@@ -322,19 +322,19 @@
 						$('#btnXchg').click();
 					}
 					if($('#chkIssend').prop('checked')){
-						alert('錯誤:已開立。');
+						alert('錯誤:已產生發票電子檔。');
 						return;
 					}
 					if($('#chkIssendconfirm').prop('checked')){
-						alert('錯誤:已開立接收確認。');
+						alert('錯誤:已產生確認電子檔。');
 						return;
 					}
 					if($('#chkIscancel').prop('checked')){
-						alert('錯誤:已產生作廢XML。');
+						alert('錯誤:已產生作廢電子檔。');
 						return;
 					}
 					if($('#chkIscancelconfirm').prop('checked')){
-						alert('錯誤:已作廢接收確認。');
+						alert('錯誤:已產生作廢確認電子檔。');
 						return;
 					}
 					var t_invoiceNumber = $.trim($('#txtNoa').val());
@@ -342,7 +342,7 @@
 						alert('錯誤:無單號');
 						return;
 					}
-					if (!confirm("確認開立發票?")) {
+					if (!confirm("確認產生發票電子檔?")) {
 					    return;
 					}
 					$.ajax({
@@ -359,7 +359,7 @@
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
 	                    			$('#chkIssend').prop('checked',true);
 	                    			$('#chkIssendconfirm').prop('checked',true);
-	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 開立完成。");	
+	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 產生發票電子檔完成。");	
 	                    		}
 	                    },
 	                    complete: function(){
@@ -403,7 +403,7 @@
 						return;
 					}
 					if($('#chkIscancel').prop('checked')){
-						alert('錯誤:已產生作廢XML。');
+						alert('錯誤:已產生作廢電子檔。');
 						return;
 					}
 					var t_invoiceNumber = $.trim($('#txtNoa').val());
@@ -428,7 +428,7 @@
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
 	                    			$('#chkIscancel').prop('checked',true);
 	                    			$('#chkIscancelconfirm').prop('checked',true);
-	                    			alert(this.invoiceNumber+" 作廢完成。");	
+	                    			alert(this.invoiceNumber+" 產生作廢電子檔完成。");	
 	                    		}
 	                    },
 	                    complete: function(){
@@ -498,15 +498,15 @@
 						$('#btnXchg').click();
 					}
 					if($('#chkIssend').prop('checked')){
-						alert('錯誤:已開立。');
+						alert('錯誤:已產生發票電子檔。');
 						return;
 					}
 					if($('#chkIssendconfirm').prop('checked')){
-						alert('錯誤:已開立接收確認。');
+						alert('錯誤:已產生確認電子檔。');
 						return;
 					}
 					if($('#chkIscancel').prop('checked')){
-						alert('錯誤:已產生作廢XML。');
+						alert('錯誤:已產生作廢電子檔。');
 						return;
 					}
 					/*if($('cmbPrintmark').val()!='Y' && ){
@@ -522,7 +522,7 @@
 						alert('錯誤:無單號');
 						return;
 					}
-					if (!confirm("確認開立發票(B2C)?")) {
+					if (!confirm("確認產生發票電子檔(B2C)?")) {
 					    return;
 					}
 					$.ajax({
@@ -539,7 +539,7 @@
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
 	                    			$('#chkIssend').prop('checked',true);
 	                    			$('#chkIssendconfirm').prop('checked',true);
-	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 開立完成。");	
+	                    			alert(tmp.invoice[0].Main.InvoiceNumber+" 產生發票電子檔完成。");	
 	                    		}
 	                    },
 	                    complete: function(){
@@ -571,11 +571,11 @@
 						$('#btnXchg').click();
 					}
 					if(!$('#chkIssend').prop('checked')){
-						alert('錯誤:未開立。');
+						alert('錯誤:未產生發票電子檔。');
 						return;
 					}
 					if($('#chkIscancel').prop('checked')){
-						alert('錯誤:已產生作廢XML。');
+						alert('錯誤:已產生作廢電子檔。');
 						return;
 					}
 					if($('#chkIscancelconfirm').prop('checked')){
@@ -587,7 +587,7 @@
 						alert('錯誤:無單號');
 						return;
 					}
-					if (!confirm("確認作廢發票(B2C)?")) {
+					if (!confirm("確認作廢電子檔(B2C)?")) {
 					    return;
 					}
 					$.ajax({
@@ -604,7 +604,7 @@
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
 	                    			$('#chkIscancel').prop('checked',true);
 	                    			$('#chkIscancelconfirm').prop('checked',true);
-	                    			alert(tmp.cancelInvoice[0].CancelInvoiceNumber+" 作廢完成。");	
+	                    			alert(tmp.cancelInvoice[0].CancelInvoiceNumber+" 作廢電子檔完成。");	
 	                    		}
 	                    },
 	                    complete: function(){
@@ -635,7 +635,7 @@
 						$('#btnXchg').click();
 					}
 					if(!$('#chkIssend').prop('checked')){
-						alert('錯誤:未開立。');
+						alert('錯誤:未產生發票電子檔。');
 						return;
 					}
 					
@@ -644,7 +644,7 @@
 						alert('錯誤:無單號');
 						return;
 					}
-					if (!confirm("確認註銷發票(B2C)?")) {
+					if (!confirm("確認註銷發票電子檔(B2C)?")) {
 					    return;
 					}
 					$.ajax({
@@ -663,7 +663,7 @@
 	                    			$('#chkIssendconfirm').prop('checked',false);
 	                    			$('#chkIscancel').prop('checked',false);
 	                    			$('#chkIscancelconfirm').prop('checked',false);
-	                    			alert(tmp.voidInvoice[0].VoidInvoiceNumber+" 註銷完成。");	
+	                    			alert(tmp.voidInvoice[0].VoidInvoiceNumber+" 註銷發票電子檔完成。");	
 	                    		}
 	                    },
 	                    complete: function(){
@@ -2221,21 +2221,21 @@
 			<option value="3J0002">手機條碼</option>
 			<option value="CQ0001">自然人憑證條碼</option>
 		</datalist>
-		<input class="einvoice" type="button" id="btnA0101" title="A0101" value="開立發票" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input class="einvoice" type="button" id="btnA0101" title="A0101" value="產生發票電子檔" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input class="einvoice" type="button" id="btnA0201" title="A0201" value="作廢發票" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input class="einvoice" type="button" id="btnA0201" title="A0201" value="作廢發票電子檔" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:200px;height:30px;"> </span>
 		<input class="einvoice" type="button" id="btnVccb" value="折讓／退回" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:5px;height:30px;"> </span>
-		<input class="einvoice" type="button" id="btnA0401" title="A0401" value="開立發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input class="einvoice" type="button" id="btnA0401" title="A0401" value="產生存證電子檔" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input class="einvoice" type="button" id="btnA0501" title="A0501" value="作廢發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input class="einvoice" type="button" id="btnA0501" title="A0501" value="作廢存證電子檔" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:200px;height:30px;"> </span>
-		<input class="einvoice" type="button" id="btnC0401" title="C0401" value="(B2C)開立發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input class="einvoice" type="button" id="btnC0401" title="C0401" value="(B2C)產生存證電子檔" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input class="einvoice" type="button" id="btnC0501" title="C0501" value="(B2C)作廢發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input class="einvoice" type="button" id="btnC0501" title="C0501" value="(B2C)作廢存證電子檔" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<span style="display:block;,width:5px;height:5px;"> </span>
-		<input class="einvoice" type="button" id="btnC0701" title="C0701" value="(B2C)註銷發票存證" style="width:200px;height:50px;white-space:normal;display:none;"/>
+		<input class="einvoice" type="button" id="btnC0701" title="C0701" value="(B2C)註銷存證電子檔" style="width:200px;height:50px;white-space:normal;display:none;"/>
 		<div class='dbbs'>
 			<table id="tbbs" class='tbbs' style=' text-align:center'>
 				<tr style='color:white; background:#003366;' >
