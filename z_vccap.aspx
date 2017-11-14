@@ -54,7 +54,8 @@
 					
 					switch($('#q_report').data('info').radioIndex) {
 						case 1:
-							window.open("./../einvoice/B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice);
+							//window.open("./../einvoice/B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice);
+							window.open("./B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice);
 							break;
 						case 2:
                         	window.open("./pdf_Einvo01.aspx?table=vcc&noa="+$('#txtYnoa').val()+"&noq=&db="+q_db);
