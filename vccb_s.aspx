@@ -41,15 +41,15 @@
             }
 
             function q_seekStr() {
-            	t_bdate = $('#txtBdate').val();
-                t_edate = $('#txtEdate').val();
-                t_noa = $('#txtNoa').val();
-                t_tggno = $('#txtTggno').val();
-                t_tgg = $('#txtTgg').val();
-                t_custno = $('#txtCustno').val();
-                t_cust = $('#txtCust').val();
-             	t_invoice = $('#txtInvoice').val();
-             	t_typea = $('#cmbTypea').val();
+            	t_bdate = $.trim($('#txtBdate').val());
+                t_edate = $.trim($('#txtEdate').val());
+                t_noa = $.trim($('#txtNoa').val());
+                t_tggno = $.trim($('#txtTggno').val());
+                t_tgg = $.trim($('#txtTgg').val());
+                t_custno = $.trim($('#txtCustno').val());
+                t_cust = $.trim($('#txtCust').val());
+             	t_invoice = $.trim($('#txtInvoice').val());
+             	t_typea = $.trim($('#cmbTypea').val());
              	
                 var t_where = " 1=1 " 
                 	+ q_sqlPara2("noa", t_noa) 
