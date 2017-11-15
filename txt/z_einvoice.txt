@@ -707,7 +707,7 @@ z_einvoice06:--z_einvoice06   VCCB
 		
 	
 	select gno
-		,'<input type="button" id="btnAction" value="確認" onclick="Action()"/>' run
+		,'<input type="button" id="btnAction" value="產生電子檔" onclick="Action()"/>' run
 		, @ss ss
 		, @sa0301 sa0301
 		, @sa0302 sa0302
@@ -1155,7 +1155,7 @@ z_einvoice04:--z_einvoice04
 			}</script>'
 				
 	select gno
-		,'<input type="button" id="btnAction" value="確認" onclick="Action()"/>' run
+		,'<input type="button" id="btnAction" value="產生電子檔" onclick="Action()"/>' run
 		, @ss ss
 		, @sa0102 sa0102
 		, @sa0202 sa0202
@@ -1725,7 +1725,7 @@ z_einvoice02:--z_einvoice02
 			}</script>'
 	
 	select gno
-		,'<input type="button" id="btnAction" value="確認" onclick="Action()"/>' run
+		,'<input type="button" id="btnAction" value="產生電子檔" onclick="Action()"/>' run
 		, @ss ss
 		, @sa0101 sa0101
 		, @sa0201 sa0201
