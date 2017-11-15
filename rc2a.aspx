@@ -1002,7 +1002,7 @@
 						<td><span> </span><a id="lblMemo" class="lbl" > </a></td>
 						<td colspan='5'><input id="txtMemo" type="text" class="txt c1" /></td>
 					</tr>
-					<tr>
+					<tr class="einvoice">
 						<td> </td>
 						<td><input type="checkbox" style="float:left;" id="chkIssend"/><span style="display:block;width:100px;float:left;">接收</span></td>
 						<td><input type="checkbox" style="float:left;" id="chkIssendconfirm"/><span style="display:block;width:100px;float:left;">開立確認</span></td>

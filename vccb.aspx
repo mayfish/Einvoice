@@ -1351,11 +1351,11 @@
 						<td><span> </span><a id="lblMemo"  class="lbl"> </a></td>
 						<td colspan="5"><input id="txtMemo"  type="text" class="txt c1"/></td>
 					</tr>
-					<tr>
+					<tr class="einvoice">
 						<td><span> </span><a id='lblNob' class="lbl">折讓單號</a></td>
 						<td><input id="txtNob"  type="text" class="txt c1"/></td>
 					</tr>
-					<tr>
+					<tr class="einvoice">
 						<td> </td>
 						<td><input type="checkbox" style="float:left;" id="chkIssend"/><span style="display:block;width:100px;float:left;">開立</span></td>
 						<td><input type="checkbox" style="float:left;" id="chkIsconfirm"/><span style="display:block;width:100px;float:left;">確認</span></td>
