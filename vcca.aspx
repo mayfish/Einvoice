@@ -2189,9 +2189,9 @@
 					</tr>
 					<tr class="einvoice" style="display:none;">
 						<td> </td>
-						<td><input type="checkbox" style="float:left;" id="chkIssend"/><span style="display:block;width:100px;float:left;">開立</span></td>
-						<td><input type="checkbox" style="float:left;" id="chkIssendconfirm"/><span style="display:block;width:100px;float:left;">開立接收確認</span></td>
-						<td><input type="checkbox" style="float:left;" id="chkIscancel"/><span style="display:block;width:100px;float:left;">作廢</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIssend"/><span style="display:block;width:100px;float:left;">產生電子檔</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIssendconfirm"/><span style="display:block;width:100px;float:left;">電子檔接收確認</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIscancel"/><span style="display:block;width:100px;float:left;">產生作廢電子檔</span></td>
 						<td><input type="checkbox" style="float:left;" id="chkIscancelconfirm"/><span style="display:block;width:100px;float:left;">作廢接收確認</span></td>
 						
 					</tr>
