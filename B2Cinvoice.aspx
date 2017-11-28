@@ -1,7 +1,7 @@
 
 <%@ Page Language="C#" Debug="true"%>
     <script language="c#" runat="server">     
-        static string connString = @"Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
+        static string connString = @"Data Source=59.125.143.171,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
         //static string connStringTNK = @"Data Source=127.0.0.1,1798;Persist Security Info=True;User ID=sa;Password=1qaz2wsx;Database=TNK";
 
         public class Invoices
@@ -28,7 +28,7 @@
             public string Printmark;
             public string cno;
             public string acomp;
-
+            public string logo;
             public DateTime date;
 
             public string code39// 發票期別(5) + 發票字軌號碼(10) + 隨機碼(4)
@@ -161,6 +161,8 @@
             iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
             doc1.NewPage();
             //============ 第一頁 ==============
+            
+            
             //一維條碼
             iTextSharp.text.Paragraph pa = new iTextSharp.text.Paragraph();            
             iTextSharp.text.pdf.Barcode39 barcode = new iTextSharp.text.pdf.Barcode39();
@@ -191,8 +193,25 @@
             cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
             cb.BeginText();
             //公司名稱
-            cb.SetFontAndSize(bfChinese, 18);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER,invoice.acomp, width / 2, 220, 0);
+            //cb.SetFontAndSize(bfChinese, 18);
+            //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER,invoice.acomp, width / 2, 220, 0);
+
+            //LOGO
+            /*byte[] bytes = Convert.FromBase64String(invoice.logo.Replace("data:image/png;base64,",""));
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream(bytes))
+            {
+                image = System.Drawing.Image.FromStream(ms);
+            }*/
+            //System.Drawing.Image image = System.Drawing.Image.FromFile(@"C:\Users\Administrator\Desktop\客戶資料\有達\logo.png", true);
+            
+            System.Drawing.Image image = System.Drawing.Image.FromFile(Server.MapPath("/einvoice/"+invoice.cno+".png"), true);
+            iTextSharp.text.Image logo = iTextSharp.text.Image.GetInstance(image, System.Drawing.Imaging.ImageFormat.Bmp);
+            // iTextSharp.text.Image logo = iTextSharp.text.Image.GetInstance(HttpContext.Current.Server.MapPath("./einvoice/logo.bmp"));
+            //調整圖片大小
+        
+            logo.ScalePercent(25f);
+            logo.SetAbsolutePosition(3, 220);
+            doc1.Add(logo);
             //電子發票證明聯
 
             if (invoice.Printmark == "Y")
@@ -287,11 +306,12 @@
         ,printmark nvarchar(max)
         ,cno nvarchar(20)
         ,acomp nvarchar(50)
+        ,logo nvarchar(max)
     )
     insert into @tmp(InvoiceNumber,InvoiceDate,InvoiceTime,RandomNumber
         ,SalesAmount,TaxAmount,TotalAmount
         ,BuyerIdentifier,RepresentIdentifier,SellerIdentifier,BusinessIdentifier
-        ,[date],aes,printmark,cno,acomp)
+        ,[date],aes,printmark,cno,acomp,logo)
     select a.noa
 		,replace(case when len(a.datea)=10 then dbo.AD2ChineseEraName(cast(a.datea as datetime)) else a.datea end,'/','')
 		,replace(case when len(isnull(a.timea,''))=0 then '000000' else a.timea end,':','')
@@ -303,8 +323,10 @@
         ,isnull(b.aes,'')
         ,isnull(a.printmark,'')
         ,a.cno,isnull(b.acomp,'')
+        ,c.img
     from vcca a 
     left join acomp b on a.cno=b.noa
+    left join logo c on a.cno=c.noa
     where a.noa=@invoiceNumber
 
 	declare @tmps table(
@@ -357,6 +379,7 @@
                 invoice.Printmark = System.DBNull.Value.Equals(r.ItemArray[13]) ? null : (System.String)r.ItemArray[13];
                 invoice.cno = System.DBNull.Value.Equals(r.ItemArray[14]) ? null : (System.String)r.ItemArray[14];
                 invoice.acomp = System.DBNull.Value.Equals(r.ItemArray[15]) ? null : (System.String)r.ItemArray[15];
+                invoice.logo = System.DBNull.Value.Equals(r.ItemArray[16]) ? null : (System.String)r.ItemArray[16];
             }
             invoice.bbs = new Invoices[ds.Tables[1].Rows.Count];
             int n = 0;
