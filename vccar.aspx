@@ -249,6 +249,7 @@
                 _btnIns();
                 $('#txtNoa').val('AUTO');
                 $('#txtNoa').focus();
+                $('#cmbInvoicetype').val('01');
             }
 
             function btnModi() {
