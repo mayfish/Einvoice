@@ -1,0 +1,672 @@
+﻿z_vccap1:--z_vccap1 
+declare @t_bnoa nvarchar(max)
+declare @t_enoa nvarchar(max)
+set @t_bnoa = case when '#non'=[2] then '' else [2] end
+set @t_enoa = case when '#non'=[3] then '' else [3] end
+------------報表設定<<Start>>------------
+declare @maxcount int = 40 --產品名稱長度
+declare @pageline int = 7 --每頁幾行
+------------報表設定<<End>>------------
+declare @strNum nvarchar(max) = N'零壹貳叁肆伍陸柒捌玖'
+declare @tmp table(
+	gno nvarchar(10),
+	idno int identity(0,1),
+	pageno int,
+	pageorder int,
+	datea nvarchar(10),
+	noa nvarchar(50),
+	noq nvarchar(10),
+	buyer nvarchar(max),
+	serial nvarchar(50),
+	invoaddr nvarchar(max),
+	chkno nvarchar(15),
+	vccno nvarchar(50),
+	ordbno nvarchar(50),
+	ordeno nvarchar(MAX),
+	productno nvarchar(90),
+	products nvarchar(max),
+	mount float,
+	price float,
+	total float,
+	taxtype1 nvarchar(50),
+	taxtype2 nvarchar(50),
+	taxtype3 nvarchar(50),
+	totpmoney float,
+	taxmoney float,
+	totmoney float,
+	money1 nvarchar(10),
+	money2 nvarchar(10),
+	money3 nvarchar(10),
+	money4 nvarchar(10),
+	money5 nvarchar(10),
+	money6 nvarchar(10),
+	money7 nvarchar(10),
+	money8 nvarchar(10)
+)
+insert into @tmp
+	select
+		'0',0,0,a.datea,a.noa,b.noq,
+		case when isnull(a.buyer,'') != '' then a.buyer else a.comp end,
+		case when isnull(a.serial,'') != '' then a.serial else d.serial end,
+		case when isnull(a.buyerno,'') != '' then (case when isnull(a.address,'') != '' then a.address else d.addr_invo end) else null end,
+		a.chkno,a.vccno,c.zipcode,case when c.ordeno!='' then c.ordeno else REPLACE(a.memo,vccno,'') end,b.productno,b.product,b.mount,b.price,b.money,
+		case when a.taxtype='1' then '&#10004' else null end,
+		case when a.taxtype='2' then '&#10004' else null end,
+		case when a.taxtype='4' then '&#10004' else null end,
+		a.money,a.tax,a.total,'','','','','','','',''
+	from vcca a
+	left join vccas b on a.noa=b.noa
+	left join view_vcc c on a.vccno = c.noa
+	left join cust d on a.buyerno=d.noa
+	where (a.taxtype != '6') and (a.noa between @t_bnoa and @t_enoa)
+------------單筆處理<<Start>>-----------
+insert into @tmp(
+		gno,pageno,pageorder,datea,noa,noq,buyer,serial,invoaddr,chkno,
+		vccno,ordbno,ordeno,taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney
+)
+	select
+		gno,pageno,2,datea,noa,'002',buyer,serial,invoaddr,chkno,
+		vccno,ordbno,ordeno,taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney
+	from @tmp a
+	outer apply(select count(*) mount from @tmp where noa=a.noa) b
+	where b.mount = 1
+------------單筆處理<<End>>------------
+update a  
+	set money1 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 8) + cast(CAST(totmoney as int) as nvarchar), 8),1,1) as int)+1,1),
+	money2 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 8) + cast(CAST(totmoney as int) as nvarchar), 8),2,1) as int)+1,1),
+	money3 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 8) + cast(CAST(totmoney as int) as nvarchar), 8),3,1) as int)+1,1),
+	money4 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 8) + cast(CAST(totmoney as int) as nvarchar), 8),4,1) as int)+1,1),
+	money5 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 8) + cast(CAST(totmoney as int) as nvarchar), 8),5,1) as int)+1,1),
+	money6 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 8) + cast(CAST(totmoney as int) as nvarchar), 8),6,1) as int)+1,1),
+	money7 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 8) + cast(CAST(totmoney as int) as nvarchar), 8),7,1) as int)+1,1),
+	money8 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 8) + cast(CAST(totmoney as int) as nvarchar), 8),8,1) as int)+1,1)
+from @tmp a
+------------gno->1=字斷行,2=空白行,3=銷售額合計,4=營業稅,5=總計,6=總計新台幣,7=跳頁
+declare @idno nvarchar(max)
+declare @productno nvarchar(max)
+declare @products nvarchar(max)
+declare @datea nvarchar(10)
+declare @noa nvarchar(50)
+declare @noq nvarchar(10)
+declare @pageno int
+declare @recCount int
+------------品名斷行處理<<Start>>------------
+declare @n int
+declare @n2 int
+declare @string nvarchar(max)
+declare cursor_table cursor for
+	select idno,products from @tmp where gno='0'
+open cursor_table
+fetch next from cursor_table
+into @idno,@products
+while(@@FETCH_STATUS <> -1)
+begin	
+	set @products=ltrim(rtrim(REPLACE(REPLACE(REPLACE(@products,char(10),' '),char(13),' '),'  ','')))
+	select @n=0,@n2=0,@string=''
+	while(LEN(@products)>0)
+	begin
+		set @n = @n + case when UNICODE(LEFT(@products,1))>5000 then 2 else 1 end	
+		set @string = @string + LEFT(@products,1)
+		set @products = substring(@products,2,len(@products)-1)
+		if(LEN(@products)=0 or @n>=@maxcount)
+		begin
+			set @n2 = @n2 + 1
+			if @n2 = 1
+			begin
+				update @tmp set products = @string where idno=@idno
+			end
+			else
+			begin
+				insert into @tmp
+					select 
+						'1',0,0,datea,noa,noq,buyer,serial,invoaddr,chkno,vccno,ordbno,ordeno,productno,@string,mount,price,total,
+						taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney,
+						money1,money2,money3,money4,money5,money6,money7,money8
+					from @tmp where idno=@idno					
+			end
+			set @n = 0
+			set @string = ''
+		end		
+	end
+	fetch next from cursor_table
+	into @idno,@products
+end
+close cursor_table
+deallocate cursor_table
+------------品名斷行處理<<End>>--------------
+------------更新頁數<<Start>>------------
+declare @pageno_int int = 0
+declare @lastnoa nvarchar(max) = ''
+declare @nextidno int
+declare @nextnoa nvarchar(max)
+declare @nextnoq nvarchar(10)
+declare @nextproductno nvarchar(max)
+declare cursor_table cursor for
+	select
+		a.idno,a.noa,a.noq,a.productno 
+	from @tmp a order by a.noa,a.noq,a.pageorder,a.productno,a.gno
+open cursor_table
+fetch next from cursor_table
+into @idno,@noa,@noq,@productno
+while(@@FETCH_STATUS <> -1)
+begin
+	if((@recCount > @pageline) or (@noa != @lastnoa))
+	begin
+		set @recCount = 1
+		set @pageno_int = @pageno_int+1
+	end
+	if(@recCount = @pageline)
+	begin
+		if((select count(*) from @tmp where (noa=@noa) and (noq=@noq) and (productno=@productno)) > 1)
+		begin
+			set @nextidno = (select max(idno) from @tmp where (noa=@noa) and (noq=@noq) and (productno=@productno))
+			set @nextnoa = (select top 1 noa from @tmp where idno=@nextidno)
+			set @nextnoq = (select top 1 noq from @tmp where idno=@nextidno)
+			set @nextproductno = (select top 1 productno from @tmp where idno=@nextidno)
+			if((@noa=@nextnoa) and (@noq=@nextnoq) and (@productno=@nextproductno))
+			begin
+				set @recCount = 1
+				set @pageno_int = @pageno_int+1
+			end
+		end
+	end
+	if(@recCount!=2)
+		update @tmp set ordeno=null where idno=@idno
+	update @tmp set pageno=@pageno_int,pageorder=@recCount where idno=@idno
+	set @lastnoa = @noa
+	set @recCount = @recCount+1
+	fetch next from cursor_table
+	into @idno,@noa,@noq,@productno
+end
+close cursor_table
+deallocate cursor_table
+------------更新頁數<<End>>-------------
+------------插入空白行<<Start>>------------
+declare cursor_table cursor for
+	select pageno,noa,datea,max(pageorder) from @tmp where (gno='0' or gno='1') group by pageno,noa,datea
+open cursor_table
+fetch next from cursor_table
+into @pageno,@noa,@datea,@recCount
+while(@@FETCH_STATUS <> -1)
+begin
+	if(@recCount<@pageline)
+	begin
+		while(@recCount<@pageline)
+		begin
+			set @recCount = @recCount+1
+			insert into @tmp(gno,noa,datea,pageno,pageorder)
+				values('2',@noa,@datea,@pageno,@recCount)
+		end
+	end
+	fetch next from cursor_table
+	into @pageno,@noa,@datea,@recCount
+end
+close cursor_table
+deallocate cursor_table
+------------插入空白行<<End>>-------------
+------------插入下方合計欄<<Start>>------------
+declare cursor_table cursor for
+	select noa,datea,pageno,min(idno) from @tmp group by noa,datea,pageno
+open cursor_table
+fetch next from cursor_table
+into @noa,@datea,@pageno,@idno
+while(@@FETCH_STATUS <> -1)
+begin
+	if(@pageno=(select max(pageno) from @tmp where (noa=@noa) and (datea=@datea) group by noa,datea))
+	begin
+		---------銷售額合計
+		insert into @tmp(gno,noa,datea,pageno,pageorder,total)
+			select '3',@noa,@datea,@pageno,9001,totpmoney from @tmp where idno=@idno
+		---------營業稅合計
+		insert into @tmp(gno,noa,datea,pageno,pageorder,taxtype1,taxtype2,taxtype3,total)
+			select '4',@noa,@datea,@pageno,9002,taxtype1,taxtype2,taxtype3,taxmoney from @tmp where idno=@idno
+		---------總計
+		insert into @tmp(gno,noa,datea,pageno,pageorder,total)
+			select '5',@noa,@datea,@pageno,9003,totmoney from @tmp where idno=@idno
+		---------總計新台幣
+		insert into @tmp(gno,noa,datea,pageno,pageorder,money1,money2,money3,money4,money5,money6,money7,money8)
+			select '6',@noa,@datea,@pageno,9004,money1,money2,money3,money4,money5,money6,money7,money8 from @tmp where idno=@idno
+	end
+	else
+	begin
+		---------銷售額合計
+		insert into @tmp(gno,noa,datea,pageno,pageorder,total)
+			select '3',@noa,@datea,@pageno,9001,null from @tmp where idno=@idno
+		---------營業稅合計
+		insert into @tmp(gno,noa,datea,pageno,pageorder,taxtype1,taxtype2,taxtype3,total)
+			select '4',@noa,@datea,@pageno,9002,null,null,null,null from @tmp where idno=@idno
+		---------總計
+		insert into @tmp(gno,noa,datea,pageno,pageorder,total)
+			select '5',@noa,@datea,@pageno,9003,null from @tmp where idno=@idno
+		---------總計新台幣
+		insert into @tmp(gno,noa,datea,pageno,pageorder,money1,money2,money3,money4,money5,money6,money7,money8)
+			select '6',@noa,@datea,@pageno,9004,null,null,null,null,null,null,null,null from @tmp where idno=@idno
+	end
+	fetch next from cursor_table
+	into @noa,@datea,@pageno,@idno
+end
+close cursor_table
+deallocate cursor_table
+------------插入下方合計欄<<End>>-------------
+------------插入跳頁<<Start>>------------
+insert into @tmp(gno,noa,datea,pageno,pageorder)
+	select '7',noa,datea,pageno,9999 from @tmp group by noa,datea,pageno
+------------插入跳頁<<End>>-------------
+------------插入頁首<<Start>>------------
+insert into @tmp(gno,noa,datea,pageno,pageorder,buyer,serial,invoaddr,chkno,vccno,ordbno)
+	select '9',noa,datea,pageno,0,buyer,serial,invoaddr,chkno,vccno,ordbno from @tmp where gno='0' group by noa,datea,pageno,buyer,serial,invoaddr,chkno,vccno,ordbno
+-----第二頁開始須增加高度
+insert into @tmp(gno,noa,datea,pageno,pageorder)
+	select '8',noa,datea,pageno,0 from @tmp where pageno >= 2 group by noa,datea,pageno
+------------插入頁首<<End>>-------------
+select
+	a.gno,a.pageno,a.pageorder,a.datea,
+	left(a.datea,3) da1,
+	substring(a.datea,5,2) da2,
+	right(a.datea,2) da3,
+	a.noa,a.buyer,a.serial,a.invoaddr,a.chkno,a.vccno,a.ordbno,a.productno,a.products,
+	--case when pageorder=9001 then '&nbsp&nbsp&nbsp&nbsp<img src="http://59.125.143.170/x.png " style=" position: absolute'+char(59)+' width: 115px'+char(59)+'">'  else a.ordeno end ordeno,
+	a.ordeno,
+	a.mount,a.price,a.total,a.taxtype1,a.taxtype2,a.taxtype3,a.totmoney,a.taxmoney,a.totmoney,
+	a.money1 m1,
+	a.money2 m2,
+	a.money3 m3,
+	a.money4 m4,
+	a.money5 m5,
+	a.money6 m6,
+	a.money7 m7,
+	a.money8 m8
+from @tmp a
+order by a.noa,a.pageno,a.pageorder,a.productno,a.noq,a.gno;
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+z_vccap_vu1:--z_vccap_vu1 
+declare @t_bnoa nvarchar(max)
+declare @t_enoa nvarchar(max)
+set @t_bnoa = case when '#non'=[2] then '' else [2] end
+set @t_enoa = case when '#non'=[3] then '' else [3] end
+------------報表設定<<Start>>------------
+declare @maxcount int = 40 --產品名稱長度
+declare @pageline int = 7 --每頁幾行
+------------報表設定<<End>>------------
+declare @strNum nvarchar(max) = N'零壹貳叁肆伍陸柒捌玖'
+declare @tmp table(
+	gno nvarchar(10),
+	idno int identity(0,1),
+	pageno int,
+	pageorder int,
+	datea nvarchar(10),
+	noa nvarchar(50),
+	noq nvarchar(10),
+	buyer nvarchar(max),
+	serial nvarchar(50),
+	invoaddr nvarchar(max),
+	chkno nvarchar(15),
+	vccno nvarchar(50),
+	ordbno nvarchar(50),
+	ordeno nvarchar(MAX),
+	productno nvarchar(90),
+	products nvarchar(max),
+	mount float,
+	price float,
+	total float,
+	taxtype1 nvarchar(50),
+	taxtype2 nvarchar(50),
+	taxtype3 nvarchar(50),
+	totpmoney float,
+	taxmoney float,
+	totmoney float,
+	money1 nvarchar(10),
+	money2 nvarchar(10),
+	money3 nvarchar(10),
+	money4 nvarchar(10),
+	money5 nvarchar(10),
+	money6 nvarchar(10),
+	money7 nvarchar(10),
+	money8 nvarchar(10),
+	money9 nvarchar(10),
+	memo nvarchar(max),
+	product1 nvarchar(90),price1 float,mount1 float,total1 float,
+	product2 nvarchar(90),price2 float,mount2 float,total2 float,
+	product3 nvarchar(90),price3 float,mount3 float,total3 float,
+	product4 nvarchar(90),price4 float,mount4 float,total4 float,
+	product5 nvarchar(90),price5 float,mount5 float,total5 float,
+	product6 nvarchar(90),price6 float,mount6 float,total6 float,
+	product7 nvarchar(90),price7 float,mount7 float,total7 float
+)
+insert into @tmp(gno,pageno,pageorder,datea,noa,noq,buyer,serial,invoaddr,chkno,
+	vccno,ordbno,ordeno,productno,products,mount,price,total,taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney,
+	money1,money2,money3,money4,money5,money6,money7,money8,money9,memo)
+	select
+		'0',0,0,a.datea,a.noa,b.noq,
+		case when LEN(a.buyer)!=0 then a.buyer else a.comp end,
+		case when isnull(a.serial,'') != '' then a.serial else d.serial end,
+		case when LEN(a.buyerno)=0  then isnull(a.address,'') else '' end,
+		a.chkno,a.vccno,c.zipcode,case when c.ordeno!='' then c.ordeno else REPLACE(a.memo,vccno,'') end,b.productno,b.product
+		,case when  b.mount=0 then null else b.mount end
+		,case when b.price=0 then null else b.price end
+		,b.money,
+		case when a.taxtype='1' then '&#10004' else null end,
+		case when a.taxtype='2' then '&#10004' else null end,
+		case when a.taxtype='4' then '&#10004' else null end,
+		a.money,a.tax,a.total,'','','','','','','','','',a.memo
+	from vcca a
+	left join vccas b on a.noa=b.noa
+	left join view_vcc c on a.vccno = c.noa
+	left join cust d on a.buyerno=d.noa
+	where (a.taxtype != '6') and (a.noa between @t_bnoa and @t_enoa)
+------------單筆處理<<Start>>-----------
+insert into @tmp(
+		gno,pageno,pageorder,datea,noa,noq,buyer,serial,invoaddr,chkno,
+		vccno,ordbno,ordeno,taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney
+)
+	select
+		gno,pageno,2,datea,noa,'002',buyer,serial,invoaddr,chkno,
+		vccno,ordbno,ordeno,taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney
+	from @tmp a
+	outer apply(select count(*) mount from @tmp where noa=a.noa) b
+	where b.mount = 1
+------------單筆處理<<End>>------------
+update a  
+	set money1 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 9) + cast(CAST(totmoney as int) as nvarchar), 9),1,1) as int)+1,1),
+	money2 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 9) + cast(CAST(totmoney as int) as nvarchar), 9),2,1) as int)+1,1),
+	money3 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 9) + cast(CAST(totmoney as int) as nvarchar), 9),3,1) as int)+1,1),
+	money4 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 9) + cast(CAST(totmoney as int) as nvarchar), 9),4,1) as int)+1,1),
+	money5 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 9) + cast(CAST(totmoney as int) as nvarchar), 9),5,1) as int)+1,1),
+	money6 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 9) + cast(CAST(totmoney as int) as nvarchar), 9),6,1) as int)+1,1),
+	money7 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 9) + cast(CAST(totmoney as int) as nvarchar), 9),7,1) as int)+1,1),
+	money8 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 9) + cast(CAST(totmoney as int) as nvarchar), 9),8,1) as int)+1,1),
+	money9 = substring(@strNum,cast(substring(RIGHT(REPLICATE('0', 9) + cast(CAST(totmoney as int) as nvarchar), 9),9,1) as int)+1,1)
+from @tmp a
+------------gno->1=字斷行,2=空白行,3=銷售額合計,4=營業稅,5=總計,6=總計新台幣,7=跳頁
+declare @idno nvarchar(max)
+declare @productno nvarchar(max)
+declare @products nvarchar(max)
+declare @datea nvarchar(10)
+declare @noa nvarchar(50)
+declare @noq nvarchar(10)
+declare @pageno int
+declare @recCount int
+------------品名斷行處理<<Start>>------------
+declare @n int
+declare @n2 int
+declare @string nvarchar(max)
+declare cursor_table cursor for
+	select idno,products from @tmp where gno='0'
+open cursor_table
+fetch next from cursor_table
+into @idno,@products
+while(@@FETCH_STATUS <> -1)
+begin	
+	set @products=ltrim(rtrim(REPLACE(REPLACE(REPLACE(@products,char(10),' '),char(13),' '),'  ','')))
+	select @n=0,@n2=0,@string=''
+	while(LEN(@products)>0)
+	begin
+		set @n = @n + case when UNICODE(LEFT(@products,1))>5000 then 2 else 1 end	
+		set @string = @string + LEFT(@products,1)
+		set @products = substring(@products,2,len(@products)-1)
+		if(LEN(@products)=0 or @n>=@maxcount)
+		begin
+			set @n2 = @n2 + 1
+			if @n2 = 1
+			begin
+				update @tmp set products = @string where idno=@idno
+			end
+			else
+			begin
+				insert into @tmp(gno,pageno,pageorder,datea,noa,noq,buyer,serial,invoaddr,chkno,
+	vccno,ordbno,ordeno,productno,products,mount,price,total,taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney,
+	money1,money2,money3,money4,money5,money6,money7,money8,money9)
+					select 
+						'1',0,0,datea,noa,noq,buyer,serial,invoaddr,chkno,vccno,ordbno,ordeno,productno,@string,mount,price,total,
+						taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney,
+						money1,money2,money3,money4,money5,money6,money7,money8,money9
+					from @tmp where idno=@idno					
+			end
+			set @n = 0
+			set @string = ''
+		end		
+	end
+	fetch next from cursor_table
+	into @idno,@products
+end
+close cursor_table
+deallocate cursor_table
+------------品名斷行處理<<End>>--------------
+------------更新頁數<<Start>>------------
+declare @pageno_int int = 0
+declare @lastnoa nvarchar(max) = ''
+declare @nextidno int
+declare @nextnoa nvarchar(max)
+declare @nextnoq nvarchar(10)
+declare @nextproductno nvarchar(max)
+declare cursor_table cursor for
+	select
+		a.idno,a.noa,a.noq,a.productno 
+	from @tmp a order by a.noa,a.noq,a.pageorder,a.productno,a.gno
+open cursor_table
+fetch next from cursor_table
+into @idno,@noa,@noq,@productno
+while(@@FETCH_STATUS <> -1)
+begin
+	if((@recCount > @pageline) or (@noa != @lastnoa))
+	begin
+		set @recCount = 1
+		set @pageno_int = @pageno_int+1
+	end
+	if(@recCount = @pageline)
+	begin
+		if((select count(*) from @tmp where (noa=@noa) and (noq=@noq) and (productno=@productno)) > 1)
+		begin
+			set @nextidno = (select max(idno) from @tmp where (noa=@noa) and (noq=@noq) and (productno=@productno))
+			set @nextnoa = (select top 1 noa from @tmp where idno=@nextidno)
+			set @nextnoq = (select top 1 noq from @tmp where idno=@nextidno)
+			set @nextproductno = (select top 1 productno from @tmp where idno=@nextidno)
+			if((@noa=@nextnoa) and (@noq=@nextnoq) and (@productno=@nextproductno))
+			begin
+				set @recCount = 1
+				set @pageno_int = @pageno_int+1
+			end
+		end
+	end
+	if(@recCount!=2)
+		update @tmp set ordeno=null where idno=@idno
+	update @tmp set pageno=@pageno_int,pageorder=@recCount where idno=@idno
+	set @lastnoa = @noa
+	set @recCount = @recCount+1
+	fetch next from cursor_table
+	into @idno,@noa,@noq,@productno
+end
+close cursor_table
+deallocate cursor_table
+------------更新頁數<<End>>-------------
+------------插入空白行<<Start>>------------
+declare cursor_table cursor for
+	select pageno,noa,datea,max(pageorder) from @tmp where (gno='0' or gno='1') group by pageno,noa,datea
+open cursor_table
+fetch next from cursor_table
+into @pageno,@noa,@datea,@recCount
+while(@@FETCH_STATUS <> -1)
+begin
+	if(@recCount<@pageline)
+	begin
+		while(@recCount<@pageline)
+		begin
+			set @recCount = @recCount+1
+			insert into @tmp(gno,noa,datea,pageno,pageorder)
+				values('2',@noa,@datea,@pageno,@recCount)
+		end
+	end
+	fetch next from cursor_table
+	into @pageno,@noa,@datea,@recCount
+end
+close cursor_table
+deallocate cursor_table
+------------插入空白行<<End>>-------------
+------------插入下方合計欄<<Start>>------------
+declare cursor_table cursor for
+	select noa,datea,pageno,min(idno) from @tmp group by noa,datea,pageno
+open cursor_table
+fetch next from cursor_table
+into @noa,@datea,@pageno,@idno
+while(@@FETCH_STATUS <> -1)
+begin
+	if(@pageno=(select max(pageno) from @tmp where (noa=@noa) and (datea=@datea) group by noa,datea))
+	begin
+		---------銷售額合計
+		insert into @tmp(gno,noa,datea,pageno,pageorder,total)
+			select '3',@noa,@datea,@pageno,9001,totpmoney from @tmp where idno=@idno
+		---------營業稅合計
+		insert into @tmp(gno,noa,datea,pageno,pageorder,taxtype1,taxtype2,taxtype3,total)
+			select '4',@noa,@datea,@pageno,9002,taxtype1,taxtype2,taxtype3,taxmoney from @tmp where idno=@idno
+		---------總計
+		insert into @tmp(gno,noa,datea,pageno,pageorder,total)
+			select '5',@noa,@datea,@pageno,9003,totmoney from @tmp where idno=@idno
+		---------總計新台幣
+		insert into @tmp(gno,noa,datea,pageno,pageorder,money1,money2,money3,money4,money5,money6,money7,money8)
+			select '6',@noa,@datea,@pageno,9004,money1,money2,money3,money4,money5,money6,money7,money8 from @tmp where idno=@idno
+	end
+	else
+	begin
+		---------銷售額合計
+		insert into @tmp(gno,noa,datea,pageno,pageorder,total)
+			select '3',@noa,@datea,@pageno,9001,null from @tmp where idno=@idno
+		---------營業稅合計
+		insert into @tmp(gno,noa,datea,pageno,pageorder,taxtype1,taxtype2,taxtype3,total)
+			select '4',@noa,@datea,@pageno,9002,null,null,null,null from @tmp where idno=@idno
+		---------總計
+		insert into @tmp(gno,noa,datea,pageno,pageorder,total)
+			select '5',@noa,@datea,@pageno,9003,null from @tmp where idno=@idno
+		---------總計新台幣
+		insert into @tmp(gno,noa,datea,pageno,pageorder,money1,money2,money3,money4,money5,money6,money7,money8,money9)
+			select '6',@noa,@datea,@pageno,9004,null,null,null,null,null,null,null,null,null from @tmp where idno=@idno
+	end
+	fetch next from cursor_table
+	into @noa,@datea,@pageno,@idno
+end
+close cursor_table
+deallocate cursor_table
+------------插入下方合計欄<<End>>-------------
+update @tmp
+set product1 =a.products,price1=a.price,mount1=a.mount,total1=a.total
+from @tmp a where pageorder=1
+update @tmp
+set product2 =a.products,price2=a.price,mount2=a.mount,total2=a.total
+from @tmp a where pageorder=2
+update @tmp
+set product3 =a.products,price3=a.price,mount3=a.mount,total3=a.total
+from @tmp a where pageorder=3
+update @tmp
+set product4 =a.products,price4=a.price,mount4=a.mount,total4=a.total
+from @tmp a where pageorder=4
+update @tmp
+set product5 =a.products,price5=a.price,mount5=a.mount,total5=a.total
+from @tmp a where pageorder=5
+update @tmp
+set product6 =a.products,price6=a.price,mount6=a.mount,total6=a.total
+from @tmp a where pageorder=6
+update @tmp
+set product7 =a.products,price7=a.price,mount7=a.mount,total7=a.total
+from @tmp a where pageorder=7
+
+------------插入跳頁<<Start>>------------
+insert into @tmp(gno,noa,datea,pageno,pageorder)
+	select '7',noa,datea,pageno,9999 from @tmp group by noa,datea,pageno
+------------插入跳頁<<End>>-------------
+------------插入頁首<<Start>>------------
+insert into @tmp(gno,noa,datea,pageno,pageorder,buyer,serial,invoaddr,chkno,vccno,ordbno)
+	select '9',noa,datea,pageno,0,buyer,serial,invoaddr,chkno,vccno,ordbno from @tmp where gno='0' group by noa,datea,pageno,buyer,serial,invoaddr,chkno,vccno,ordbno
+------------插入頁首<<End>>-------------
+
+--三聯式列印
+declare @tmpa table(
+	gno nvarchar(10),
+	idno int identity(0,1),
+	pageno int,
+	pageorder int,
+	datea nvarchar(10),
+	noa nvarchar(50),
+	noq nvarchar(10),
+	buyer nvarchar(max),
+	serial nvarchar(50),
+	invoaddr nvarchar(max),
+	chkno nvarchar(15),
+	vccno nvarchar(50),
+	ordbno nvarchar(50),
+	ordeno nvarchar(MAX),
+	productno nvarchar(90),
+	products nvarchar(max),
+	mount float,
+	price float,
+	total float,
+	taxtype1 nvarchar(50),
+	taxtype2 nvarchar(50),
+	taxtype3 nvarchar(50),
+	totpmoney float,
+	taxmoney float,
+	totmoney float,
+	money1 nvarchar(10),
+	money2 nvarchar(10),
+	money3 nvarchar(10),
+	money4 nvarchar(10),
+	money5 nvarchar(10),
+	money6 nvarchar(10),
+	money7 nvarchar(10),
+	money8 nvarchar(10),
+	money9 nvarchar(10),
+	memo nvarchar(MAX),
+	product1 nvarchar(90),price1 float,mount1 float,total1 float,
+	product2 nvarchar(90),price2 float,mount2 float,total2 float,
+	product3 nvarchar(90),price3 float,mount3 float,total3 float,
+	product4 nvarchar(90),price4 float,mount4 float,total4 float,
+	product5 nvarchar(90),price5 float,mount5 float,total5 float,
+	product6 nvarchar(90),price6 float,mount6 float,total6 float,
+	product7 nvarchar(90),price7 float,mount7 float,total7 float
+
+)
+
+insert into @tmpa(gno,pageno,pageorder,datea,noa,buyer,serial,invoaddr,chkno,vccno,ordbno,taxtype1,taxtype2,taxtype3,totpmoney,totmoney,taxmoney,money1,money2,money3,money4,money5,money6,money7,money8,money9,memo,
+	product1 ,price1 ,mount1 ,total1 ,product2 ,price2 ,mount2 ,total2 ,product3 ,price3 ,mount3 ,total3 ,
+	product4 ,price4 ,mount4 ,total4 ,product5 ,price5 ,mount5 ,total5 ,product6 ,price6 ,mount6 ,total6 ,
+	product7 ,price7 ,mount7 ,total7 )
+select '0',pageno,'9000',datea,noa,buyer,serial,invoaddr,chkno,vccno,ordbno,taxtype1,taxtype2,taxtype3,totpmoney,totmoney,taxmoney,money1,money2,money3,money4,money5,money6,money7,money8,money9,max(memo),
+	max(product1),max(price1),max(mount1),max(total1),max(product2),max(price2),max(mount2),max(total2),max(product3),max(price3),max(mount3),max(total3),
+	max(product4) ,max(price4) ,max(mount4) ,max(total4) ,max(product5) ,max(price5) ,max(mount5) ,max(total5) ,max(product6) ,max(price6) ,max(mount6) ,max(total6) ,
+	max(product7) ,max(price7) ,max(mount7) ,max(total7)
+from @tmp
+where gno=0 or gno=1
+group by pageno,datea,noa,buyer,serial,invoaddr,chkno,vccno,ordbno,taxtype1,taxtype2,taxtype3,totpmoney,totmoney,taxmoney,money1,money2,money3,money4,money5,money6,money7,money8,money9
+
+select
+	a.gno,a.pageno,a.pageorder,a.datea,
+	left(a.datea,4)-1911 da1,
+	substring(a.datea,6,2) da2,
+	right(a.datea,2) da3,
+	a.noa,a.buyer,
+	case when len(a.serial)=0 then char(255) else  a.serial end serial,
+	case when len(a.invoaddr)=0 then char(255) else a.invoaddr end invoaddr,
+	a.chkno,a.vccno,a.ordbno,
+	--case when pageorder=9001 then '&nbsp&nbsp&nbsp&nbsp<img src="http://59.125.143.170/x.png " style=" position: absolute'+char(59)+' width: 115px'+char(59)+'">'  else a.ordeno end ordeno,
+	a.ordeno,
+	a.taxtype1,a.taxtype2,a.taxtype3,
+	dbo.getComma(a.totpmoney,0) totpmoney,
+	dbo.getComma(a.taxmoney,0) taxmoney,
+	dbo.getComma(a.totmoney,0) totmoney,
+	a.money1 m1,
+	a.money2 m2,
+	a.money3 m3,
+	a.money4 m4,
+	a.money5 m5,
+	a.money6 m6,
+	a.money7 m7,
+	a.money8 m8,
+	a.money9 m9,
+	REPLACE (a.memo, 'chr(10)', '<br>') memo,
+	product1 ,price1 ,dbo.getComma(mount1,0)mount1 ,dbo.getComma(total1,0)total1 ,
+	product2 ,price2 ,dbo.getComma(mount2,0)mount2 ,dbo.getComma(total2,0)total2 ,
+	product3 ,price3 ,dbo.getComma(mount3,0)mount3 ,dbo.getComma(total3,0)total3 ,
+	product4 ,price4 ,dbo.getComma(mount4,0)mount4 ,dbo.getComma(total4,0)total4 ,
+	product5 ,price5 ,dbo.getComma(mount5,0)mount5 ,dbo.getComma(total5,0)total5 ,
+	product6 ,price6 ,dbo.getComma(mount6,0)mount6 ,dbo.getComma(total6,0)total6 ,
+	product7 ,price7 ,dbo.getComma(mount7,0)mount7 ,dbo.getComma(total7,0)total7
+from @tmpa a
+order by a.noa,a.pageno,a.pageorder,a.productno,a.noq,a.gno;
