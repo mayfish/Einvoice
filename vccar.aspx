@@ -280,7 +280,13 @@
             }
 
             function btnPrint() {
-                q_box('z_vccarp.aspx', '', "95%", "95%", q_getMsg("popPrint"));
+            	switch(q_getPara('sys.project').toUpperCase()){
+            		case 'LN':
+            			break;
+            		default:
+            			q_box('z_vccarp.aspx', '', "95%", "95%", q_getMsg("popPrint"));
+            			break;
+            	}
             }
 
             function btnOk() {
