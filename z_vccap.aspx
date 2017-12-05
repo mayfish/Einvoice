@@ -51,8 +51,21 @@
 				$('#btnOk').before($('#btnOk').clone().attr('id', 'btnOk2').attr('value','查詢').show()).hide();
 				$('#btnOk2').click(function() {
 					var t_invoice = $.trim($('#txtYnoa').val());
+					var binvono = $.trim($('#txtXnoa1').val());
+					var einvono = $.trim($('#txtXnoa2').val());
 					
 					switch($('#q_report').data('info').radioIndex) {
+						case 0:
+							switch(q_getPara('sys.project').toUpperCase()){
+								case 'RS':
+									window.open("./z_vccap01_rs.aspx?db="+q_db+"&binvono="+binvono+"&einvono="+einvono);
+									break;
+								default:
+									$('#result').hide();
+                  					$('#btnOk').click();
+									break;
+							}
+							break;
 						case 1:
 							//window.open("./../einvoice/B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice);
 							window.open("./B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice);

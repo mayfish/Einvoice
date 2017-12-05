@@ -1,339 +1,272 @@
 ﻿<%@ Page Language="C#" Debug="true"%>
     <script language="c#" runat="server">     
     	//電子發票證明聯
-        public class ParaIn
-        {
-            public string noa="", noq="",acomp="";
-        }
-
-        public class Para
-        {
-            public string accy, noa, noq;
-            public string datea,invono,cust,serial,addr,product;
-            public float mount,price,total,total2,total3,total4;
-            public string memo;
-            public float t_total;
-            public string comp, comp_serial, comp_addr,taxtype;
-       }
-
-        public void drawLine(iTextSharp.text.pdf.PdfContentByte cb)
-        {
-            cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
-            cb.SetColorStroke(iTextSharp.text.BaseColor.BLACK);
-            cb.SetLineWidth(1);
-            cb.MoveTo(25, 295);//外框線
-            cb.LineTo(503, 295);
-            cb.LineTo(503, 20);
-            cb.LineTo(25, 20);
-            cb.LineTo(25, 295);
-
-            cb.MoveTo(25, 275);//內框線(橫上)
-            cb.LineTo(503, 275);
-
-            cb.MoveTo(150, 295);//內框線(直)
-            cb.LineTo(150, 175);
-            cb.MoveTo(225, 295);
-            cb.LineTo(225, 175);
-            cb.MoveTo(300, 295);
-            cb.LineTo(300, 70);
-            cb.MoveTo(375, 295);
-            cb.LineTo(375, 20);
-
-            cb.MoveTo(70, 150);
-            cb.LineTo(70, 95);
-
-            cb.MoveTo(109, 150);
-            cb.LineTo(109, 95);
-
-            cb.MoveTo(148, 150);
-            cb.LineTo(148, 95);
-
-            cb.MoveTo(187, 150);
-            cb.LineTo(187, 95);
-
-            cb.MoveTo(226, 150);
-            cb.LineTo(226, 95);
-
-            cb.MoveTo(265, 150);
-            cb.LineTo(265, 95);
-
-            cb.MoveTo(25, 175);//內框線(橫下)
-            cb.LineTo(503, 175);
-            cb.MoveTo(25, 150);
-            cb.LineTo(503, 150);
-
-            cb.MoveTo(25, 95);
-            cb.LineTo(375, 95);
-
-            cb.MoveTo(25, 70);
-            cb.LineTo(375, 70);
-            cb.Stroke();
-        }
-        public void inputTitle(iTextSharp.text.pdf.PdfContentByte cb ,ArrayList vccLabel,int page)
-        {
-            iTextSharp.text.pdf.BaseFont bfChinese = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\msjh.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
-            cb.BeginText();
-            cb.SetFontAndSize(bfChinese, 14);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "電子發票證明聯", 210, 425, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).datea, 225, 405, 0);
-            cb.SetFontAndSize(bfChinese, 10);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "發票號碼:" + ((Para)vccLabel[0]).invono, 25, 380, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "格    式:25", 450, 380, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "買方:" + ((Para)vccLabel[0]).cust, 25, 355, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號:" + ((Para)vccLabel[0]).serial, 25, 330, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址:" + ((Para)vccLabel[0]).addr, 25, 305, 0);
-            if (vccLabel.Count <= 6)
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第1頁/共1頁", 503, 305, 0);
-            else if (vccLabel.Count > 6 && vccLabel.Count % 6 != 0)
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + page + "頁/" + "共" + ((vccLabel.Count / 6) + 1) + "頁", 503, 305, 0);
-            else if (vccLabel.Count > 6 && vccLabel.Count % 6 == 0)
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + page + "頁/" + "共" + (vccLabel.Count / 6) + "頁", 503, 305, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品名", 75, 280, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "數量", 175, 280, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "金額", 325, 280, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "單價", 250, 280, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "備註", 425, 280, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "銷售量合計", 30, 158, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[0]).total2.ToString(), 370, 160, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業稅", 31, 120, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "應稅", 80, 120, 0);
-            if(((Para)vccLabel[0]).taxtype=="1")
-				cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "√", 125, 120, 0);
-			else if(((Para)vccLabel[0]).taxtype=="2")
-				cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "√", 200, 120, 0);
-			else if(((Para)vccLabel[0]).taxtype=="4")
-				cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "√", 275, 120, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "零稅率", 153, 120, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "免稅", 236, 120, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[0]).total3.ToString(), 370, 120, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計", 30, 80, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[0]).total4.ToString(), 370, 80, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業人蓋統一發票專用章", 385, 160, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計新台幣(中文大寫)", 30, 42, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ConvertInt(((Para)vccLabel[0]).total4.ToString()), 370, 42, 0);
-            if (((Para)vccLabel[0]).comp.Length > 10)
-            {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方:" + ((Para)vccLabel[0]).comp.Substring(0, 10), 378, 138, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).comp.Substring(10, ((Para)vccLabel[0]).comp.Length - 10), 378, 128, 0);
-            }
-            else
-            {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方:" + ((Para)vccLabel[0]).comp, 378, 138, 0);
-            }
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號:" + ((Para)vccLabel[0]).comp_serial, 378, 115, 0);
-            if (((Para)vccLabel[0]).comp_addr.Length > 10)
-            {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址:" + ((Para)vccLabel[0]).comp_addr.Substring(0, 10), 378, 90, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).comp_addr.Substring(10, ((Para)vccLabel[0]).comp_addr.Length - 10), 378, 80, 0);
-            }
-            else
-            {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址:" + ((Para)vccLabel[0]).comp_addr, 378, 90, 0);
-            }
-            cb.EndText();
-        }
-        
-		private static string[] cstr = { "零", "壹", "貳", "叁", "肆", "伍", "陸", "柒", "捌", "玖" };
-        private static string[] wstr = { "", "", "拾", "佰", "仟", "萬", "拾", "佰", "仟", "億", "拾", "佰", "仟" };
-        public string ConvertInt(string str)
-        {
-            int len = str.Length;
-
-            int i;
-
-            string tmpstr, rstr;
-
-            rstr = "";
-
-            for (i = 1; i <= len; i++)
-            {
-
-                tmpstr = str.Substring(len - i, 1);
-
-                rstr = string.Concat(cstr[Int32.Parse(tmpstr)] + wstr[i], rstr);
-
-            }
-
-            rstr = rstr.Replace("拾零", "拾");
-
-            rstr = rstr.Replace("零拾", "零");
-
-            rstr = rstr.Replace("零佰", "零");
-
-            rstr = rstr.Replace("零仟", "零");
-
-            rstr = rstr.Replace("零萬", "萬");
-
-            for (i = 1; i <= 6; i++)
-
-            rstr = rstr.Replace("零零", "零");
-
-            rstr = rstr.Replace("零萬", "零");
-
-            rstr = rstr.Replace("零億", "億");
-
-            rstr = rstr.Replace("零零", "零");
-
-            rstr += "元整";
-            
-            return rstr;
-        }
-		
         System.IO.MemoryStream stream = new System.IO.MemoryStream();
         string connectionString = "";
+
+        public class Bbm
+        {
+            public string invoiceNumber;
+		    public string buyer,buyerId,buyerAddr;
+		    public bool istax,zerotax,notax;
+		    public decimal money,tax,total;
+            public string amountinwords;
+            public string seller, sellerId, sellerAddr;
+            public string cmoney, ctax, ctotal;
+            
+            public Bbs[] bbs;
+        }
+        public class Bbs
+        {
+            public string product;
+            public decimal mount, price, money;
+            public string memo;
+            public string cmount, cprice, cmoney;
+        } 
+        
         public void Page_Load()
         {
-        	string db = "st";
-        	if(Request.QueryString["db"] !=null && Request.QueryString["db"].Length>0)
-        	db= Request.QueryString["db"];
-        	connectionString = "Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database="+db;
-
-			var item = new ParaIn();
-			if (Request.QueryString["noa"] != null && Request.QueryString["noa"].Length > 0)
+            string binvono = "", einvono = "";
+            string db = "st";
+            if (Request.QueryString["db"] != null && Request.QueryString["db"].Length > 0)
+                db = Request.QueryString["db"];
+            connectionString = "Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=" + db;
+            if (Request.QueryString["binvono"] != null && Request.QueryString["binvono"].Length > 0)
             {
-                item.noa = Request.QueryString["noa"];
+                binvono = Request.QueryString["binvono"];
             }
-            if (Request.QueryString["noq"] != null && Request.QueryString["noq"].Length > 0)
+            if (Request.QueryString["einvono"] != null && Request.QueryString["einvono"].Length > 0)
             {
-                item.noq = Request.QueryString["noq"];
+                einvono = Request.QueryString["einvono"];
             }
-            if (Request.QueryString["acomp"] != null && Request.QueryString["acomp"].Length > 0)
-            {
-                item.acomp = Request.QueryString["acomp"];
-            }
-            //item.noa = "D1050729001";
-            
             //資料
-            System.Data.DataTable dt = new System.Data.DataTable();
+            System.Data.DataSet ds = new System.Data.DataSet();
             using (System.Data.SqlClient.SqlConnection connSource = new System.Data.SqlClient.SqlConnection(connectionString))
             {
                 System.Data.SqlClient.SqlDataAdapter adapter = new System.Data.SqlClient.SqlDataAdapter();
                 connSource.Open();
-                string queryString = @"
-		            		            declare @tmp table(
-		            accy nvarchar(10),
-		            noa nvarchar(200),
-		            noq nvarchar(100),
-		   			datea nvarchar(30),
-					
-					invono nvarchar(50),
-					cust nvarchar(300),
-					serial nvarchar(50),
-					addr nvarchar(300),
-					product nvarchar(300),
-					mount float,
-					price float, --單價
-					total float, --金額
-					memo nvarchar(300),
-					
-					total2 float,
-					total3 float,
-					total4 float,
-					
-					comp nvarchar(300),
-					comp_serial nvarchar(50),
-					comp_addr nvarchar(300),
-					taxtype nvarchar(10)
-				)
-				insert into @tmp(noa,noq,datea,invono,cust,serial,addr,product,mount,price,total,memo,comp,comp_serial,comp_addr,total3,taxtype,total4)
-				select b.noa,b.noq,a.datea,a.noa,a.comp,a.serial,c.addr_comp,b.product,b.mount,b.price,b.money,a.memo,e.acomp,e.serial,e.addr,a.tax,a.taxtype,a.money
-				from vcca a
-				left join vccas b on a.noa = b.noa
-				left join cust c on a.custno = c.noa
-				left join acomp e on a.cno = e.noa
-				where a.noa=@t_noa
-   				and (len(@t_noq)=0 or b.noq=@t_noq)
-				
-				update a set a.total2 = b.total
-				from @tmp a
-				outer apply (select SUM(total) as total,noa from @tmp where noa=a.noa group by noa)b
-				
-				select * from @tmp";
-				
+                string queryString =
+                    @"-- BBM
+	declare @bbm table(
+		invoiceNumber nvarchar(20)
+		,buyer nvarchar(max)
+		,buyerId nvarchar(20)
+		,buyerAddr nvarchar(max)
+		,istax bit
+		,zerotax bit
+		,notax bit
+		,[money] decimal(15,7)
+		,tax decimal(15,7)
+		,total decimal(15,7)
+		,xtotal nvarchar(max)
+		,seller nvarchar(max)
+		,sellerId nvarchar(20)
+		,sellerAddr nvarchar(max)
+        ,cmoney nvarchar(max)
+        ,ctax nvarchar(max)
+        ,ctotal nvarchar(max)
+        ,bbscount int
+	)
+	insert into @bbm(invoiceNumber
+		,buyer,buyerId,buyerAddr
+		,istax,zerotax,notax
+		,[money],tax,total,xtotal
+		,seller,sellerId,sellerAddr
+        ,[cmoney],ctax,ctotal)
+	select a.noa
+		,case when len(isnull(a.buyer,''))>0 then a.buyer else a.comp end
+		,a.serial
+		,a.[address] 
+		,case a.taxtype when '1' then 1 else 0 end
+		,case a.taxtype when '2' then 1 else 0 end
+		,case a.taxtype when '4' then 1 else 0 end 
+		,a.[money],a.tax,a.total,dbo.AmountInWords(a.total)
+		,b.acomp
+		,b.serial
+		,b.addr_invo
+        ,dbo.getComma(a.[money],-1),dbo.getComma(a.[tax],-1),dbo.getComma(a.[total],-1)
+	from vcca a
+	left join acomp b on a.cno=b.noa
+	where a.noa between @binvono and @einvono
+
+    update @bbm set bbscount = isnull(b.n,0)
+    from @bbm a
+    outer apply(select count(1) n from vccas where noa=a.invoiceNumber) b 
+	-- BBS
+	declare @bbs table(
+        invoiceNumber nvarchar(20)
+		,product nvarchar(max)
+		,mount decimal(15,7)
+		,price decimal(15,7)
+		,[money] decimal(15,7)
+		,memo nvarchar(max)
+        ,cmount nvarchar(max)
+        ,cprice nvarchar(max)
+        ,cmoney nvarchar(max)
+	)
+	insert into @bbs(invoiceNumber,product,mount,price,[money],memo,cmount,cprice,cmoney)
+	select noa,product,mount,price,[money],memo,dbo.getComma(mount,-1),dbo.getComma(price,-1),dbo.getComma([money],-1)
+	from vccas 
+	where noa between @binvono and @einvono
+	order by noq
+	
+	select * from @bbm
+	select * from @bbs";
+
                 System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(queryString, connSource);
-                cmd.Parameters.AddWithValue("@t_noa", item.noa);
-                cmd.Parameters.AddWithValue("@t_noq", item.noq);
+                cmd.Parameters.AddWithValue("@binvono", binvono);
+                cmd.Parameters.AddWithValue("@einvono", einvono);
                 adapter.SelectCommand = cmd;
-                adapter.Fill(dt);
+                adapter.Fill(ds);
                 connSource.Close();
             }
-            ArrayList vccLabel = new ArrayList();
-            foreach (System.Data.DataRow r in dt.Rows)
+
+            Bbm[] bbm = new Bbm[ds.Tables[0].Rows.Count];
+            
+            int n = 0;
+            foreach (System.Data.DataRow r in ds.Tables[0].Rows)
             {
-                
-                Para pa = new Para();
-                pa.accy = System.DBNull.Value.Equals(r.ItemArray[0]) ? "" : (System.String)r.ItemArray[0];
-                pa.noa = System.DBNull.Value.Equals(r.ItemArray[1]) ? "" : (System.String)r.ItemArray[1];
-                pa.noq = System.DBNull.Value.Equals(r.ItemArray[2]) ? "" : (System.String)r.ItemArray[2];
-                pa.datea = System.DBNull.Value.Equals(r.ItemArray[3]) ? "" : (System.String)r.ItemArray[3];
-                pa.invono = System.DBNull.Value.Equals(r.ItemArray[4]) ? "" : (System.String)r.ItemArray[4];
-                pa.cust = System.DBNull.Value.Equals(r.ItemArray[5]) ? "" : (System.String)r.ItemArray[5];
-                pa.serial = System.DBNull.Value.Equals(r.ItemArray[6]) ? "" : (System.String)r.ItemArray[6];
-                pa.addr = System.DBNull.Value.Equals(r.ItemArray[7]) ? "" : (System.String)r.ItemArray[7];
-                pa.product = System.DBNull.Value.Equals(r.ItemArray[8]) ? "" : (System.String)r.ItemArray[8];
-                pa.mount = System.DBNull.Value.Equals(r.ItemArray[9]) ? 0 : (float)(System.Double)r.ItemArray[9];
-                pa.price = System.DBNull.Value.Equals(r.ItemArray[10]) ? 0 : (float)(System.Double)r.ItemArray[10];
-                pa.total = System.DBNull.Value.Equals(r.ItemArray[11]) ? 0 : (float)(System.Double)r.ItemArray[11];
-                pa.memo = System.DBNull.Value.Equals(r.ItemArray[12]) ? "" : (System.String)r.ItemArray[12];
-                pa.total2 = System.DBNull.Value.Equals(r.ItemArray[13]) ? 0 : (float)(System.Double)r.ItemArray[13];
-                pa.total3 = System.DBNull.Value.Equals(r.ItemArray[14]) ? 0 : (float)(System.Double)r.ItemArray[14];
-                pa.total4 = System.DBNull.Value.Equals(r.ItemArray[15]) ? 0 : (float)(System.Double)r.ItemArray[15];
-                pa.comp = System.DBNull.Value.Equals(r.ItemArray[16]) ? "" : (System.String)r.ItemArray[16];
-                pa.comp_serial = System.DBNull.Value.Equals(r.ItemArray[17]) ? "" : (System.String)r.ItemArray[17];
-                pa.comp_addr = System.DBNull.Value.Equals(r.ItemArray[18]) ? "" : (System.String)r.ItemArray[18];
-				pa.taxtype = System.DBNull.Value.Equals(r.ItemArray[19]) ? "" : (System.String)r.ItemArray[19];
-                vccLabel.Add(pa);
+                bbm[n] = new Bbm();
+                bbm[n].invoiceNumber = System.DBNull.Value.Equals(r.ItemArray[0]) ? "" : (System.String)r.ItemArray[0];
+                bbm[n].buyer = System.DBNull.Value.Equals(r.ItemArray[1]) ? "" : (System.String)r.ItemArray[1];
+                bbm[n].buyerId = System.DBNull.Value.Equals(r.ItemArray[2]) ? "" : (System.String)r.ItemArray[2];
+                bbm[n].buyerAddr = System.DBNull.Value.Equals(r.ItemArray[3]) ? "" : (System.String)r.ItemArray[3]; 
+                bbm[n].istax = System.DBNull.Value.Equals(r.ItemArray[4]) ? false : (System.Boolean)r.ItemArray[4];
+                bbm[n].zerotax = System.DBNull.Value.Equals(r.ItemArray[5]) ? false : (System.Boolean)r.ItemArray[5];
+                bbm[n].notax = System.DBNull.Value.Equals(r.ItemArray[6]) ? false : (System.Boolean)r.ItemArray[6]; 
+                bbm[n].money = System.DBNull.Value.Equals(r.ItemArray[7]) ? 0 : (System.Decimal)r.ItemArray[7];
+                bbm[n].tax = System.DBNull.Value.Equals(r.ItemArray[8]) ? 0 : (System.Decimal)r.ItemArray[8];
+                bbm[n].total = System.DBNull.Value.Equals(r.ItemArray[9]) ? 0 : (System.Decimal)r.ItemArray[9];
+                bbm[n].amountinwords = System.DBNull.Value.Equals(r.ItemArray[10]) ? "" : (System.String)r.ItemArray[10];
+                bbm[n].seller = System.DBNull.Value.Equals(r.ItemArray[11]) ? "" : (System.String)r.ItemArray[11];
+                bbm[n].sellerId = System.DBNull.Value.Equals(r.ItemArray[12]) ? "" : (System.String)r.ItemArray[12];
+                bbm[n].sellerAddr = System.DBNull.Value.Equals(r.ItemArray[13]) ? "" : (System.String)r.ItemArray[13];
+                bbm[n].cmoney = System.DBNull.Value.Equals(r.ItemArray[14]) ? "" : (System.String)r.ItemArray[14];
+                bbm[n].ctax = System.DBNull.Value.Equals(r.ItemArray[15]) ? "" : (System.String)r.ItemArray[15];
+                bbm[n].ctotal = System.DBNull.Value.Equals(r.ItemArray[16]) ? "" : (System.String)r.ItemArray[16];
+
+                bbm[n].bbs = new Bbs[System.DBNull.Value.Equals(r.ItemArray[17]) ? 0 : (System.Int32)r.ItemArray[17]];
+                int i = 0;
+                foreach (System.Data.DataRow s in ds.Tables[1].Rows)
+                {
+                    if (bbm[n].invoiceNumber != (System.DBNull.Value.Equals(s.ItemArray[0]) ? "" : (System.String)s.ItemArray[0]))
+                        continue;
+                    bbm[n].bbs[i] = new Bbs();
+                    bbm[n].bbs[i].product = System.DBNull.Value.Equals(s.ItemArray[1]) ? "" : (System.String)s.ItemArray[1];
+                    bbm[n].bbs[i].mount = System.DBNull.Value.Equals(s.ItemArray[2]) ? 0 : (System.Decimal)s.ItemArray[2];
+                    bbm[n].bbs[i].price = System.DBNull.Value.Equals(s.ItemArray[3]) ? 0 : (System.Decimal)s.ItemArray[3];
+                    bbm[n].bbs[i].money = System.DBNull.Value.Equals(s.ItemArray[4]) ? 0 : (System.Decimal)s.ItemArray[4];
+                    bbm[n].bbs[i].memo = System.DBNull.Value.Equals(s.ItemArray[5]) ? "" : (System.String)s.ItemArray[5];
+                    bbm[n].bbs[i].cmount = System.DBNull.Value.Equals(s.ItemArray[6]) ? "" : (System.String)s.ItemArray[6];
+                    bbm[n].bbs[i].cprice = System.DBNull.Value.Equals(s.ItemArray[7]) ? "" : (System.String)s.ItemArray[7];
+                    bbm[n].bbs[i].cmoney = System.DBNull.Value.Equals(s.ItemArray[8]) ? "" : (System.String)s.ItemArray[8];
+                    i++;
+                }
+                n++;
             }
             //-----PDF--------------------------------------------------------------------------------------------------
-            var doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(525, 450), 0, 0, 0, 0);
+            var doc1 = new iTextSharp.text.Document(iTextSharp.text.PageSize.LETTER);
+            float width = doc1.PageSize.Width;
+            float height = doc1.PageSize.Height / (float)2;
+            doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(width, height), 0, 0, 0, 0);
+            doc1.SetMargins(0, 0, 0, 0);
+
             iTextSharp.text.pdf.PdfWriter pdfWriter = iTextSharp.text.pdf.PdfWriter.GetInstance(doc1, stream);
             //font
             iTextSharp.text.pdf.BaseFont bfChinese = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\msjh.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
+            iTextSharp.text.pdf.BaseFont bold = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\msjhbd.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
             iTextSharp.text.pdf.BaseFont bfNumber = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\ariblk.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
-            
+
             doc1.Open();
             iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
-            if (vccLabel.Count == 0)
+            for (n = 0; n < bbm.Length; n++)
             {
-                cb.SetColorFill(iTextSharp.text.BaseColor.RED);
+                doc1.NewPage();
+                //============ 第一頁 ==============
                 cb.BeginText();
-                cb.SetFontAndSize(bfChinese, 30);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "無資料", 20, 20, 0);
+                cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
+                cb.SetFontAndSize(bfChinese, 12);
+                //發票號碼(左: 3.3cm, 高: 11.5cm)
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].invoiceNumber, width / (float)21.59 * (float)3.3, height / (float)13.97 * (float)11.5, 0);
+                //買方(左: 3.3cm, 高: 10.8cm)
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].buyer, width / (float)21.59 * (float)3.3, height / (float)13.97 * (float)10.8, 0);
+                //統一編號(左: 3.3cm, 高: 10.2cm)
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].buyerId, width / (float)21.59 * (float)3.3, height / (float)13.97 * (float)10.1, 0);
+                //地址(左: 3.3cm, 高: 9.5cm)
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].buyerAddr, width / (float)21.59 * (float)3.3, height / (float)13.97 * (float)9.5, 0);
+
+                //BBS   明細最多印5行  8.5 - 4.5 = 4 ,上下保留 1mm, 每行0.8cm
+                float h;
+                for (int i = 0; i < bbm[n].bbs.Length && i < 5; i++)
+                {
+                    // 0.2CM微調
+                    h = height / (float)13.97 * (float)(4.5 + 0.1 + (4 - i) * 0.8);
+                    //品名 L   1.2cm
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].bbs[i].product, width / (float)21.59 * (float)1.2, h, 0);
+                    //數量 R 10.7cm
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].bbs[i].cmount, width / (float)21.59 * (float)10.7, h, 0);
+                    //單價 R 12.6cm
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].bbs[i].cprice, width / (float)21.59 * (float)12.6, h, 0);
+                    //金額 R 15.3cm
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].bbs[i].cmoney, width / (float)21.59 * (float)15.3, h, 0);
+                    //備註 L   16cm 
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].bbs[i].memo, width / (float)21.59 * (float)16, h, 0);
+                }
+                //銷售額合計 R  左:15.2cm 高:3.6cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].cmoney, width / (float)21.59 * (float)15.2, height / (float)13.97 * (float)3.6, 0);
+                //營業稅 R      左:15.2cm 高:2.9cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].ctax, width / (float)21.59 * (float)15.2, height / (float)13.97 * (float)2.9, 0);
+                //----- 應稅   C  左:   5.5cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].istax ? "V" : "", width / (float)21.59 * (float)5.5, height / (float)13.97 * (float)2.9, 0);
+                //----- 零稅率 C  左: 8.7cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].zerotax ? "V" : "", width / (float)21.59 * (float)8.7, height / (float)13.97 * (float)2.9, 0);
+                //----- 免稅   C  左:11.9cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].notax ? "V" : "", width / (float)21.59 * (float)11.9, height / (float)13.97 * (float)2.9, 0);
+
+                //總計 R        左:15.2cm 高:2.2cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].ctotal, width / (float)21.59 * (float)15.2, height / (float)13.97 * (float)2.2, 0);
+                //金額大寫 L 左:4cm 高:1.2cm
+                cb.SetFontAndSize(bfChinese, 14);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].amountinwords, width / (float)21.59 * (float)4, height / (float)13.97 * (float)1.2, 0);
+
+                cb.SetFontAndSize(bfChinese, 8);
+
+                float l = width / (float)21.59 * (float)15.8;
+                // 3.5 - 0.7 = 2.8 /4 = 0.7
+                //賣方
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣　　方：" + bbm[n].seller, l, height / (float)13.97 * (float)2.8, 0);
+                //賣方統編
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號：" + bbm[n].sellerId, l, height / (float)13.97 * (float)2.1, 0);
+                //賣方地址
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地　　址：", l, height / (float)13.97 * (float)1.4, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].sellerAddr, l, height / (float)13.97 * (float)0.8, 0);
+
                 cb.EndText();
             }
-            else
-            {
-                for (int i = 0,y=260,page=1; i < vccLabel.Count; i++,y-=15)
-                {
-                    if (i == 0)
-                    {
-                        drawLine(cb);
-                        inputTitle(cb,vccLabel,page);
-                    }
-                    if (i >= 6 && i % 6 == 0)
-                    {
-                        doc1.NewPage();
-                        page++;
-                        y = 260;
-                        drawLine(cb);
-                        inputTitle(cb, vccLabel,page);
-                    }
-                    //TEXT
-                    cb.BeginText();
-                    cb.SetFontAndSize(bfChinese, 10);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[i]).product, 30, y, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[i]).mount.ToString(), 210, y, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[i]).price.ToString(), 290, y, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[i]).total.ToString(), 370, y, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[i]).memo, 380, y, 0);
-                    cb.EndText();
-                }
-            }
+         
+            // done
+            //============ 產品明細 ==============
+            /* doc1.NewPage();
+             iTextSharp.text.Paragraph pa2 = new iTextSharp.text.Paragraph();
+             cb.BeginText();
+             //產品明細
+             cb.SetFontAndSize(bfChinese, 10);
+             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "產品明細 " + invoice.SellerIdentifier, 18, 110, 0);
+             cb.EndText();
+             // done
+             doc1.Add(pa2);*/
             doc1.Close();
+            
             Response.ContentType = "application/octec-stream;";
             Response.AddHeader("Content-transfer-encoding", "binary");
-            Response.AddHeader("Content-Disposition", "attachment;filename=invo2_" + item.noa + ".pdf");
+            Response.AddHeader("Content-Disposition", "attachment;filename=" + (binvono==einvono?binvono:binvono+'-'+einvono) + ".pdf");
             Response.BinaryWrite(stream.ToArray());
             Response.End();
         }
+
+      
+       
+        
+		
+        
     </script>
