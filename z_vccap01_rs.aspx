@@ -3,7 +3,14 @@
     	//電子發票證明聯
         System.IO.MemoryStream stream = new System.IO.MemoryStream();
         string connectionString = "";
+        string filePath = @"C:\inetpub\wwwroot\htm\htm\";
 
+        public class Result
+        {
+            public int status=1;
+            public string filename="";
+            public string message="";
+        }
         public class Bbm
         {
             public string invoiceNumber;
@@ -179,6 +186,9 @@
 
             doc1.Open();
             iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
+
+            iTextSharp.text.pdf.PdfAction jAction = iTextSharp.text.pdf.PdfAction.JavaScript("this.print(true);\r", pdfWriter);
+            pdfWriter.AddJavaScript(jAction);
             for (n = 0; n < bbm.Length; n++)
             {
                 doc1.NewPage();
@@ -255,18 +265,44 @@
              cb.EndText();
              // done
              doc1.Add(pa2);*/
-            doc1.Close();
             
-            Response.ContentType = "application/octec-stream;";
+            doc1.Close();
+            //--
+            Result result = new Result();
+            
+            var uFileName = string.Format(@"{0}.pdf", Guid.NewGuid());
+            result.filename = uFileName;
+            
+            System.IO.FileStream pFileStream = null;
+            try
+            {
+                pFileStream = new System.IO.FileStream(filePath + uFileName, System.IO.FileMode.OpenOrCreate);
+                pFileStream.Write(stream.ToArray(), 0, stream.ToArray().Length);
+            }
+            catch(Exception e)
+            {
+                result.status = -1;
+                result.message = e.Message;
+            }
+            finally
+            {
+                if (pFileStream != null)
+                    pFileStream.Close();
+            }
+            /*using (System.IO.FileStream output = new System.IO.FileStream(filePath + uFileName, System.IO.FileMode.Create))
+            {
+                stream.CopyTo(output);
+                output.Flush();
+            }*/
+
+            System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            Response.Write(serializer.Serialize(result));
+            Response.End();
+
+            /*Response.ContentType = "application/octec-stream;";
             Response.AddHeader("Content-transfer-encoding", "binary");
             Response.AddHeader("Content-Disposition", "attachment;filename=" + (binvono==einvono?binvono:binvono+'-'+einvono) + ".pdf");
             Response.BinaryWrite(stream.ToArray());
-            Response.End();
+            Response.End();*/
         }
-
-      
-       
-        
-		
-        
     </script>
