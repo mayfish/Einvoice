@@ -249,6 +249,7 @@
                 _btnIns();
                 $('#txtNoa').val('AUTO');
                 $('#txtNoa').focus();
+                $('#cmbInvoicetype').val('01');
             }
 
             function btnModi() {
@@ -279,11 +280,19 @@
             }
 
             function btnPrint() {
-                q_box('z_vccarp.aspx', '', "95%", "95%", q_getMsg("popPrint"));
+            	switch(q_getPara('sys.project').toUpperCase()){
+            		case 'LN':
+            			break;
+            		default:
+            			q_box('z_vccarp.aspx', '', "95%", "95%", q_getMsg("popPrint"));
+            			break;
+            	}
             }
 
             function btnOk() {
-            	Lock();
+            	
+            	
+            	//Lock();
             	if($.trim($('#cmbInvoicetype').val()).length==0){
             		alert('請設定'+$('#lblInvoicetype').text());
             		Unlock();
@@ -326,6 +335,18 @@
                     Unlock();
                     return;
                 }
+                //先全部都產生BBS,因為報表還沒改
+            	if(true || q_getPara('sys.project').toUpperCase()=='DC'){
+            		var j=0;
+            		for(var i=0;i<q_bbsCount;i++){
+            			j+=$.trim($('#txtBinvono_'+i).val()).length>0?1:0;
+            		}
+            		//當BBS空白時,自動產生明細
+            		//假如BBS有值,為避免覆蓋資料,由人工自己按按鈕
+            		if(j==0){
+            			$('#btnSeq').click();
+            		}
+            	}
                 //檢查BBS有無錯誤
                 t_minInvono = 999999999;
                 t_maxInvono = -1;
@@ -411,7 +432,7 @@
 				$('#txtEinvono').css("color","black");
 				
 				if(q_getPara('sys.project').toUpperCase()=='XY'){
-					$('.isrev').show()
+					$('.isrev').show();
 				}
             }
 
@@ -699,7 +720,8 @@
 			<table id="tbbs" class='tbbs'>
 				<tr style='color:white; background:#003366;' >
 					<td  align="center" style="width:30px;">
-					<input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"  />
+					<!--明細禁止異動 -->
+					<input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;display:none;"  />
 					</td>
 					<td align="center" style="width:50px;"><a id='lblNo2'> </a></td>
 					<td align="center" style="width:300px;"><a id='lblInvonos'> </a></td>
@@ -710,7 +732,8 @@
 				</tr>
 				<tr style='background:#cad3ff;'>
 					<td align="center">
-					<input class="btn"  id="btnMinus.*" type="button" value='-' style=" font-weight: bold;" />
+					<!--明細禁止異動 -->
+					<input class="btn"  id="btnMinus.*" type="button" value='-' style=" font-weight: bold;display:none;" />
 					</td>
 					<td><input type="text" id="txtNo2.*" style="width:95%;text-align:center;"/></td>
 					<td>
