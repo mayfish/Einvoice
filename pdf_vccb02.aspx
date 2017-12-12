@@ -84,101 +84,8 @@
             {
                 doc1.NewPage();
                 Template(ref cb, width, height, bfChinese);
-                Contract(ref cb, width, height, bfChinese,vccb[i]);
+                Content(ref cb, width, height, bfChinese,vccb[i]);
             }
-
-                
-
-            
-            
-
-        /*    //TEXT
-            cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
-            cb.BeginText();
-            cb.SetFontAndSize(bfChinese, 12);
-
-            
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "品　　名", 47, 168, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "規　　格", 47, 128, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "數　　量", 47, 88, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "進貨日期", 47, 48, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "備　　註", 47, 18, 0);
-
-            
-            
-            //文字
-            cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
-            cb.BeginText();
-
-            System.Drawing.Image image = System.Drawing.Image.FromFile(Server.MapPath("/einvoice/"+invoice.cno+".png"), true);
-            iTextSharp.text.Image logo = iTextSharp.text.Image.GetInstance(image, System.Drawing.Imaging.ImageFormat.Bmp);
-            // iTextSharp.text.Image logo = iTextSharp.text.Image.GetInstance(HttpContext.Current.Server.MapPath("./einvoice/logo.bmp"));
-            //調整圖片大小
-        
-            logo.ScalePercent(25f);
-            logo.SetAbsolutePosition(3, 220);
-            doc1.Add(logo);
-
-            //發票號碼(左: 3.3cm, 高: 11.5cm)
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].invoiceNumber, width / (float)21.59 * (float)3.3, height / (float)13.97 * (float)11.5, 0);
-            //電子發票證明聯
-
-            if (invoice.Printmark == "Y")
-            {
-                cb.SetFontAndSize(bfChinese, 17);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "電子發票證明聯補印", width / 2, 200, 0);
-            }
-            else
-            {
-                cb.SetFontAndSize(bfChinese, 18);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "電子發票證明聯", width / 2, 200, 0);
-            }
-            //期別
-            int n = Int32.Parse(invoice.InvoiceDate.Substring(3, 2)) + Int32.Parse(invoice.InvoiceDate.Substring(3, 2)) % 2;
-            string value = invoice.InvoiceDate.Substring(0, 3).ToString() + "年"
-                + ("0" + (n - 1).ToString()).Substring(("0" + (n - 1).ToString()).Length-2,2) + "-"
-                + ("0" + n.ToString()).Substring(("0" + n.ToString()).Length - 2, 2) + "月";
-            cb.SetFontAndSize(bold, 18);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, value, width / 2, 180, 0);
-            //發票號碼
-            cb.SetFontAndSize(bold, 19);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, invoice.InvoiceNumber, width / 2, 160, 0);
-            //日期、時間
-            cb.SetFontAndSize(bfChinese, 10);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.date.ToString("yyyy-MM-dd"), 18, 138, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.date.ToString("hh:mm:ss"), 80, 138, 0);
-            //隨機碼、總計
-            cb.SetFontAndSize(bfChinese, 10);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "隨機碼 "+invoice.RandomNumber.ToString(), 18, 124, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計  " + invoice.TotalAmount.ToString("0.########"), 90, 124, 0);
-            //賣方
-            cb.SetFontAndSize(bfChinese, 10);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方", 18, 110, 0);
-            cb.SetFontAndSize(bfChinese, 8);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.SellerIdentifier, 40, 110, 0);
-            //買方
-            if (invoice.BuyerIdentifier.Length > 0 && invoice.BuyerIdentifier != "00000000")
-            {
-                cb.SetFontAndSize(bfChinese, 10);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "買方", 90, 110, 0);
-                cb.SetFontAndSize(bfChinese, 8);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.BuyerIdentifier, 112, 110, 0);
-            }
-            
-            cb.EndText();
-            
-            // done
-            doc1.Add(pa);
-            //============ 產品明細 ==============
-            /* doc1.NewPage();
-             iTextSharp.text.Paragraph pa2 = new iTextSharp.text.Paragraph();
-             cb.BeginText();
-             //產品明細
-             cb.SetFontAndSize(bfChinese, 10);
-             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "產品明細 " + invoice.SellerIdentifier, 18, 110, 0);
-             cb.EndText();
-             // done
-             doc1.Add(pa2);*/
             doc1.Close();
             
             Response.ContentType = "application/octec-stream;";
@@ -520,7 +427,7 @@ from @bbs
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "簽收人：", width / (float)21.59 * (float)1.2, height / (float)13.97 * (float)3.8, 0);
             cb.EndText();
         }
-        public void Contract(ref iTextSharp.text.pdf.PdfContentByte cb, float width, float height, iTextSharp.text.pdf.BaseFont bfChinese,Vccb vccb)
+        public void Content(ref iTextSharp.text.pdf.PdfContentByte cb, float width, float height, iTextSharp.text.pdf.BaseFont bfChinese,Vccb vccb)
         {
             //內容
             cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);

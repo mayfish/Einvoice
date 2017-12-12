@@ -32,6 +32,10 @@
 					}, {
 						type : '6',
 						name : 'ynoa'
+					}, {
+						type : '8',
+						name : 'xdetail',
+						value : ["1@列印明細"]
 					}]
 				});
 				q_popAssign();
@@ -53,7 +57,7 @@
 					var t_invoice = $.trim($('#txtYnoa').val());
 					var binvono = $.trim($('#txtXnoa1').val());
 					var einvono = $.trim($('#txtXnoa2').val());
-					
+					var detail = $('#chkXdetail').children().eq(0).prop('checked')?"true":"false";
 					switch($('#q_report').data('info').radioIndex) {
 						case 0:
 							switch(q_getPara('sys.project').toUpperCase()){
@@ -68,7 +72,8 @@
 							break;
 						case 1:
 							//window.open("./../einvoice/B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice);
-							window.open("./B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice);
+							//window.open("./B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice);
+							window.open("./pdf_vcca01.aspx?db="+q_db+"&binvono="+binvono+"&einvono="+einvono+"&isdetail="+detail);
 							break;
 						case 2:
                         	window.open("./pdf_Einvo01.aspx?table=vcc&noa="+$('#txtYnoa').val()+"&noq=&db="+q_db);
