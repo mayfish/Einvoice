@@ -123,16 +123,16 @@
         {
             System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
 
-            string db = "st", binvono = "AW12978027", einvono = "AW12978027";
+            string db = "st", binvono = "", einvono = "";
             bool isdetail = true;
             if (Request.QueryString["db"] != null && Request.QueryString["db"].Length > 0)
                 db = Request.QueryString["db"];
             if (Request.QueryString["binvono"] != null && Request.QueryString["binvono"].Length > 0)
                 binvono = Request.QueryString["binvono"];
             if (Request.QueryString["einvono"] != null && Request.QueryString["einvono"].Length > 0)
-                binvono = Request.QueryString["einvono"];
+                einvono = Request.QueryString["einvono"];
             if (Request.QueryString["isdetail"] != null && Request.QueryString["isdetail"].Length > 0)
-                isdetail = Request.QueryString["isdetail"].ToUpper()=="TURE"?true:false;
+                isdetail = Request.QueryString["isdetail"].ToUpper()=="TRUE"?true:false;
             
             //檢查是否有輸入參數
             if (binvono.Length == 0 || einvono.Length == 0 || db.Length==0)
@@ -425,8 +425,7 @@
         }
         public void Detail(ref iTextSharp.text.Document doc1, ref iTextSharp.text.pdf.PdfContentByte cb, float width, float height, iTextSharp.text.pdf.BaseFont bfChinese, iTextSharp.text.pdf.BaseFont bold, Invoice invoice)
         {
-            
-            
+            cb.BeginText();
             float bbsH = 110;
             for (int i = 0; i < invoice.bbs.Length; i++)
             {
@@ -437,25 +436,27 @@
                       //  doc1.Add(pa);
                     bbsH = 220;
                     doc1.NewPage();
-                    cb.BeginText();
+                    //cb.BeginText();
                     cb.SetFontAndSize(bfChinese, 10);
                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品名", 15, bbsH + 15, 0);
                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "數量", 120, bbsH + 15, 0);
                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "單價", 150, bbsH + 15, 0);
                     
-                    cb.EndText();
+                    //cb.EndText();
                 }
-                cb.BeginText();
+                //cb.BeginText();
                 cb.SetFontAndSize(bfChinese, 8);
                 //產品明細
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.bbs[i].product, 15, bbsH, 0);
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].cmount, 120, bbsH , 0);
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].cprice, 150, bbsH, 0);
-                cb.EndText();
+                //cb.EndText();
                 bbsH -= 15;
             }
+            cb.EndText();
         }
-
+        
+        
         public static System.Drawing.Bitmap QrCode(string code, int width, int height)
         {
             ZXing.BarcodeWriter bw = new ZXing.BarcodeWriter();
