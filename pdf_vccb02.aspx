@@ -2,6 +2,7 @@
 <%@ Page Language="C#" Debug="true"%>
     <script language="c#" runat="server">     
         static string connString = @"Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
+        //static string connStringTNK = @"Data Source=127.0.0.1,1798;Persist Security Info=True;User ID=sa;Password=1qaz2wsx;Database=TNK";
 
         public class Vccb
         {
@@ -42,8 +43,8 @@
         public void Page_Load()
         {
             System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            
-            string db = "st", bvccbno = "", evccbno = "";
+
+            string db = "", bvccbno = "", evccbno = "";
             if (Request.QueryString["db"] != null && Request.QueryString["db"].Length > 0)
                 db = Request.QueryString["db"];
             if (Request.QueryString["bvccbno"] != null && Request.QueryString["bvccbno"].Length > 0)
@@ -60,9 +61,10 @@
 
             Vccb[] vccb = GetVccb(db,bvccbno,evccbno);
             //-----PDF--------------------------------------------------------------------------------------------------
-            var doc1 = new iTextSharp.text.Document(iTextSharp.text.PageSize.LETTER);
-            float width = doc1.PageSize.Width;
-            float height = doc1.PageSize.Height/2;
+            var doc1 = new iTextSharp.text.Document(iTextSharp.text.PageSize.A5);
+            //A5橫印
+            float width = doc1.PageSize.Height;   //  21cm
+            float height = doc1.PageSize.Width;   //  14.8cm
             doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(width, height), 0, 0, 0, 0);
             
             iTextSharp.text.pdf.PdfWriter pdfWriter = iTextSharp.text.pdf.PdfWriter.GetInstance(doc1, stream);
@@ -79,19 +81,15 @@
             
             doc1.Open();
             iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
-			
-			if(vccb.Length==0){
-				doc1.NewPage();
-			}else{
-				for (int i = 0; i < vccb.Length; i++)
-	            {
-	                doc1.NewPage();
-	                Template(ref cb, width, height, bfChinese);
-	                Content(ref cb, width, height, bfChinese,vccb[i]);
-	            }
-	            doc1.Close();
-			}
-            
+
+            for (int i = 0; i < vccb.Length; i++)
+            {
+                doc1.NewPage();
+                Template(ref cb, width, height, bfChinese);
+                Content(ref cb, width, height, bfChinese, vccb[i]);
+            }
+
+            doc1.Close();
             
             Response.ContentType = "application/octec-stream;";
             Response.AddHeader("Content-transfer-encoding", "binary");
@@ -250,226 +248,226 @@ from @bbs
             //============ 框線 ==============
             double bw = 0.2;
             //粗線-直(X+bw)
-            cb.MoveTo(width / (float)21.59 * (float)1, height / (float)13.97 * (float)13.4);
-            cb.LineTo(width / (float)21.59 * (float)1, height / (float)13.97 * (float)5);
-            cb.MoveTo((width / (float)21.59 * (float)1) + bw, height / (float)13.97 * (float)13.4);
-            cb.LineTo((width / (float)21.59 * (float)1) + bw, height / (float)13.97 * (float)5);
+            cb.MoveTo(width / (float)21 * (float)1, height / (float)14.8 * (float)13.4);
+            cb.LineTo(width / (float)21 * (float)1, height / (float)14.8 * (float)5);
+            cb.MoveTo((width / (float)21 * (float)1) + bw, height / (float)14.8 * (float)13.4);
+            cb.LineTo((width / (float)21 * (float)1) + bw, height / (float)14.8 * (float)5);
 
-            cb.MoveTo(width / (float)21.59 * (float)9, height / (float)13.97 * (float)13.4);
-            cb.LineTo(width / (float)21.59 * (float)9, height / (float)13.97 * (float)11);
-            cb.MoveTo((width / (float)21.59 * (float)9) + bw, height / (float)13.97 * (float)13.4);
-            cb.LineTo((width / (float)21.59 * (float)9) + bw, height / (float)13.97 * (float)11);
+            cb.MoveTo(width / (float)21 * (float)9, height / (float)14.8 * (float)13.4);
+            cb.LineTo(width / (float)21 * (float)9, height / (float)14.8 * (float)11);
+            cb.MoveTo((width / (float)21 * (float)9) + bw, height / (float)14.8 * (float)13.4);
+            cb.LineTo((width / (float)21 * (float)9) + bw, height / (float)14.8 * (float)11);
 
-            cb.MoveTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)11);
-            cb.LineTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)5);
-            cb.MoveTo((width / (float)21.59 * (float)20.6) + bw, height / (float)13.97 * (float)11);
-            cb.LineTo((width / (float)21.59 * (float)20.6) + bw, height / (float)13.97 * (float)5);
+            cb.MoveTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)11);
+            cb.LineTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)5);
+            cb.MoveTo((width / (float)21 * (float)20.6) + bw, height / (float)14.8 * (float)11);
+            cb.LineTo((width / (float)21 * (float)20.6) + bw, height / (float)14.8 * (float)5);
 
-            cb.MoveTo(width / (float)21.59 * (float)12.2, height / (float)13.97 * (float)4.8);
-            cb.LineTo(width / (float)21.59 * (float)12.2, height / (float)13.97 * (float)0.6);
-            cb.MoveTo((width / (float)21.59 * (float)12.2) + bw, height / (float)13.97 * (float)4.8);
-            cb.LineTo((width / (float)21.59 * (float)12.2) + bw, height / (float)13.97 * (float)0.6);
+            cb.MoveTo(width / (float)21 * (float)12.2, height / (float)14.8 * (float)4.8);
+            cb.LineTo(width / (float)21 * (float)12.2, height / (float)14.8 * (float)0.6);
+            cb.MoveTo((width / (float)21 * (float)12.2) + bw, height / (float)14.8 * (float)4.8);
+            cb.LineTo((width / (float)21 * (float)12.2) + bw, height / (float)14.8 * (float)0.6);
 
-            cb.MoveTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)4.8);
-            cb.LineTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)0.6);
-            cb.MoveTo((width / (float)21.59 * (float)20.6) + bw, height / (float)13.97 * (float)4.8);
-            cb.LineTo((width / (float)21.59 * (float)20.6) + bw, height / (float)13.97 * (float)0.6);
+            cb.MoveTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)4.8);
+            cb.LineTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)0.6);
+            cb.MoveTo((width / (float)21 * (float)20.6) + bw, height / (float)14.8 * (float)4.8);
+            cb.LineTo((width / (float)21 * (float)20.6) + bw, height / (float)14.8 * (float)0.6);
             //粗線-橫(Y+bw)
-            cb.MoveTo(width / (float)21.59 * (float)1, height / (float)13.97 * (float)13.4);
-            cb.LineTo(width / (float)21.59 * (float)9, height / (float)13.97 * (float)13.4);
-            cb.MoveTo(width / (float)21.59 * (float)1, (height / (float)13.97 * (float)13.4) + bw);
-            cb.LineTo(width / (float)21.59 * (float)9, (height / (float)13.97 * (float)13.4) + bw);
+            cb.MoveTo(width / (float)21 * (float)1, height / (float)14.8 * (float)13.4);
+            cb.LineTo(width / (float)21 * (float)9, height / (float)14.8 * (float)13.4);
+            cb.MoveTo(width / (float)21 * (float)1, (height / (float)14.8 * (float)13.4) + bw);
+            cb.LineTo(width / (float)21 * (float)9, (height / (float)14.8 * (float)13.4) + bw);
 
-            cb.MoveTo(width / (float)21.59 * (float)1, height / (float)13.97 * (float)11);
-            cb.LineTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)11);
-            cb.MoveTo(width / (float)21.59 * (float)1, (height / (float)13.97 * (float)11) + bw);
-            cb.LineTo(width / (float)21.59 * (float)20.6, (height / (float)13.97 * (float)11) + bw);
+            cb.MoveTo(width / (float)21 * (float)1, height / (float)14.8 * (float)11);
+            cb.LineTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)11);
+            cb.MoveTo(width / (float)21 * (float)1, (height / (float)14.8 * (float)11) + bw);
+            cb.LineTo(width / (float)21 * (float)20.6, (height / (float)14.8 * (float)11) + bw);
 
-            cb.MoveTo(width / (float)21.59 * (float)1, height / (float)13.97 * (float)5);
-            cb.LineTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)5);
-            cb.MoveTo(width / (float)21.59 * (float)1, (height / (float)13.97 * (float)5) + bw);
-            cb.LineTo(width / (float)21.59 * (float)20.6, (height / (float)13.97 * (float)5) + bw);
+            cb.MoveTo(width / (float)21 * (float)1, height / (float)14.8 * (float)5);
+            cb.LineTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)5);
+            cb.MoveTo(width / (float)21 * (float)1, (height / (float)14.8 * (float)5) + bw);
+            cb.LineTo(width / (float)21 * (float)20.6, (height / (float)14.8 * (float)5) + bw);
 
-            cb.MoveTo(width / (float)21.59 * (float)12.2, height / (float)13.97 * (float)4.8);
-            cb.LineTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)4.8);
-            cb.MoveTo(width / (float)21.59 * (float)12.2, (height / (float)13.97 * (float)4.8) + bw);
-            cb.LineTo(width / (float)21.59 * (float)20.6, (height / (float)13.97 * (float)4.8) + bw);
+            cb.MoveTo(width / (float)21 * (float)12.2, height / (float)14.8 * (float)4.8);
+            cb.LineTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)4.8);
+            cb.MoveTo(width / (float)21 * (float)12.2, (height / (float)14.8 * (float)4.8) + bw);
+            cb.LineTo(width / (float)21 * (float)20.6, (height / (float)14.8 * (float)4.8) + bw);
 
-            cb.MoveTo(width / (float)21.59 * (float)12.2, height / (float)13.97 * (float)0.6);
-            cb.LineTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)0.6);
-            cb.MoveTo(width / (float)21.59 * (float)12.2, (height / (float)13.97 * (float)0.6) + bw);
-            cb.LineTo(width / (float)21.59 * (float)20.6, (height / (float)13.97 * (float)0.6) + bw);
+            cb.MoveTo(width / (float)21 * (float)12.2, height / (float)14.8 * (float)0.6);
+            cb.LineTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)0.6);
+            cb.MoveTo(width / (float)21 * (float)12.2, (height / (float)14.8 * (float)0.6) + bw);
+            cb.LineTo(width / (float)21 * (float)20.6, (height / (float)14.8 * (float)0.6) + bw);
 
             //細線-斜
-            cb.MoveTo(width / (float)21.59 * (float)1.45, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)1, height / (float)13.97 * (float)8.8);
+            cb.MoveTo(width / (float)21 * (float)1.45, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)1, height / (float)14.8 * (float)8.8);
 
             //細線-直
-            cb.MoveTo(width / (float)21.59 * (float)2, height / (float)13.97 * (float)13.4);
-            cb.LineTo(width / (float)21.59 * (float)2, height / (float)13.97 * (float)11);
+            cb.MoveTo(width / (float)21 * (float)2, height / (float)14.8 * (float)13.4);
+            cb.LineTo(width / (float)21 * (float)2, height / (float)14.8 * (float)11);
 
-            cb.MoveTo(width / (float)21.59 * (float)4.2, height / (float)13.97 * (float)13.4);
-            cb.LineTo(width / (float)21.59 * (float)4.2, height / (float)13.97 * (float)11);
+            cb.MoveTo(width / (float)21 * (float)4.2, height / (float)14.8 * (float)13.4);
+            cb.LineTo(width / (float)21 * (float)4.2, height / (float)14.8 * (float)11);
 
-            cb.MoveTo(width / (float)21.59 * (float)1.45, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)1.45, height / (float)13.97 * (float)5.8);
+            cb.MoveTo(width / (float)21 * (float)1.45, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)1.45, height / (float)14.8 * (float)5.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)2.1, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)2.1, height / (float)13.97 * (float)5.8);
+            cb.MoveTo(width / (float)21 * (float)2.1, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)2.1, height / (float)14.8 * (float)5.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)2.8, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)2.8, height / (float)13.97 * (float)5.8);
+            cb.MoveTo(width / (float)21 * (float)2.8, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)2.8, height / (float)14.8 * (float)5.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)3.45, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)3.45, height / (float)13.97 * (float)5.8);
+            cb.MoveTo(width / (float)21 * (float)3.45, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)3.45, height / (float)14.8 * (float)5.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)4.1, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)4.1, height / (float)13.97 * (float)5.8);
+            cb.MoveTo(width / (float)21 * (float)4.1, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)4.1, height / (float)14.8 * (float)5.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)6.25, height / (float)13.97 * (float)11);
-            cb.LineTo(width / (float)21.59 * (float)6.25, height / (float)13.97 * (float)5.8);
+            cb.MoveTo(width / (float)21 * (float)6.25, height / (float)14.8 * (float)11);
+            cb.LineTo(width / (float)21 * (float)6.25, height / (float)14.8 * (float)5.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)9.5, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)9.5, height / (float)13.97 * (float)5.8);
+            cb.MoveTo(width / (float)21 * (float)9.5, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)9.5, height / (float)14.8 * (float)5.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)11.3, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)11.3, height / (float)13.97 * (float)5.8);
+            cb.MoveTo(width / (float)21 * (float)11.3, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)11.3, height / (float)14.8 * (float)5.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)12.9, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)12.9, height / (float)13.97 * (float)5);
+            cb.MoveTo(width / (float)21 * (float)12.9, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)12.9, height / (float)14.8 * (float)5);
 
-            cb.MoveTo(width / (float)21.59 * (float)15.7, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)15.7, height / (float)13.97 * (float)5);
+            cb.MoveTo(width / (float)21 * (float)15.7, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)15.7, height / (float)14.8 * (float)5);
 
-            cb.MoveTo(width / (float)21.59 * (float)17.85, height / (float)13.97 * (float)11);
-            cb.LineTo(width / (float)21.59 * (float)17.85, height / (float)13.97 * (float)5);
+            cb.MoveTo(width / (float)21 * (float)17.85, height / (float)14.8 * (float)11);
+            cb.LineTo(width / (float)21 * (float)17.85, height / (float)14.8 * (float)5);
 
-            cb.MoveTo(width / (float)21.59 * (float)18.8, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)18.8, height / (float)13.97 * (float)5.8);
+            cb.MoveTo(width / (float)21 * (float)18.8, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)18.8, height / (float)14.8 * (float)5.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)19.7, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)19.7, height / (float)13.97 * (float)5.8);
+            cb.MoveTo(width / (float)21 * (float)19.7, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)19.7, height / (float)14.8 * (float)5.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)5.8);
+            cb.MoveTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)5.8);
             //細線-橫
-            cb.MoveTo(width / (float)21.59 * (float)2, height / (float)13.97 * (float)12.5);
-            cb.LineTo(width / (float)21.59 * (float)9, height / (float)13.97 * (float)12.5);
+            cb.MoveTo(width / (float)21 * (float)2, height / (float)14.8 * (float)12.5);
+            cb.LineTo(width / (float)21 * (float)9, height / (float)14.8 * (float)12.5);
 
-            cb.MoveTo(width / (float)21.59 * (float)2, height / (float)13.97 * (float)11.8);
-            cb.LineTo(width / (float)21.59 * (float)9, height / (float)13.97 * (float)11.8);
+            cb.MoveTo(width / (float)21 * (float)2, height / (float)14.8 * (float)11.8);
+            cb.LineTo(width / (float)21 * (float)9, height / (float)14.8 * (float)11.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)1, height / (float)13.97 * (float)10.4);
-            cb.LineTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)10.4);
+            cb.MoveTo(width / (float)21 * (float)1, height / (float)14.8 * (float)10.4);
+            cb.LineTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)10.4);
 
-            cb.MoveTo(width / (float)21.59 * (float)1, height / (float)13.97 * (float)8.8);
-            cb.LineTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)8.8);
+            cb.MoveTo(width / (float)21 * (float)1, height / (float)14.8 * (float)8.8);
+            cb.LineTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)8.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)1, height / (float)13.97 * (float)5.8);
-            cb.LineTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)5.8);
+            cb.MoveTo(width / (float)21 * (float)1, height / (float)14.8 * (float)5.8);
+            cb.LineTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)5.8);
 
-            cb.MoveTo(width / (float)21.59 * (float)12.2, height / (float)13.97 * (float)4.2);
-            cb.LineTo(width / (float)21.59 * (float)20.6, height / (float)13.97 * (float)4.2);
+            cb.MoveTo(width / (float)21 * (float)12.2, height / (float)14.8 * (float)4.2);
+            cb.LineTo(width / (float)21 * (float)20.6, height / (float)14.8 * (float)4.2);
             cb.Stroke();
             //文字
             cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
             cb.BeginText();
             cb.SetFontAndSize(bfChinese, 14);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "電子發票銷貨退回、進貨退出或折讓證明單證明聯", width / (float)21.59 * (float)9.4, height / (float)13.97 * (float)12, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "電子發票銷貨退回、進貨退出或折讓證明單證明聯", width / (float)21 * (float)9.4, height / (float)14.8 * (float)12, 0);
             cb.SetFontAndSize(bfChinese, 10);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "原", width / (float)21.59 * (float)1.1, height / (float)13.97 * (float)13, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "開", width / (float)21.59 * (float)1.1, height / (float)13.97 * (float)12.55, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "立", width / (float)21.59 * (float)1.1, height / (float)13.97 * (float)12.1, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "銷", width / (float)21.59 * (float)1.1, height / (float)13.97 * (float)11.65, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "貨", width / (float)21.59 * (float)1.1, height / (float)13.97 * (float)11.2, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "發", width / (float)21.59 * (float)1.5, height / (float)13.97 * (float)13, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "票", width / (float)21.59 * (float)1.5, height / (float)13.97 * (float)12.4, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "單", width / (float)21.59 * (float)1.5, height / (float)13.97 * (float)11.8, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "位", width / (float)21.59 * (float)1.5, height / (float)13.97 * (float)11.2, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "原", width / (float)21 * (float)1.1, height / (float)14.8 * (float)13, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "開", width / (float)21 * (float)1.1, height / (float)14.8 * (float)12.55, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "立", width / (float)21 * (float)1.1, height / (float)14.8 * (float)12.1, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "銷", width / (float)21 * (float)1.1, height / (float)14.8 * (float)11.65, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "貨", width / (float)21 * (float)1.1, height / (float)14.8 * (float)11.2, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "發", width / (float)21 * (float)1.5, height / (float)14.8 * (float)13, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "票", width / (float)21 * (float)1.5, height / (float)14.8 * (float)12.4, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "單", width / (float)21 * (float)1.5, height / (float)14.8 * (float)11.8, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "位", width / (float)21 * (float)1.5, height / (float)14.8 * (float)11.2, 0);
 
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營利事業", width / (float)21.59 * (float)2.4, height / (float)13.97 * (float)13, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號", width / (float)21.59 * (float)2.4, height / (float)13.97 * (float)12.6, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "名　　稱", width / (float)21.59 * (float)2.4, height / (float)13.97 * (float)12, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業所在", width / (float)21.59 * (float)2.4, height / (float)13.97 * (float)11.45, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地　　址", width / (float)21.59 * (float)2.4, height / (float)13.97 * (float)11.05, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營利事業", width / (float)21 * (float)2.4, height / (float)14.8 * (float)13, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號", width / (float)21 * (float)2.4, height / (float)14.8 * (float)12.6, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "名　　稱", width / (float)21 * (float)2.4, height / (float)14.8 * (float)12, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業所在", width / (float)21 * (float)2.4, height / (float)14.8 * (float)11.45, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地　　址", width / (float)21 * (float)2.4, height / (float)14.8 * (float)11.05, 0);
             cb.SetFontAndSize(bfChinese, 12);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "開　立　發　票", width / (float)21.59 * (float)2.3, height / (float)13.97 * (float)10.55, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "退　貨　或　折　讓　內　容", width / (float)21.59 * (float)9.7, height / (float)13.97 * (float)10.55, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "課稅別（v）", width / (float)21.59 * (float)18.1, height / (float)13.97 * (float)10.55, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "開　立　發　票", width / (float)21 * (float)2.3, height / (float)14.8 * (float)10.55, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "退　貨　或　折　讓　內　容", width / (float)21 * (float)9.7, height / (float)14.8 * (float)10.55, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "課稅別（v）", width / (float)21 * (float)18.1, height / (float)14.8 * (float)10.55, 0);
             cb.SetFontAndSize(bfChinese, 6);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "一", width / (float)21.59 * (float)1.05, height / (float)13.97 * (float)10.18, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "般", width / (float)21.59 * (float)1.05, height / (float)13.97 * (float)10.03, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "特", width / (float)21.59 * (float)1.15, height / (float)13.97 * (float)9.15, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "種", width / (float)21.59 * (float)1.15, height / (float)13.97 * (float)8.9, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "一", width / (float)21 * (float)1.05, height / (float)14.8 * (float)10.18, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "般", width / (float)21 * (float)1.05, height / (float)14.8 * (float)10.03, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "特", width / (float)21 * (float)1.15, height / (float)14.8 * (float)9.15, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "種", width / (float)21 * (float)1.15, height / (float)14.8 * (float)8.9, 0);
             cb.SetFontAndSize(bfChinese, 12);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "年", width / (float)21.59 * (float)1.55, height / (float)13.97 * (float)9.4, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "月", width / (float)21.59 * (float)2.23, height / (float)13.97 * (float)9.4, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "日", width / (float)21.59 * (float)3, height / (float)13.97 * (float)9.4, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "字", width / (float)21.59 * (float)3.58, height / (float)13.97 * (float)9.6, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "軌", width / (float)21.59 * (float)3.58, height / (float)13.97 * (float)9.15, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "號　碼", width / (float)21.59 * (float)4.5, height / (float)13.97 * (float)9.4, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品　　名", width / (float)21.59 * (float)6.5, height / (float)13.97 * (float)9.4, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "數　量", width / (float)21.59 * (float)9.8, height / (float)13.97 * (float)9.4, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "單　價", width / (float)21.59 * (float)11.45, height / (float)13.97 * (float)9.4, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "金　　額", width / (float)21.59 * (float)13.5, height / (float)13.97 * (float)9.6, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "年", width / (float)21 * (float)1.55, height / (float)14.8 * (float)9.4, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "月", width / (float)21 * (float)2.23, height / (float)14.8 * (float)9.4, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "日", width / (float)21 * (float)3, height / (float)14.8 * (float)9.4, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "字", width / (float)21 * (float)3.58, height / (float)14.8 * (float)9.6, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "軌", width / (float)21 * (float)3.58, height / (float)14.8 * (float)9.15, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "號　碼", width / (float)21 * (float)4.5, height / (float)14.8 * (float)9.4, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品　　名", width / (float)21 * (float)6.5, height / (float)14.8 * (float)9.4, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "數　量", width / (float)21 * (float)9.8, height / (float)14.8 * (float)9.4, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "單　價", width / (float)21 * (float)11.45, height / (float)14.8 * (float)9.4, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "金　　額", width / (float)21 * (float)13.5, height / (float)14.8 * (float)9.6, 0);
             cb.SetFontAndSize(bfChinese, 8);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "（不含稅之進貨金額）", width / (float)21.59 * (float)12.9, height / (float)13.97 * (float)9.15, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "（不含稅之進貨金額）", width / (float)21 * (float)12.9, height / (float)14.8 * (float)9.15, 0);
             cb.SetFontAndSize(bfChinese, 12);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業稅額", width / (float)21.59 * (float)15.9, height / (float)13.97 * (float)9.4, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "應", width / (float)21.59 * (float)18.2, height / (float)13.97 * (float)9.9, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "稅", width / (float)21.59 * (float)18.2, height / (float)13.97 * (float)8.9, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "零", width / (float)21.59 * (float)19, height / (float)13.97 * (float)9.9, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "稅", width / (float)21.59 * (float)19, height / (float)13.97 * (float)9.4, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "率", width / (float)21.59 * (float)19, height / (float)13.97 * (float)8.9, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "免", width / (float)21.59 * (float)19.95, height / (float)13.97 * (float)9.9, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "稅", width / (float)21.59 * (float)19.95, height / (float)13.97 * (float)8.9, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業稅額", width / (float)21 * (float)15.9, height / (float)14.8 * (float)9.4, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "應", width / (float)21 * (float)18.2, height / (float)14.8 * (float)9.9, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "稅", width / (float)21 * (float)18.2, height / (float)14.8 * (float)8.9, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "零", width / (float)21 * (float)19, height / (float)14.8 * (float)9.9, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "稅", width / (float)21 * (float)19, height / (float)14.8 * (float)9.4, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "率", width / (float)21 * (float)19, height / (float)14.8 * (float)8.9, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "免", width / (float)21 * (float)19.95, height / (float)14.8 * (float)9.9, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "稅", width / (float)21 * (float)19.95, height / (float)14.8 * (float)8.9, 0);
 
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "合", width / (float)21.59 * (float)3.5, height / (float)13.97 * (float)5.2, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "計", width / (float)21.59 * (float)10, height / (float)13.97 * (float)5.2, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "合", width / (float)21 * (float)3.5, height / (float)14.8 * (float)5.2, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "計", width / (float)21 * (float)10, height / (float)14.8 * (float)5.2, 0);
             cb.SetFontAndSize(bfChinese, 11);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "本證明單所列進貨退出或折讓，確屬事實，特此證明。", width / (float)21.59 * (float)1.2, height / (float)13.97 * (float)4.36, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "進貨營業人（或原買受人）蓋統一發票專用章", width / (float)21.59 * (float)12.5, height / (float)13.97 * (float)4.36, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "簽收人：", width / (float)21.59 * (float)1.2, height / (float)13.97 * (float)3.8, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "本證明單所列進貨退出或折讓，確屬事實，特此證明。", width / (float)21 * (float)1.2, height / (float)14.8 * (float)4.36, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "進貨營業人（或原買受人）蓋統一發票專用章", width / (float)21 * (float)12.5, height / (float)14.8 * (float)4.36, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "簽收人：", width / (float)21 * (float)1.2, height / (float)14.8 * (float)3.8, 0);
             cb.EndText();
         }
-        public void Content(ref iTextSharp.text.pdf.PdfContentByte cb, float width, float height, iTextSharp.text.pdf.BaseFont bfChinese,Vccb vccb)
+        public void Content(ref iTextSharp.text.pdf.PdfContentByte cb, float width, float height, iTextSharp.text.pdf.BaseFont bfChinese, Vccb vccb)
         {
             //內容
             cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
             cb.BeginText();
             cb.SetFontAndSize(bfChinese, 10);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.serial, width / (float)21.59 * (float)4.3, height / (float)13.97 * (float)12.8, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.comp, width / (float)21.59 * (float)4.3, height / (float)13.97 * (float)12, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.serial, width / (float)21 * (float)4.3, height / (float)14.8 * (float)12.8, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.comp, width / (float)21 * (float)4.3, height / (float)14.8 * (float)12, 0);
             cb.SetFontAndSize(bfChinese, 8);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.addr, width / (float)21.59 * (float)4.3, height / (float)13.97 * (float)11.25, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.addr, width / (float)21 * (float)4.3, height / (float)14.8 * (float)11.25, 0);
 
             cb.SetFontAndSize(bfChinese, 8);
             float bbsH = (float)8.32;
             for (int i = 0; i < vccb.bbs.Length && bbsH>0; i++)
             {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].invocieType, width / (float)21.59 * (float)1.05, height / (float)13.97 * (float)bbsH, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].yy, width / (float)21.59 * (float)1.55, height / (float)13.97 * (float)bbsH, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].mm, width / (float)21.59 * (float)2.3, height / (float)13.97 * (float)bbsH, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].dd, width / (float)21.59 * (float)2.9, height / (float)13.97 * (float)bbsH, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].track, width / (float)21.59 * (float)3.58, height / (float)13.97 * (float)bbsH, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].number, width / (float)21.59 * (float)4.5, height / (float)13.97 * (float)bbsH, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].product, width / (float)21.59 * (float)6.3, height / (float)13.97 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].invocieType, width / (float)21 * (float)1.05, height / (float)14.8 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].yy, width / (float)21 * (float)1.55, height / (float)14.8 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].mm, width / (float)21 * (float)2.3, height / (float)14.8 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].dd, width / (float)21 * (float)2.9, height / (float)14.8 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].track, width / (float)21 * (float)3.58, height / (float)14.8 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].number, width / (float)21 * (float)4.5, height / (float)14.8 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].product, width / (float)21 * (float)6.3, height / (float)14.8 * (float)bbsH, 0);
 
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.bbs[i].mount.ToString(), width / (float)21.59 * (float)11.1, height / (float)13.97 * (float)bbsH, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.bbs[i].price.ToString(), width / (float)21.59 * (float)12.5, height / (float)13.97 * (float)bbsH, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.bbs[i].money.ToString(), width / (float)21.59 * (float)15.25, height / (float)13.97 * (float)bbsH, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.bbs[i].tax.ToString(), width / (float)21.59 * (float)17.4, height / (float)13.97 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.bbs[i].mount.ToString(), width / (float)21 * (float)11.1, height / (float)14.8 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.bbs[i].price.ToString(), width / (float)21 * (float)12.5, height / (float)14.8 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.bbs[i].money.ToString(), width / (float)21 * (float)15.25, height / (float)14.8 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.bbs[i].tax.ToString(), width / (float)21 * (float)17.4, height / (float)14.8 * (float)bbsH, 0);
 
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].isTax ? "v" : "", width / (float)21.59 * (float)18.3, height / (float)13.97 * (float)bbsH, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].isZero ? "v" : "", width / (float)21.59 * (float)19.2, height / (float)13.97 * (float)bbsH, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].isNone ? "v" : "", width / (float)21.59 * (float)20.1, height / (float)13.97 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].isTax ? "v" : "", width / (float)21 * (float)18.3, height / (float)14.8 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].isZero ? "v" : "", width / (float)21 * (float)19.2, height / (float)14.8 * (float)bbsH, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].isNone ? "v" : "", width / (float)21 * (float)20.1, height / (float)14.8 * (float)bbsH, 0);
                 
                 bbsH -= (float)0.45;
             }
             cb.SetFontAndSize(bfChinese, 12);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.money.ToString(), width / (float)21.59 * (float)15.25, height / (float)13.97 * (float)5.2, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.tax.ToString(), width / (float)21.59 * (float)17.4, height / (float)13.97 * (float)5.2, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.total.ToString(), width / (float)21.59 * (float)20, height / (float)13.97 * (float)5.2, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.money.ToString(), width / (float)21 * (float)15.25, height / (float)14.8 * (float)5.2, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.tax.ToString(), width / (float)21 * (float)17.4, height / (float)14.8 * (float)5.2, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.total.ToString(), width / (float)21 * (float)20, height / (float)14.8 * (float)5.2, 0);
             cb.EndText();
         }
     </script>
