@@ -168,20 +168,20 @@
             }
             iTextSharp.text.pdf.BaseFont bfNumber = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\ariblk.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
             
-
-            if (invoice.Length > 0)
-            {
-                doc1.Open();
-                iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
-                for (int i = 0; i < invoice.Length; i++)
-                {
-                    doc1.NewPage();
-                    Content(ref doc1, ref cb, width, height, bfChinese, bold, invoice[i]);
-                    if (isdetail)
-                        Detail(ref doc1, ref cb, width, height, bfChinese, bold, invoice[i]);
-                }
-                doc1.Close();
+            doc1.Open();
+            iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
+            if (invoice.Length == 0){
+            	doc1.NewPage();
+            }else{
+            	for (int i = 0; i < invoice.Length; i++)
+	            {
+	                doc1.NewPage();
+	                Content(ref doc1, ref cb, width, height, bfChinese, bold, invoice[i]);
+	                if (isdetail)
+	                    Detail(ref doc1, ref cb, width, height, bfChinese, bold, invoice[i]);
+	            }
             }
+            doc1.Close();
             
             Response.ContentType = "application/octec-stream;";
             Response.AddHeader("Content-transfer-encoding", "binary");

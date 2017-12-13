@@ -79,14 +79,19 @@
             
             doc1.Open();
             iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
-
-            for (int i = 0; i < vccb.Length; i++)
-            {
-                doc1.NewPage();
-                Template(ref cb, width, height, bfChinese);
-                Content(ref cb, width, height, bfChinese,vccb[i]);
-            }
-            doc1.Close();
+			
+			if(vccb.Length==0){
+				doc1.NewPage();
+			}else{
+				for (int i = 0; i < vccb.Length; i++)
+	            {
+	                doc1.NewPage();
+	                Template(ref cb, width, height, bfChinese);
+	                Content(ref cb, width, height, bfChinese,vccb[i]);
+	            }
+	            doc1.Close();
+			}
+            
             
             Response.ContentType = "application/octec-stream;";
             Response.AddHeader("Content-transfer-encoding", "binary");
