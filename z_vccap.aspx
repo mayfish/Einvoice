@@ -27,15 +27,19 @@
 						name : 'accy',
 						value : r_accy
 					}, {
-						type : '1',
+						type : '1',       //1
 						name : 'xnoa'
 					}, {
-						type : '6',
+						type : '6',        //2
 						name : 'ynoa'
 					}, {
-						type : '8',
+						type : '8',        //3
 						name : 'xdetail',
 						value : ["1@列印明細"]
+					}, {
+						type : '8',        //4
+						name : 'xautoprint',
+						value : ["1@自動列印"]
 					}]
 				});
 				q_popAssign();
@@ -58,6 +62,7 @@
 					var binvono = $.trim($('#txtXnoa1').val());
 					var einvono = $.trim($('#txtXnoa2').val());
 					var detail = $('#chkXdetail').children().eq(0).prop('checked')?"true":"false";
+					var autoprint = $('#chkXautoprint').children().eq(0).prop('checked')?"true":"false";
 					switch($('#q_report').data('info').radioIndex) {
 						case 0:
 							switch(q_getPara('sys.project').toUpperCase()){
@@ -71,9 +76,10 @@
 							}
 							break;
 						case 1:
+							invoice57(binvono,einvono,detail,autoprint);
 							//window.open("./../einvoice/B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice);
 							//window.open("./B2Cinvoice.aspx?db="+q_db+"&invoice="+t_invoice);
-							window.open("./pdf_vcca01.aspx?db="+q_db+"&binvono="+binvono+"&einvono="+einvono+"&isdetail="+detail);
+							//window.open("./pdf_vcca01.aspx?db="+q_db+"&binvono="+binvono+"&einvono="+einvono+"&isdetail="+detail);
 							break;
 						case 2:
                         	window.open("./pdf_Einvo01.aspx?table=vcc&noa="+$('#txtYnoa').val()+"&noq=&db="+q_db);
@@ -101,6 +107,59 @@
 			}
 
 			function q_gtPost(s2) {
+			}
+			
+			PDFFileName = [];
+			var OpenWindows=function(n){
+			    if(n>=PDFFileName.length){
+			    	//done
+			        return;
+			    }
+			    else {
+			    	console.log("../htm/htm/"+PDFFileName[n]);
+			    	window.open("../htm/htm/"+PDFFileName[n]);
+			    	n++;
+			        setTimeout("OpenWindows("+n+")", 1500);
+			    }
+			};
+			
+			function invoice57(binvono,einvono,detail,autoprint){
+				$.ajax({
+					url: "pdf_vcca01.aspx?db="+q_db+"&binvono="+binvono+"&einvono="+einvono+"&isdetail="+detail+"&isautoprint="+autoprint,
+                    type: 'POST',
+                    data: JSON.stringify(""),
+                    dataType: 'text',
+                    timeout: 10000,
+                    success: function(data){
+                    	try{
+                			PDFFileName = [];
+                    		PDFFileName = JSON.parse(data);
+                    		OpenWindows(0);
+                    	}catch(e){
+                    	}
+                    },
+                    complete: function(){
+                    
+                    },
+                    error: function(jqXHR, exception) {
+                        var errmsg = this.url+'資料讀取異常。\n';
+                        if (jqXHR.status === 0) {
+                            alert(errmsg+'Not connect.\n Verify Network.');
+                        } else if (jqXHR.status == 404) {
+                            alert(errmsg+'Requested page not found. [404]');
+                        } else if (jqXHR.status == 500) {
+                            alert(errmsg+'Internal Server Error [500].');
+                        } else if (exception === 'parsererror') {
+                            alert(errmsg+'Requested JSON parse failed.');
+                        } else if (exception === 'timeout') {
+                            alert(errmsg+'Time out error.');
+                        } else if (exception === 'abort') {
+                            alert(errmsg+'Ajax request aborted.');
+                        } else {
+                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+                        }
+                    }
+                });	
 			}
 			function rs(binvono,einvono){
 				$.ajax({
