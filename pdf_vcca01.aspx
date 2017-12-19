@@ -5,7 +5,7 @@
         static string connString = @"Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
         static float sizeW = 5.7f;
         //EPSON TM-T70II 表頭有1.5CM空白
-        //不過紙張要設定7.3CM
+        //不過紙張要設定7.4CM
         static float sizeH = 7.3f;
 
         public class Result
@@ -160,33 +160,11 @@
 
             Invoice[] invoice = GetInvoice(db,binvono,einvono);
             ArrayList filename = new ArrayList();
-            for (int i = 0; i < invoice.Length; i++)
-            {
-                filename.Add(Content(invoice[i], isautoprint));
-                if(isdetail)
-                    filename.Add(Detail(invoice[i], isautoprint));
-            }
-            Response.Write(serializer.Serialize(filename));
-            Response.End();
-        }
 
-        public string Content(Invoice invoice,bool isAutoPrint)
-        {
-            System.IO.MemoryStream stream = new System.IO.MemoryStream();
-            //-----PDF--------------------------------------------------------------------------------------------------
-            
-            
-            iTextSharp.text.Document doc1 = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4);
-            float width = doc1.PageSize.Width / (float)21.00 * sizeW;
-            float bbmH = (float)Math.Round(doc1.PageSize.Height / (float)29.70 * sizeH, 3);
-            float bbsH = 50 + (invoice.bbs.Length == 0 ? 0 : (invoice.bbs.Length - 1) * 10) + 30;
-           // float height = bbmH + bbsH;
-            float height = bbmH;
-            
-            doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(width, height), 0, 0, 0, 0);
-
-            iTextSharp.text.pdf.PdfWriter pdfWriter = iTextSharp.text.pdf.PdfWriter.GetInstance(doc1, stream);
-            //font
+            float width,height,bbmH,bbsH;
+            iTextSharp.text.Document doc1;
+            System.IO.MemoryStream stream;
+            //字型
             iTextSharp.text.pdf.BaseFont bfChinese, bold;
             if (Environment.OSVersion.Version.Major > 6)
             {
@@ -199,28 +177,167 @@
                 bold = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\msjhbd.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
             }
             iTextSharp.text.pdf.BaseFont bfNumber = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\ariblk.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
-
-            doc1.Open();
-            iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
-            if (isAutoPrint)
-            {
-                iTextSharp.text.pdf.PdfAction jAction = iTextSharp.text.pdf.PdfAction.JavaScript("this.print(true);\r", pdfWriter);
-                pdfWriter.AddJavaScript(jAction);
-            }
-            doc1.NewPage();
+                
+            //產生PDF實體檔用
+            string uFileName;
+            System.IO.FileStream pFileStream;
             
+            for (int i = 0; i < invoice.Length; i++)
+            {
+                if (invoice[i].BuyerIdentifier.Length > 0 && invoice[i].BuyerIdentifier.Replace("0","").Length>0)
+                
+                {
+                    //B2C   發票、明細印在同一張
+                    stream = new System.IO.MemoryStream();
+                    doc1 = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4);
+                    width = doc1.PageSize.Width / (float)21.00 * sizeW;
+                    bbmH = (float)Math.Round(doc1.PageSize.Height / (float)29.70 * sizeH, 3);
+                    bbsH = 50 + (invoice[i].bbs.Length == 0 ? 0 : (invoice[i].bbs.Length - 1) * 10) + 30;
+                    height = bbmH + bbsH;
+
+                    //start
+                    stream = new System.IO.MemoryStream();
+                    doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(width, height), 0, 0, 0, 0);
+                    iTextSharp.text.pdf.PdfWriter pdfWriter = iTextSharp.text.pdf.PdfWriter.GetInstance(doc1, stream);
+
+                    doc1.Open();
+                    iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
+                    if (isautoprint)
+                    {
+                        iTextSharp.text.pdf.PdfAction jAction = iTextSharp.text.pdf.PdfAction.JavaScript("this.print(true);\r", pdfWriter);
+                        pdfWriter.AddJavaScript(jAction);
+                    }
+                    doc1.NewPage();
+                    //發票
+                    Content(invoice[i], doc1, cb, bfChinese, bold, width, height, bbmH, bbsH);
+                    //明細
+                    if (isdetail)
+                        Detail(invoice[i], doc1, cb, bfChinese, bold, width, height, bbmH, bbsH);
+                    //產生PDF檔案
+                    doc1.Close();
+                    uFileName = string.Format(@"{0}.pdf", Guid.NewGuid());
+                    pFileStream = null;
+                    try
+                    {
+                        pFileStream = new System.IO.FileStream(filePath + uFileName, System.IO.FileMode.OpenOrCreate);
+                        pFileStream.Write(stream.ToArray(), 0, stream.ToArray().Length);
+                    }
+                    catch (Exception e)
+                    {
+                        uFileName = "";
+                    }
+                    finally
+                    {
+                        if (pFileStream != null)
+                            pFileStream.Close();
+                    }
+                    stream.Close();
+                    filename.Add(uFileName);   
+                }else
+                {
+                    //B2B  發票、明細要分開
+                    stream = new System.IO.MemoryStream();
+                    doc1 = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4);
+                    width = doc1.PageSize.Width / (float)21.00 * sizeW;
+                    bbmH = (float)Math.Round(doc1.PageSize.Height / (float)29.70 * sizeH, 3);
+                    bbsH = 50 + (invoice[i].bbs.Length == 0 ? 0 : (invoice[i].bbs.Length - 1) * 10) + 30;
+                    height = bbmH;
+
+                    //第一頁
+                    stream = new System.IO.MemoryStream();
+                    doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(width, height), 0, 0, 0, 0);
+                    iTextSharp.text.pdf.PdfWriter pdfWriter = iTextSharp.text.pdf.PdfWriter.GetInstance(doc1, stream);
+
+                    doc1.Open();
+                    iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
+                    if (isautoprint)
+                    {
+                        iTextSharp.text.pdf.PdfAction jAction = iTextSharp.text.pdf.PdfAction.JavaScript("this.print(true);\r", pdfWriter);
+                        pdfWriter.AddJavaScript(jAction);
+                    }
+                    doc1.NewPage();
+                    Content(invoice[i], doc1, cb, bfChinese, bold, width, height, bbmH, bbsH);
+                    doc1.Close();
+                    //產生PDF檔案 -- 發票
+                    uFileName = string.Format(@"{0}.pdf", Guid.NewGuid());
+                    pFileStream = null;
+                    try
+                    {
+                        pFileStream = new System.IO.FileStream(filePath + uFileName, System.IO.FileMode.OpenOrCreate);
+                        pFileStream.Write(stream.ToArray(), 0, stream.ToArray().Length);
+                    }
+                    catch (Exception e)
+                    {
+                        uFileName = "";
+                    }
+                    finally
+                    {
+                        if (pFileStream != null)
+                            pFileStream.Close();
+                    }
+                    stream.Close();
+                    filename.Add(uFileName);
+                    
+                    //第二頁  明細聯
+                    if (isdetail)
+                    {
+                        stream = new System.IO.MemoryStream();
+                        //-----PDF--------------------------------------------------------------------------------------------------
+                        bbsH = bbsH < width ? width : bbsH;
+                        height = bbsH;
+                        doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(width, height), 0, 0, 0, 0);
+                        pdfWriter = iTextSharp.text.pdf.PdfWriter.GetInstance(doc1, stream);
+                        
+                        doc1.Open();
+                        cb = pdfWriter.DirectContent;
+                        if (isautoprint)
+                        {
+                            iTextSharp.text.pdf.PdfAction jAction = iTextSharp.text.pdf.PdfAction.JavaScript("this.print(true);\r", pdfWriter);
+                            pdfWriter.AddJavaScript(jAction);
+                        }
+                        doc1.NewPage();
+                        Detail(invoice[i], doc1, cb, bfChinese, bold, width, height, bbmH, bbsH);
+                        doc1.Close();
+                        //產生PDF檔案 -- 明細聯
+                        uFileName = string.Format(@"{0}.pdf", Guid.NewGuid());
+                        pFileStream = null;
+                        try
+                        {
+                            pFileStream = new System.IO.FileStream(filePath + uFileName, System.IO.FileMode.OpenOrCreate);
+                            pFileStream.Write(stream.ToArray(), 0, stream.ToArray().Length);
+                        }
+                        catch (Exception e)
+                        {
+                            uFileName = "";
+                        }
+                        finally
+                        {
+                            if (pFileStream != null)
+                                pFileStream.Close();
+                        }
+                        stream.Close();
+                        filename.Add(uFileName);
+                    }
+                }
+                
+            }
+            Response.Write(serializer.Serialize(filename));
+            Response.End();
+        }
+
+        public void Content(Invoice invoice, iTextSharp.text.Document doc1, iTextSharp.text.pdf.PdfContentByte cb, iTextSharp.text.pdf.BaseFont bfChinese, iTextSharp.text.pdf.BaseFont bold, float width, float height, float bbmH, float bbsH)
+        {
             //--------------------------------------------------------------
             //避免印表機不印空白頁
             //頁首
-            //cb.MoveTo(width-1, height-1);
-            //cb.LineTo(width, height-1);
             cb.MoveTo(0, height - 1);
             cb.LineTo(1, height - 1);
             //頁尾
-            //cb.MoveTo(width, height - bbmH + 1);
-            //cb.LineTo(width - 1, height - bbmH + 1);
-            cb.MoveTo(0, height - bbmH + 1);
-            cb.LineTo(1, height - bbmH + 1);
+            for (int i = 0; i < 130; i+=3)
+            {
+                cb.MoveTo(i, height - bbmH + 1);
+                cb.LineTo(i+1, height - bbmH + 1);
+            }
             cb.Stroke();
             //--------------------------------------------------------------
 
@@ -262,7 +379,7 @@
               //買方
               if (invoice.BuyerIdentifier.Length > 0 && invoice.BuyerIdentifier != "00000000")
               {
-                  cb.SetFontAndSize(bfChinese, 10);
+                  cb.SetFontAndSize(bfChinese, 9);
                   cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "買方", 75, height - bbmH + 100, 0);
                   cb.SetFontAndSize(bfChinese, 8);
                   cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.BuyerIdentifier, 95, height - bbmH + 100, 0);
@@ -315,95 +432,43 @@
                   cb.SetFontAndSize(bfChinese, 16);
                   cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, invoice.acomp, width / 2 - (width / (float)5.7 * (float)0.3), height - bbmH + 188, 0);
               }
-            doc1.Close();
-            
-            //產生PDF檔案
-            string uFileName = string.Format(@"{0}.pdf", Guid.NewGuid());
-            System.IO.FileStream pFileStream = null;
-            try
-            {
-                pFileStream = new System.IO.FileStream(filePath + uFileName, System.IO.FileMode.OpenOrCreate);
-                pFileStream.Write(stream.ToArray(), 0, stream.ToArray().Length);
-            }
-            catch (Exception e)
-            {
-                uFileName = "";
-            }
-            finally
-            {
-                if (pFileStream != null)
-                    pFileStream.Close();
-            }
-            stream.Close();
-            return uFileName;
         }
 
-        public string Detail(Invoice invoice, bool isAutoPrint)
+        public void Detail(Invoice invoice, iTextSharp.text.Document doc1, iTextSharp.text.pdf.PdfContentByte cb, iTextSharp.text.pdf.BaseFont bfChinese, iTextSharp.text.pdf.BaseFont bold, float width, float height, float bbmH, float bbsH)
         {
-            System.IO.MemoryStream stream = new System.IO.MemoryStream();
-            //-----PDF--------------------------------------------------------------------------------------------------
-            iTextSharp.text.Document doc1 = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4);
-            float width = doc1.PageSize.Width / (float)21.00 * sizeW;
-            float height = 50 + (invoice.bbs.Length==0?0:(invoice.bbs.Length - 1)*10) + 30;
-            height = height < width ? width : height;
-            doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(width, height), 0, 0, 0, 0);
-
-            iTextSharp.text.pdf.PdfWriter pdfWriter = iTextSharp.text.pdf.PdfWriter.GetInstance(doc1, stream);
-            //font
-            iTextSharp.text.pdf.BaseFont bfChinese, bold;
-            if (Environment.OSVersion.Version.Major > 6)
-            {
-                bfChinese = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\msjh.ttc,0", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
-                bold = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\msjh.ttc,1", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
-            }
-            else
-            {
-                bfChinese = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\msjh.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
-                bold = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\msjhbd.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
-            }
-            iTextSharp.text.pdf.BaseFont bfNumber = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\ariblk.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
-
-            doc1.Open();
-            iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
-            if (isAutoPrint)
-            {
-                iTextSharp.text.pdf.PdfAction jAction = iTextSharp.text.pdf.PdfAction.JavaScript("this.print(true);\r", pdfWriter);
-                pdfWriter.AddJavaScript(jAction);
-            }
-            doc1.NewPage();
             cb.BeginText();
             //營業人統編,地址,電話
             cb.SetFontAndSize(bold, 7);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業人統編：", 2, height - 10, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址：", 2, height - 20, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "電話：", 2, height - 30, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業人統編：", 2, bbsH - 10, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址：", 2, bbsH - 20, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "電話：", 2, bbsH - 30, 0);
             cb.SetFontAndSize(bfChinese, 7);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.SellerIdentifier, 45, height - 10, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.SellerIdentifier, 45, bbsH - 10, 0);
             cb.SetFontAndSize(bold, 6);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.SellerAddress, 22, height - 20, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.SellerAddress, 22, bbsH - 20, 0);
             cb.SetFontAndSize(bold, 7);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.SellerTel, 22, height - 30, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.SellerTel, 22, bbsH - 30, 0);
             //品名,數量,單價
             cb.SetFontAndSize(bold, 7);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品名", 2, height - 40, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "數量", 90, height - 40, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "單價", 120, height - 40, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品名", 2, bbsH - 40, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "數量", 90, bbsH - 40, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "單價", 120, bbsH - 40, 0);
             cb.EndText();
-            cb.MoveTo(2, height - 42);
-            cb.LineTo(120, height - 42);
+            cb.MoveTo(2, bbsH - 42);
+            cb.LineTo(120, bbsH - 42);
             cb.Stroke();
             cb.BeginText();
             cb.SetFontAndSize(bfChinese, 7);
-            float top = height - 50f;
+            float top = bbsH - 50f;
             for (int i = 0; i < invoice.bbs.Length; i++)
             {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.bbs[i].product, 2, top - i*10, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.bbs[i].product, 2, top - i * 10, 0);
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].cprice, 90, top - i * 10, 0);
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].cmount, 120, top - i * 10, 0);
 
             }
             //銷售額,營業稅,(應稅、零稅率、免稅),總 計
-            top = height - 50f - (invoice.bbs.Length == 0 ? 0 : (invoice.bbs.Length - 1) * 10);
+            top = bbsH - 50f - (invoice.bbs.Length == 0 ? 0 : (invoice.bbs.Length - 1) * 10);
             cb.EndText();
             cb.MoveTo(2, top-2);
             cb.LineTo(120, top-2);
@@ -422,29 +487,7 @@
             
             cb.EndText();
             doc1.Close();
-            //產生PDF檔案
-            string uFileName = string.Format(@"{0}.pdf", Guid.NewGuid());
-            System.IO.FileStream pFileStream = null;
-            try
-            {
-                pFileStream = new System.IO.FileStream(filePath + uFileName, System.IO.FileMode.OpenOrCreate);
-                pFileStream.Write(stream.ToArray(), 0, stream.ToArray().Length);
-            }
-            catch (Exception e)
-            {
-                uFileName = "";
-            }
-            finally
-            {
-                if (pFileStream != null)
-                    pFileStream.Close();
-            }
-            stream.Close();
-            return uFileName;
         }
-
-       
-
         public Invoice[] GetInvoice(string db, string binvono, string einvono)
         {
             System.Data.DataSet ds = new System.Data.DataSet();
