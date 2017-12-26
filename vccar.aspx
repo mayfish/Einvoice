@@ -30,8 +30,11 @@
             brwNowPage = 0;
             brwKey = 'noa';
             //ajaxPath = ""; //  execute in Root
-            aPop = new Array(['txtCno', 'lblCno', 'acomp', 'noa,acomp,nick', 'txtCno,txtAcomp,txtNick', 'acomp_b.aspx']
-            , ['txtCustno_', 'btnCust_', 'cust', 'noa,comp', 'txtCustno_,txtComp_', 'cust_b.aspx']);
+            aPop = new Array(
+            	['txtCno', 'lblCno', 'acomp', 'noa,acomp,nick', 'txtCno,txtAcomp,txtNick', 'acomp_b.aspx'],
+            	['txtCustno_', 'btnCust_', 'cust', 'noa,comp', 'txtCustno_,txtComp_', 'cust_b.aspx'],
+            	['txtPartno_', 'btnPart_', 'part', 'noa,part', 'txtPartno_,txtPart_', 'part_b.aspx']
+            );
             
             var t_invoicetype = '';
             $(document).ready(function() {
@@ -166,6 +169,9 @@
 	            		case '05':
 	            			$('#chkIselectric').prop('checked',true);
 	            			break;
+	            		case '07':
+	            			$('#chkIselectric').prop('checked',true);
+	            			break;
 	            		default:
 	            			$('#txtRev').val('');
 	            			$('#chkIselectric').prop('checked',false);
@@ -292,7 +298,7 @@
             function btnOk() {
             	
             	
-            	//Lock();
+            	Lock();
             	if($.trim($('#cmbInvoicetype').val()).length==0){
             		alert('請設定'+$('#lblInvoicetype').text());
             		Unlock();
@@ -311,6 +317,9 @@
             		case '05':
             			$('#chkIselectric').prop('checked',true);
             			break;
+            		case '07':
+	            		$('#chkIselectric').prop('checked',true);
+	            		break;
             		default:
             			$('#txtRev').val('');
             			$('#chkIselectric').prop('checked',false);
@@ -418,7 +427,7 @@
             }
 
             function bbsSave(as) {
-                if (!as['no2']) {
+                if (!as['no2'] && as['binvono']){
                     as[bbsKey[1]] = '';
                     return;
                 }
