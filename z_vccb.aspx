@@ -44,7 +44,14 @@
 					
 					switch($('#q_report').data('info').radioIndex) {
 						case 0:
-							window.open("./pdf_vccb02_rs.aspx?db="+q_db+"&bvccbno="+t_noa+"&evccbno="+t_noa);
+							switch(q_getPara('sys.project').toUpperCase()){
+								case 'RS':
+									window.open("./pdf_vccb02_rs.aspx?db="+q_db+"&bvccbno="+t_noa+"&evccbno="+t_noa);
+									break;
+								default:
+									$('#btnOk').click();
+									break;
+							}
 							break;
 						case 1:
 							window.open("./pdf_vccb02.aspx?db="+q_db+"&bvccbno="+t_noa+"&evccbno="+t_noa);
