@@ -451,8 +451,8 @@
             //品名,數量,單價
             cb.SetFontAndSize(bold, 7);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品名", 2, bbsH - 40, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "數量", 90, bbsH - 40, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "單價", 120, bbsH - 40, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "單價", 90, bbsH - 40, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "數量", 120, bbsH - 40, 0);
             cb.EndText();
             cb.MoveTo(2, bbsH - 42);
             cb.LineTo(120, bbsH - 42);
