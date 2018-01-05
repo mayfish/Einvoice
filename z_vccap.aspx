@@ -44,6 +44,14 @@
 				});
 				q_popAssign();
 				
+				switch(q_getPara('sys.project').toUpperCase()){
+					case 'XY':
+						//預設
+						$('#q_report').find('span.radio').eq(1).click();
+						$('#Xdetail').find('input[type=checkbox]').eq(0).prop('checked',true);
+						break;
+				}
+				
 				var t_para = new Array();
 	            try{
 	            	t_para = JSON.parse(q_getId()[3]);
@@ -55,6 +63,7 @@
 	            	$('#txtXnoa2').val(t_para.noa);
 	            	$('#txtYnoa').val(t_para.noa);
 	            }
+	            
 	            
 				$('#btnOk').before($('#btnOk').clone().attr('id', 'btnOk2').attr('value','查詢').show()).hide();
 				$('#btnOk2').click(function() {

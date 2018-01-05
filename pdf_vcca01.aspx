@@ -463,8 +463,8 @@
             for (int i = 0; i < invoice.bbs.Length; i++)
             {
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.bbs[i].product, 2, top - i * 10, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].cprice, 90, top - i * 10, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].cmount, 120, top - i * 10, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].cmount, 90, top - i * 10, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].cprice, 120, top - i * 10, 0);
 
             }
             //銷售額,營業稅,(應稅、零稅率、免稅),總 計
