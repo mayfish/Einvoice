@@ -2,7 +2,7 @@
 <%@ Page Language="C#" Debug="true"%>
     <script language="c#" runat="server">    
         string filePath = @"C:\inetpub\wwwroot\htm\htm\";
-        static string connString = @"Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
+        static string connString = @"Data Source=220.135.3.159,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
         static float sizeW = 5.7f;
         //EPSON TM-T70II 表頭有1.5CM空白
         //不過紙張要設定7.4CM
@@ -137,7 +137,7 @@
         public void Page_Load()
         {
             System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            string db = "st", binvono = "", einvono = "";
+            string db = "st", binvono = "ZV09665901", einvono = "ZV09665901";
            
             bool isdetail = true, isautoprint=false;
             if (Request.QueryString["db"] != null && Request.QueryString["db"].Length > 0)
@@ -389,9 +389,12 @@
               cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "隨機碼 " + invoice.RandomNumber.ToString(), 5, height - bbmH + 110, 0);
               cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計  " + invoice.TotalAmount.ToString("0.########"), 75, height - bbmH + 110, 0);
               //日期、時間
-              cb.SetFontAndSize(bfChinese, 9);
+              cb.SetFontAndSize(bfChinese, 8);
               cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.date.ToString("yyyy-MM-dd"), 5, height - bbmH + 120, 0);
-              cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.date.ToString("hh:mm:ss"), 65, height - bbmH + 120, 0);
+              cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.date.ToString("hh:mm:ss"), 55, height - bbmH + 120, 0);
+              //格式 25
+              if(invoice.BuyerIdentifier.Length>0)
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "格式：25", 98, height - bbmH + 120, 0);   
               //發票號碼
               cb.SetFontAndSize(bold, 19);
               cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, invoice.InvoiceNumber, width / 2 - (width / (float)5.7 * (float)0.4), height - bbmH + 135, 0);
@@ -400,9 +403,12 @@
               string value = invoice.InvoiceDate.Substring(0, 3).ToString() + "年"
                   + ("0" + (n - 1).ToString()).Substring(("0" + (n - 1).ToString()).Length - 2, 2) + "-"
                   + ("0" + n.ToString()).Substring(("0" + n.ToString()).Length - 2, 2) + "月";
+              
+            
               cb.SetFontAndSize(bold, 18);
               cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, value, width / 2 - (width / (float)5.7 * (float)0.4), height - bbmH + 152, 0);
-              //電子發票證明聯
+              
+            //電子發票證明聯
               if (invoice.Printmark == "Y")
               {
                   cb.SetFontAndSize(bfChinese, (float)14);
