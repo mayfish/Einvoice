@@ -427,7 +427,7 @@
             }
 
             function bbsSave(as) {
-                if (!as['no2'] && as['binvono']){
+                if (!as['binvono']){
                     as[bbsKey[1]] = '';
                     return;
                 }
