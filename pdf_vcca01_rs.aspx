@@ -1,0 +1,468 @@
+﻿<%@ Page Language="C#" Debug="true"%>
+    <script language="c#" runat="server">     
+    	//電子發票證明聯
+        System.IO.MemoryStream stream = new System.IO.MemoryStream();
+        string connectionString = "";
+        string filePath = @"C:\inetpub\wwwroot\htm\htm\";
+
+        public class Result
+        {
+            public int status=1;
+            public string filename="";
+            public string message="";
+        }
+        public class Bbm
+        {
+            public string invoiceNumber;
+		    public string buyer,buyerId,buyerAddr;
+		    public bool istax,zerotax,notax;
+		    public decimal money,tax,total;
+            public string amountinwords;
+            public string seller, sellerId, sellerAddr;
+            public string cmoney, ctax, ctotal;
+            public DateTime date;
+            
+            public Bbs[] bbs;
+        }
+        public class Bbs
+        {
+            public string product;
+            public decimal mount, price, money;
+            public string memo;
+            public string cmount, cprice, cmoney;
+        } 
+        
+        public void Page_Load()
+        {
+            string binvono = "", einvono = "";
+            string db = "st";
+            if (Request.QueryString["db"] != null && Request.QueryString["db"].Length > 0)
+                db = Request.QueryString["db"];
+            connectionString = "Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=" + db;
+            if (Request.QueryString["binvono"] != null && Request.QueryString["binvono"].Length > 0)
+            {
+                binvono = Request.QueryString["binvono"];
+            }
+            if (Request.QueryString["einvono"] != null && Request.QueryString["einvono"].Length > 0)
+            {
+                einvono = Request.QueryString["einvono"];
+            }
+            //資料
+            System.Data.DataSet ds = new System.Data.DataSet();
+            using (System.Data.SqlClient.SqlConnection connSource = new System.Data.SqlClient.SqlConnection(connectionString))
+            {
+                System.Data.SqlClient.SqlDataAdapter adapter = new System.Data.SqlClient.SqlDataAdapter();
+                connSource.Open();
+                string queryString =
+                    @"-- BBM
+	declare @bbm table(
+		invoiceNumber nvarchar(20)
+		,buyer nvarchar(max)
+		,buyerId nvarchar(20)
+		,buyerAddr nvarchar(max)
+		,istax bit
+		,zerotax bit
+		,notax bit
+		,[money] decimal(15,7)
+		,tax decimal(15,7)
+		,total decimal(15,7)
+		,xtotal nvarchar(max)
+		,seller nvarchar(max)
+		,sellerId nvarchar(20)
+		,sellerAddr nvarchar(max)
+        ,cmoney nvarchar(max)
+        ,ctax nvarchar(max)
+        ,ctotal nvarchar(max)
+        ,[date] datetime
+        ,bbscount int
+	)
+	insert into @bbm(invoiceNumber
+		,buyer,buyerId,buyerAddr
+		,istax,zerotax,notax
+		,[money],tax,total,xtotal
+		,seller,sellerId,sellerAddr
+        ,[cmoney],ctax,ctotal,date)
+	select a.noa
+		,case when len(isnull(a.buyer,''))>0 then a.buyer else a.comp end
+		,a.serial
+		,a.[address] 
+		,case a.taxtype when '1' then 1 else 0 end
+		,case a.taxtype when '2' then 1 else 0 end
+		,case a.taxtype when '4' then 1 else 0 end 
+		,a.[money],a.tax,a.total,dbo.AmountInWords(a.total)
+		,b.acomp
+		,b.serial
+		,b.addr_invo
+        ,dbo.getComma(a.[money],-1),dbo.getComma(a.[tax],-1),dbo.getComma(a.[total],-1)
+        ,dbo.ChineseEraName2AD(a.datea)
+	from vcca a
+	left join acomp b on a.cno=b.noa
+	where a.noa between @binvono and @einvono
+
+    update @bbm set bbscount = isnull(b.n,0)
+    from @bbm a
+    outer apply(select count(1) n from vccas where noa=a.invoiceNumber) b 
+	-- BBS
+	declare @bbs table(
+        invoiceNumber nvarchar(20)
+		,product nvarchar(max)
+		,mount decimal(15,7)
+		,price decimal(15,7)
+		,[money] decimal(15,7)
+		,memo nvarchar(max)
+        ,cmount nvarchar(max)
+        ,cprice nvarchar(max)
+        ,cmoney nvarchar(max)
+	)
+	insert into @bbs(invoiceNumber,product,mount,price,[money],memo,cmount,cprice,cmoney)
+	select noa,product,mount,price,[money],memo,dbo.getComma(mount,-1),dbo.getComma(price,-1),dbo.getComma([money],-1)
+	from vccas 
+	where noa between @binvono and @einvono
+	order by noq
+	
+	select * from @bbm
+	select * from @bbs";
+
+                System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(queryString, connSource);
+                cmd.Parameters.AddWithValue("@binvono", binvono);
+                cmd.Parameters.AddWithValue("@einvono", einvono);
+                adapter.SelectCommand = cmd;
+                adapter.Fill(ds);
+                connSource.Close();
+            }
+
+            Bbm[] bbm = new Bbm[ds.Tables[0].Rows.Count];
+            
+            int n = 0;
+            foreach (System.Data.DataRow r in ds.Tables[0].Rows)
+            {
+                bbm[n] = new Bbm();
+                bbm[n].invoiceNumber = System.DBNull.Value.Equals(r.ItemArray[0]) ? "" : (System.String)r.ItemArray[0];
+                bbm[n].buyer = System.DBNull.Value.Equals(r.ItemArray[1]) ? "" : (System.String)r.ItemArray[1];
+                bbm[n].buyerId = System.DBNull.Value.Equals(r.ItemArray[2]) ? "" : (System.String)r.ItemArray[2];
+                bbm[n].buyerAddr = System.DBNull.Value.Equals(r.ItemArray[3]) ? "" : (System.String)r.ItemArray[3]; 
+                bbm[n].istax = System.DBNull.Value.Equals(r.ItemArray[4]) ? false : (System.Boolean)r.ItemArray[4];
+                bbm[n].zerotax = System.DBNull.Value.Equals(r.ItemArray[5]) ? false : (System.Boolean)r.ItemArray[5];
+                bbm[n].notax = System.DBNull.Value.Equals(r.ItemArray[6]) ? false : (System.Boolean)r.ItemArray[6]; 
+                bbm[n].money = System.DBNull.Value.Equals(r.ItemArray[7]) ? 0 : (System.Decimal)r.ItemArray[7];
+                bbm[n].tax = System.DBNull.Value.Equals(r.ItemArray[8]) ? 0 : (System.Decimal)r.ItemArray[8];
+                bbm[n].total = System.DBNull.Value.Equals(r.ItemArray[9]) ? 0 : (System.Decimal)r.ItemArray[9];
+                bbm[n].amountinwords = System.DBNull.Value.Equals(r.ItemArray[10]) ? "" : (System.String)r.ItemArray[10];
+                bbm[n].seller = System.DBNull.Value.Equals(r.ItemArray[11]) ? "" : (System.String)r.ItemArray[11];
+                bbm[n].sellerId = System.DBNull.Value.Equals(r.ItemArray[12]) ? "" : (System.String)r.ItemArray[12];
+                bbm[n].sellerAddr = System.DBNull.Value.Equals(r.ItemArray[13]) ? "" : (System.String)r.ItemArray[13];
+                bbm[n].cmoney = System.DBNull.Value.Equals(r.ItemArray[14]) ? "" : (System.String)r.ItemArray[14];
+                bbm[n].ctax = System.DBNull.Value.Equals(r.ItemArray[15]) ? "" : (System.String)r.ItemArray[15];
+                bbm[n].ctotal = System.DBNull.Value.Equals(r.ItemArray[16]) ? "" : (System.String)r.ItemArray[16];
+                bbm[n].date = System.DBNull.Value.Equals(r.ItemArray[17]) ? System.DateTime.MinValue : (System.DateTime)r.ItemArray[17];
+                
+                bbm[n].bbs = new Bbs[System.DBNull.Value.Equals(r.ItemArray[18]) ? 0 : (System.Int32)r.ItemArray[18]];
+                int i = 0;
+                foreach (System.Data.DataRow s in ds.Tables[1].Rows)
+                {
+                    if (bbm[n].invoiceNumber != (System.DBNull.Value.Equals(s.ItemArray[0]) ? "" : (System.String)s.ItemArray[0]))
+                        continue;
+                    bbm[n].bbs[i] = new Bbs();
+                    bbm[n].bbs[i].product = System.DBNull.Value.Equals(s.ItemArray[1]) ? "" : (System.String)s.ItemArray[1];
+                    bbm[n].bbs[i].mount = System.DBNull.Value.Equals(s.ItemArray[2]) ? 0 : (System.Decimal)s.ItemArray[2];
+                    bbm[n].bbs[i].price = System.DBNull.Value.Equals(s.ItemArray[3]) ? 0 : (System.Decimal)s.ItemArray[3];
+                    bbm[n].bbs[i].money = System.DBNull.Value.Equals(s.ItemArray[4]) ? 0 : (System.Decimal)s.ItemArray[4];
+                    bbm[n].bbs[i].memo = System.DBNull.Value.Equals(s.ItemArray[5]) ? "" : (System.String)s.ItemArray[5];
+                    bbm[n].bbs[i].cmount = System.DBNull.Value.Equals(s.ItemArray[6]) ? "" : (System.String)s.ItemArray[6];
+                    bbm[n].bbs[i].cprice = System.DBNull.Value.Equals(s.ItemArray[7]) ? "" : (System.String)s.ItemArray[7];
+                    bbm[n].bbs[i].cmoney = System.DBNull.Value.Equals(s.ItemArray[8]) ? "" : (System.String)s.ItemArray[8];
+                    i++;
+                }
+                n++;
+            }
+            //-----PDF--------------------------------------------------------------------------------------------------
+            var doc1 = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4, 0, 0, 0, 0);
+            float width = doc1.PageSize.Width;
+            float height = doc1.PageSize.Height/2;
+            doc1.SetMargins(0, 0, 0, 0);
+
+            iTextSharp.text.pdf.PdfWriter pdfWriter = iTextSharp.text.pdf.PdfWriter.GetInstance(doc1, stream);
+            //font
+            iTextSharp.text.pdf.BaseFont bfChinese = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\msjh.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
+            iTextSharp.text.pdf.BaseFont bold = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\msjhbd.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
+            iTextSharp.text.pdf.BaseFont bfNumber = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\ariblk.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
+
+            doc1.Open();
+            iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
+
+            //iTextSharp.text.pdf.PdfAction jAction = iTextSharp.text.pdf.PdfAction.JavaScript("this.print(true);\r", pdfWriter);
+            //pdfWriter.AddJavaScript(jAction);
+            int page = 0;
+            int bbsCount1 = 6; //第1頁的明細個數
+            int bbsCount2 = 15; //第2頁以後的明細個數
+            float top = 0;
+            for (n = 0; n < bbm.Length; n++)
+            {
+                double deatilCount = Math.Ceiling(((double)(bbm[n].bbs.Length - bbsCount1) / (double)bbsCount2)); //明細頁數
+                if (page % 2 == 0)
+                {
+                    doc1.NewPage();
+                    top = height;
+                }
+                else
+                    top = 0;
+                cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
+                cb.SetColorStroke(iTextSharp.text.BaseColor.BLACK);
+                cb.SetLineWidth(1);
+                //橫
+                cb.MoveTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)9.5 + top);
+                cb.LineTo(width / (float)21 * (float)20.5, height / (float)14.8 * (float)9.5 + top);
+                cb.MoveTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)8.8 + top);
+                cb.LineTo(width / (float)21 * (float)20.5, height / (float)14.8 * (float)8.8 + top);
+                cb.MoveTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)4.1 + top);
+                cb.LineTo(width / (float)21 * (float)20.5, height / (float)14.8 * (float)4.1 + top);
+                cb.MoveTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)3.4 + top);
+                cb.LineTo(width / (float)21 * (float)20.5, height / (float)14.8 * (float)3.4 + top);
+
+                cb.MoveTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)2.7 + top);
+                cb.LineTo(width / (float)21 * (float)15.5, height / (float)14.8 * (float)2.7 + top);
+
+                cb.MoveTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)2 + top);
+                cb.LineTo(width / (float)21 * (float)15.5, height / (float)14.8 * (float)2 + top);
+
+                cb.MoveTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)0.5 + top);
+                cb.LineTo(width / (float)21 * (float)20.5, height / (float)14.8 * (float)0.5 + top);
+                //直
+                cb.MoveTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)9.5 + top);
+                cb.LineTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)0.5 + top);
+                cb.MoveTo(width / (float)21 * (float)20.5, height / (float)14.8 * (float)9.5 + top);
+                cb.LineTo(width / (float)21 * (float)20.5, height / (float)14.8 * (float)0.5 + top);
+
+                cb.MoveTo(width / (float)21 * (float)9, height / (float)14.8 * (float)9.5 + top);
+                cb.LineTo(width / (float)21 * (float)9, height / (float)14.8 * (float)4.1 + top);
+                cb.MoveTo(width / (float)21 * (float)11, height / (float)14.8 * (float)9.5 + top);
+                cb.LineTo(width / (float)21 * (float)11, height / (float)14.8 * (float)4.1 + top);
+                cb.MoveTo(width / (float)21 * (float)13.2, height / (float)14.8 * (float)9.5 + top);
+                cb.LineTo(width / (float)21 * (float)13.2, height / (float)14.8 * (float)0.5 + top);
+                cb.MoveTo(width / (float)21 * (float)15.5, height / (float)14.8 * (float)9.5 + top);
+                cb.LineTo(width / (float)21 * (float)15.5, height / (float)14.8 * (float)0.5 + top);
+
+                cb.MoveTo(width / (float)21 * (float)2.4, height / (float)14.8 * (float)3.4 + top);
+                cb.LineTo(width / (float)21 * (float)2.4, height / (float)14.8 * (float)2.7 + top);
+                cb.MoveTo(width / (float)21 * (float)4.2, height / (float)14.8 * (float)3.4 + top);
+                cb.LineTo(width / (float)21 * (float)4.2, height / (float)14.8 * (float)2.7 + top);
+                cb.MoveTo(width / (float)21 * (float)5.8, height / (float)14.8 * (float)3.4 + top);
+                cb.LineTo(width / (float)21 * (float)5.8, height / (float)14.8 * (float)2.7 + top);
+                cb.MoveTo(width / (float)21 * (float)7.6, height / (float)14.8 * (float)3.4 + top);
+                cb.LineTo(width / (float)21 * (float)7.6, height / (float)14.8 * (float)2.7 + top);
+                cb.MoveTo(width / (float)21 * (float)9.4, height / (float)14.8 * (float)3.4 + top);
+                cb.LineTo(width / (float)21 * (float)9.4, height / (float)14.8 * (float)2.7 + top);
+                cb.MoveTo(width / (float)21 * (float)11.2, height / (float)14.8 * (float)3.4 + top);
+                cb.LineTo(width / (float)21 * (float)11.2, height / (float)14.8 * (float)2.7 + top);
+                cb.Stroke();
+                //============ 第一頁 ==============
+                cb.BeginText();
+                cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
+                
+                //公司名稱
+                cb.SetFontAndSize(bfChinese, 16);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, bbm[n].seller, width / 2, height / (float)14.8 * (float)13.5 + top, 0);
+                cb.SetFontAndSize(bfChinese, 14);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "電子發票證明聯", width / 2, height / (float)14.8 * (float)12.8 + top, 0);
+                cb.SetFontAndSize(bfChinese, 12);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, bbm[n].date.ToString("yyyy-MM-dd"), width / 2, height / (float)14.8 * (float)12.3 + top, 0);
+                
+                cb.SetFontAndSize(bfChinese, 12);
+                //發票號碼(左: 3.3cm, 高: 11.5cm)
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "發票號碼：", width / (float)21 * (float)0.5, height / (float)14.8 * (float)12 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].invoiceNumber, width / (float)21 * (float)2.8, height / (float)14.8 * (float)12 + top, 0);
+                //買方(左: 3.3cm, 高: 10.8cm)
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "買　　方：", width / (float)21 * (float)0.5, height / (float)14.8 * (float)11.2 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].buyer, width / (float)21 * (float)2.8, height / (float)14.8 * (float)11.2 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "格式：25", width / (float)21 * (float)20.5, height / (float)14.8 * (float)11.2 + top, 0);
+                //統一編號(左: 3.3cm, 高: 10.2cm)
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號：", width / (float)21 * (float)0.5, height / (float)14.8 * (float)10.4 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].buyerId, width / (float)21 * (float)2.8, height / (float)14.8 * (float)10.4 + top, 0);
+                //地址(左: 3.3cm, 高: 9.5cm)
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地　　址：", width / (float)21 * (float)0.5, height / (float)14.8 * (float)9.6 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].buyerAddr, width / (float)21 * (float)2.8, height / (float)14.8 * (float)9.6 + top, 0);
+                //頁碼
+                if (deatilCount>0)
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + (page + 1).ToString() + "頁／共" + (deatilCount + 1).ToString() + "頁", width / (float)21 * (float)20.5, height / (float)14.8 * (float)9.6 + top, 0);
+                
+                //銷售額合計 R  左:15.2cm 高:3.6cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "銷售額合計", width / (float)21 * (float)0.8, height / (float)14.8 * (float)3.6 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].cmoney, width / (float)21 * (float)15.2, height / (float)14.8 * (float)3.6 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業人蓋統一發票專用章", width / (float)21 * (float)15.7, height / (float)14.8 * (float)3.6 + top, 0);
+                //營業稅 R      左:15.2cm 高:2.9cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業稅", width / (float)21 * (float)0.8, height / (float)14.8 * (float)2.9 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].ctax, width / (float)21 * (float)15.2, height / (float)14.8 * (float)2.9 + top, 0);
+                //----- 應稅   C  左:   5.5cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "應稅", width / (float)21 * (float)2.8, height / (float)14.8 * (float)2.9 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].istax ? "V" : "", width / (float)21 * (float)5.2, height / (float)14.8 * (float)2.9 + top, 0);
+                //----- 零稅率 C  左: 8.7cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "零稅率", width / (float)21 * (float)6.1, height / (float)14.8 * (float)2.9 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].zerotax ? "V" : "", width / (float)21 * (float)8.6, height / (float)14.8 * (float)2.9 + top, 0);
+                //----- 免稅   C  左:11.9cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "免稅", width / (float)21 * (float)9.9, height / (float)14.8 * (float)2.9 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].notax ? "V" : "", width / (float)21 * (float)12.3, height / (float)14.8 * (float)2.9 + top, 0);
+
+                //總計 R        左:15.2cm 高:2.2cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計：", width / (float)21 * (float)0.8, height / (float)14.8 * (float)2.2 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].ctotal, width / (float)21 * (float)15.2, height / (float)14.8 * (float)2.2 + top, 0);
+                //金額大寫 L 左:4cm 高:1.2cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計新台幣", width / (float)21 * (float)0.8, height / (float)14.8 * (float)1.35 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "(中文大寫)", width / (float)21 * (float)0.8, height / (float)14.8 * (float)0.85 + top, 0);
+                cb.SetFontAndSize(bfChinese, 14);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].amountinwords, width / (float)21 * (float)4, height / (float)14.8 * (float)1.1 + top, 0);
+
+                cb.SetFontAndSize(bfChinese, 8);
+
+                float l = width / (float)21 * (float)15.55;
+                // 3.5 - 0.7 = 2.8 /4 = 0.7
+                //賣方
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣　　方：" + bbm[n].seller, l, height / (float)14.8 * (float)2.8 + top, 0);
+                //賣方統編
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號：" + bbm[n].sellerId, l, height / (float)14.8 * (float)2.1 + top, 0);
+                //賣方地址
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地　　址：", l, height / (float)14.8 * (float)1.4 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].sellerAddr, l, height / (float)14.8 * (float)0.8 + top, 0);
+                
+                //BBS   8.5 - 4.5 = 4 ,上下保留 1mm, 每行0.8cm
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "品　　　　名", width / (float)21 * (float)5, height / (float)14.8 * (float)9 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "數　量", width / (float)21 * (float)10, height / (float)14.8 * (float)9 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "單　價", width / (float)21 * (float)12.1, height / (float)14.8 * (float)9 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "金　額", width / (float)21 * (float)14.5, height / (float)14.8 * (float)9 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "備　　　　註", width / (float)21 * (float)18, height / (float)14.8 * (float)9 + top, 0);
+                float h;
+                //第一頁印6行
+                for (int i = 0; i < bbm[n].bbs.Length && i < bbsCount1; i++)
+                {
+                    // 0.2CM微調
+                    h = height / (float)14.8 * (float)(5.2 + 0.1 + (4 - i) * 0.7);
+                    //品名 L   1.2cm
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].bbs[i].product, width / (float)21 * (float)0.7, h + top, 0);
+                    //數量 R 10.7cm
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].bbs[i].cmount, width / (float)21 * (float)10.7, h + top, 0);
+                    //單價 R 12.6cm
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].bbs[i].cprice, width / (float)21 * (float)13, h + top, 0);
+                    //金額 R 15.3cm
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].bbs[i].cmoney, width / (float)21 * (float)15.3, h + top, 0);
+                    //備註 L   16cm 
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].bbs[i].memo, width / (float)21 * (float)16, h + top, 0);
+                }
+                cb.EndText();
+
+                for (int i = 0; i < deatilCount; i++)
+                {
+                    page++;
+                    if (page % 2 == 0)
+                    {
+                        doc1.NewPage();
+                        top = height;
+                    }
+                    else
+                        top = 0;
+                    //橫
+                    cb.MoveTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)12.8 + top);
+                    cb.LineTo(width / (float)21 * (float)20.5, height / (float)14.8 * (float)12.8 + top);
+                    cb.MoveTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)12.1 + top);
+                    cb.LineTo(width / (float)21 * (float)20.5, height / (float)14.8 * (float)12.1 + top);
+                    cb.MoveTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)0.5 + top);
+                    cb.LineTo(width / (float)21 * (float)20.5, height / (float)14.8 * (float)0.5 + top);
+                   
+                    //直
+                    cb.MoveTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)12.8 + top);
+                    cb.LineTo(width / (float)21 * (float)0.5, height / (float)14.8 * (float)0.5 + top);
+                    cb.MoveTo(width / (float)21 * (float)20.5, height / (float)14.8 * (float)12.8 + top);
+                    cb.LineTo(width / (float)21 * (float)20.5, height / (float)14.8 * (float)0.5 + top);
+
+                    cb.MoveTo(width / (float)21 * (float)9, height / (float)14.8 * (float)12.8 + top);
+                    cb.LineTo(width / (float)21 * (float)9, height / (float)14.8 * (float)0.5 + top);
+                    cb.MoveTo(width / (float)21 * (float)11, height / (float)14.8 * (float)12.8 + top);
+                    cb.LineTo(width / (float)21 * (float)11, height / (float)14.8 * (float)0.5 + top);
+                    cb.MoveTo(width / (float)21 * (float)13.2, height / (float)14.8 * (float)12.8 + top);
+                    cb.LineTo(width / (float)21 * (float)13.2, height / (float)14.8 * (float)0.5 + top);
+                    cb.MoveTo(width / (float)21 * (float)15.5, height / (float)14.8 * (float)12.8 + top);
+                    cb.LineTo(width / (float)21 * (float)15.5, height / (float)14.8 * (float)0.5 + top);
+                    
+                    cb.Stroke();
+                    
+                    cb.BeginText();
+                    cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
+                    cb.SetFontAndSize(bold, 12);
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "交易明細（續）", width / (float)21 * (float)0.5, height / (float)14.8 * (float)14 + top, 0);
+                    cb.SetFontAndSize(bfChinese, 12);
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, bbm[n].date.ToString("yyyy-MM-dd"), width / 2, height / (float)14.8 * (float)13.5 + top, 0);
+                    //頁碼
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + (page + 1).ToString() + "頁／共" + (deatilCount + 1).ToString() + "頁", width / (float)21 * (float)20.5, height / (float)14.8 * (float)13 + top, 0);
+                    
+                    cb.SetFontAndSize(bfChinese, 10);
+                    //發票號碼
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "發票號碼：", width / (float)21 * (float)0.5, height / (float)14.8 * (float)13 + top, 0);
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].invoiceNumber, width / (float)21 * (float)2.8, height / (float)14.8 * (float)13 + top, 0);
+ 
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "品　　　　名", width / (float)21 * (float)5, height / (float)14.8 * (float)12.3 + top, 0);
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "數　量", width / (float)21 * (float)10, height / (float)14.8 * (float)12.3 + top, 0);
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "單　價", width / (float)21 * (float)12.1, height / (float)14.8 * (float)12.3 + top, 0);
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "金　額", width / (float)21 * (float)14.5, height / (float)14.8 * (float)12.3 + top, 0);
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "備　　　　註", width / (float)21 * (float)18, height / (float)14.8 * (float)12.3 + top, 0);
+
+
+                    float p = (12f - 0.5f) / (float)bbsCount2;//bbs間距
+                    for (int j = 0; j < bbsCount2 && (bbsCount1 + i*bbsCount2 + j) < bbm[n].bbs.Length ; j++)
+                    {
+                        int m = bbsCount1 + i * bbsCount2 + j;
+                        // 0.2CM微調
+                        h = height / (float)14.8 * (float)(12 - p*(j+1) + 0.15);
+                        //品名 L   1.2cm
+                        cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].bbs[m].product, width / (float)21 * (float)0.7, h + top, 0);
+                        //數量 R 10.7cm
+                        cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].bbs[m].cmount, width / (float)21 * (float)10.7, h + top, 0);
+                        //單價 R 12.6cm
+                        cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].bbs[m].cprice, width / (float)21 * (float)13, h + top, 0);
+                        //金額 R 15.3cm
+                        cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, bbm[n].bbs[m].cmoney, width / (float)21 * (float)15.3, h + top, 0);
+                        //備註 L   16cm 
+                        cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].bbs[m].memo, width / (float)21 * (float)16, h + top, 0);
+                    }
+                    
+                    cb.EndText();
+                }
+                page++;
+            }
+            doc1.Close();
+            //--
+            Result result = new Result();
+            
+            var uFileName = string.Format(@"{0}.pdf", Guid.NewGuid());
+            result.filename = uFileName;
+            
+            System.IO.FileStream pFileStream = null;
+            try
+            {
+                pFileStream = new System.IO.FileStream(filePath + uFileName, System.IO.FileMode.OpenOrCreate);
+                pFileStream.Write(stream.ToArray(), 0, stream.ToArray().Length);
+            }
+            catch(Exception e)
+            {
+                result.status = -1;
+                result.message = e.Message;
+            }
+            finally
+            {
+                if (pFileStream != null)
+                    pFileStream.Close();
+            }
+            /*using (System.IO.FileStream output = new System.IO.FileStream(filePath + uFileName, System.IO.FileMode.Create))
+            {
+                stream.CopyTo(output);
+                output.Flush();
+            }*/
+
+            System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            Response.Write(serializer.Serialize(result));
+            Response.End();
+
+            /*Response.ContentType = "application/octec-stream;";
+            Response.AddHeader("Content-transfer-encoding", "binary");
+            Response.AddHeader("Content-Disposition", "attachment;filename=" + (binvono==einvono?binvono:binvono+'-'+einvono) + ".pdf");
+            Response.BinaryWrite(stream.ToArray());
+            Response.End();*/
+        }
+    </script>
