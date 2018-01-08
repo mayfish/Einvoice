@@ -214,7 +214,7 @@ from @bbs
                 m = 0;
                 foreach (System.Data.DataRow s in ds.Tables[1].Rows)
                 {
-                    if (bbm[n].noa != (System.DBNull.Value.Equals(r.ItemArray[0]) ? null : (System.String)r.ItemArray[0]))
+                    if ((m >= bbm[n].n) || (bbm[n].noa != (System.DBNull.Value.Equals(r.ItemArray[0]) ? null : (System.String)r.ItemArray[0])))
                         continue;
                     bbm[n].bbs[m] = new Vccbs();
                     bbm[n].bbs[m].noa = System.DBNull.Value.Equals(s.ItemArray[0]) ? null : (System.String)s.ItemArray[0];

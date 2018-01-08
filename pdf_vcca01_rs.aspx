@@ -113,12 +113,20 @@
         ,cmount nvarchar(max)
         ,cprice nvarchar(max)
         ,cmoney nvarchar(max)
+        ,sel int identity(1,1)
 	)
 	insert into @bbs(invoiceNumber,product,mount,price,[money],memo,cmount,cprice,cmoney)
 	select noa,product,mount,price,[money],memo,dbo.getComma(mount,-1),dbo.getComma(price,-1),dbo.getComma([money],-1)
 	from vccas 
 	where noa between @binvono and @einvono
 	order by noq
+
+    --祥興:明細第一筆備註加上客戶編號
+    update @bbs set memo = isnull(b.buyerId,'') + isnull(a.memo,'')
+    from @bbs a
+    left join @bbm b on a.invoiceNumber=b.invoiceNumber
+    left join (select ROW_NUMBER()over(partition by invoiceNumber order by sel) recno,sel from @bbs) c on a.sel=c.sel
+    where c.recno=1
 	
 	select * from @bbm
 	select * from @bbs";
@@ -313,7 +321,7 @@
 
                 cb.SetFontAndSize(bfChinese, 8);
 
-                float l = width / (float)21 * (float)15.55;
+                float l = width / (float)21 * (float)15.6;
                 // 3.5 - 0.7 = 2.8 /4 = 0.7
                 //賣方
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣　　方：" + bbm[n].seller, l, height / (float)14.8 * (float)2.8 + top, 0);
@@ -421,7 +429,6 @@
                         //備註 L   16cm 
                         cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].bbs[m].memo, width / (float)21 * (float)16, h + top, 0);
                     }
-                    
                     cb.EndText();
                 }
                 page++;
