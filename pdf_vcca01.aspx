@@ -2,7 +2,7 @@
 <%@ Page Language="C#" Debug="true"%>
     <script language="c#" runat="server">    
         string filePath = @"C:\inetpub\wwwroot\htm\htm\";
-        static string connString = @"Data Source=220.135.3.159,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
+        static string connString = @"Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
         static float sizeW = 5.7f;
         //EPSON TM-T70II 表頭有1.5CM空白
         //不過紙張要設定7.4CM
@@ -137,7 +137,7 @@
         public void Page_Load()
         {
             System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            string db = "st", binvono = "ZV09665901", einvono = "ZV09665901";
+            string db = "st", binvono = "", einvono = "";
            
             bool isdetail = true, isautoprint=false;
             if (Request.QueryString["db"] != null && Request.QueryString["db"].Length > 0)

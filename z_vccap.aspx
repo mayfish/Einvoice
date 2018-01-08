@@ -94,7 +94,14 @@
                         	window.open("./pdf_Einvo01.aspx?table=vcc&noa="+$('#txtYnoa').val()+"&noq=&db="+q_db);
                             break;
 						case 3:
-                        	window.open("./pdf_Einvo02.aspx?table=vcc&noa="+$('#txtYnoa').val()+"&noq=&db="+q_db);
+							switch(q_getPara('sys.project').toUpperCase()){
+								case 'RS':
+									pdf_vcca01_rs(binvono,einvono);
+									break;
+								default:
+									window.open("./pdf_Einvo02.aspx?table=vcc&noa="+$('#txtYnoa').val()+"&noq=&db="+q_db);
+									break;
+							}
                             break;
                   		default:
                   			$('#result').hide();
@@ -144,6 +151,47 @@
                 			PDFFileName = [];
                     		PDFFileName = JSON.parse(data);
                     		OpenWindows(0);
+                    	}catch(e){
+                    	}
+                    },
+                    complete: function(){
+                    
+                    },
+                    error: function(jqXHR, exception) {
+                        var errmsg = this.url+'資料讀取異常。\n';
+                        if (jqXHR.status === 0) {
+                            alert(errmsg+'Not connect.\n Verify Network.');
+                        } else if (jqXHR.status == 404) {
+                            alert(errmsg+'Requested page not found. [404]');
+                        } else if (jqXHR.status == 500) {
+                            alert(errmsg+'Internal Server Error [500].');
+                        } else if (exception === 'parsererror') {
+                            alert(errmsg+'Requested JSON parse failed.');
+                        } else if (exception === 'timeout') {
+                            alert(errmsg+'Time out error.');
+                        } else if (exception === 'abort') {
+                            alert(errmsg+'Ajax request aborted.');
+                        } else {
+                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+                        }
+                    }
+                });	
+			}
+			function pdf_vcca01_rs(binvono,einvono){
+				$.ajax({
+					url: "pdf_vcca01_rs.aspx?db="+q_db+"&binvono="+binvono+"&einvono="+einvono,
+                    type: 'POST',
+                    data: JSON.stringify(""),
+                    dataType: 'text',
+                    timeout: 10000,
+                    success: function(data){
+                    	try{
+                    		tmp = JSON.parse(data);
+                    		if(tmp.status==1){
+                    			window.open("../htm/htm/"+tmp.filename);
+                    		}else{
+                    			alert(tmp.message);
+                    		}
                     	}catch(e){
                     	}
                     },
