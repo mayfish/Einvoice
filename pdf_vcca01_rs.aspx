@@ -34,7 +34,7 @@
         
         public void Page_Load()
         {
-            string binvono = "", einvono = "";
+            string binvono = "", einvono = "", bdate="", edate="";
             string db = "st";
             if (Request.QueryString["db"] != null && Request.QueryString["db"].Length > 0)
                 db = Request.QueryString["db"];
@@ -47,6 +47,14 @@
             {
                 einvono = Request.QueryString["einvono"];
             }
+            if (Request.QueryString["bdate"] != null && Request.QueryString["bdate"].Length > 0)
+            {
+                bdate = Request.QueryString["bdate"];
+            }
+            if (Request.QueryString["edate"] != null && Request.QueryString["edate"].Length > 0)
+            {
+                edate = Request.QueryString["edate"];
+            }
             //資料
             System.Data.DataSet ds = new System.Data.DataSet();
             using (System.Data.SqlClient.SqlConnection connSource = new System.Data.SqlClient.SqlConnection(connectionString))
@@ -55,6 +63,10 @@
                 connSource.Open();
                 string queryString =
                     @"-- BBM
+    if(len(@einvono)=0)
+        set @einvono = char(255)
+    if(len(@edate)=0)
+        set @edate = char(255)
 	declare @bbm table(
 		invoiceNumber nvarchar(20)
 		,buyer nvarchar(max)
@@ -75,13 +87,15 @@
         ,ctotal nvarchar(max)
         ,[date] datetime
         ,bbscount int
+        ,custno nvarchar(20)
 	)
 	insert into @bbm(invoiceNumber
 		,buyer,buyerId,buyerAddr
 		,istax,zerotax,notax
 		,[money],tax,total,xtotal
 		,seller,sellerId,sellerAddr
-        ,[cmoney],ctax,ctotal,date)
+        ,[cmoney],ctax,ctotal,date
+        ,custno)
 	select a.noa
 		,case when len(isnull(a.buyer,''))>0 then a.buyer else a.comp end
 		,a.serial
@@ -95,9 +109,12 @@
 		,b.addr_invo
         ,dbo.getComma(a.[money],-1),dbo.getComma(a.[tax],-1),dbo.getComma(a.[total],-1)
         ,dbo.ChineseEraName2AD(a.datea)
+        ,a.custno
 	from vcca a
 	left join acomp b on a.cno=b.noa
 	where a.noa between @binvono and @einvono
+    and a.datea between @bdate and @edate
+    and a.taxtype!='6'
 
     update @bbm set bbscount = isnull(b.n,0)
     from @bbm a
@@ -116,24 +133,32 @@
         ,sel int identity(1,1)
 	)
 	insert into @bbs(invoiceNumber,product,mount,price,[money],memo,cmount,cprice,cmoney)
-	select noa,product,mount,price,[money],memo,dbo.getComma(mount,-1),dbo.getComma(price,-1),dbo.getComma([money],-1)
-	from vccas 
-	where noa between @binvono and @einvono
-	order by noq
+	select a.noa,a.product,a.mount,a.price,a.[money],a.memo
+        ,dbo.getComma(a.mount,-1),dbo.getComma(a.price,-1),dbo.getComma(a.[money],-1)
+	from vccas a
+    left join @bbm b on a.noa=b.invoiceNumber
+    where b.invoiceNumber is not null
+	order by a.noa,a.noq
 
     --祥興:明細第一筆備註加上客戶編號
-    update @bbs set memo = isnull(b.buyerId,'') + isnull(a.memo,'')
+    update @bbs set memo = isnull(b.custno,'') + isnull(a.memo,'')
     from @bbs a
     left join @bbm b on a.invoiceNumber=b.invoiceNumber
     left join (select ROW_NUMBER()over(partition by invoiceNumber order by sel) recno,sel from @bbs) c on a.sel=c.sel
     where c.recno=1
 	
-	select * from @bbm
-	select * from @bbs";
+    --祥興:一次印2筆
+    insert into @bbm
+    select * from @bbm
+
+	select * from @bbm order by invoiceNumber
+	select * from @bbs order by invoiceNumber,sel";
 
                 System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(queryString, connSource);
                 cmd.Parameters.AddWithValue("@binvono", binvono);
                 cmd.Parameters.AddWithValue("@einvono", einvono);
+                cmd.Parameters.AddWithValue("@bdate", bdate);
+                cmd.Parameters.AddWithValue("@edate", edate);
                 adapter.SelectCommand = cmd;
                 adapter.Fill(ds);
                 connSource.Close();
@@ -278,17 +303,17 @@
                 cb.SetFontAndSize(bfChinese, 12);
                 //發票號碼(左: 3.3cm, 高: 11.5cm)
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "發票號碼：", width / (float)21 * (float)0.5, height / (float)14.8 * (float)12 + top, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].invoiceNumber, width / (float)21 * (float)2.8, height / (float)14.8 * (float)12 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].invoiceNumber, width / (float)21 * (float)2.5, height / (float)14.8 * (float)12 + top, 0);
                 //買方(左: 3.3cm, 高: 10.8cm)
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "買　　方：", width / (float)21 * (float)0.5, height / (float)14.8 * (float)11.2 + top, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].buyer, width / (float)21 * (float)2.8, height / (float)14.8 * (float)11.2 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].buyer, width / (float)21 * (float)2.5, height / (float)14.8 * (float)11.2 + top, 0);
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "格式：25", width / (float)21 * (float)20.5, height / (float)14.8 * (float)11.2 + top, 0);
                 //統一編號(左: 3.3cm, 高: 10.2cm)
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號：", width / (float)21 * (float)0.5, height / (float)14.8 * (float)10.4 + top, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].buyerId, width / (float)21 * (float)2.8, height / (float)14.8 * (float)10.4 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].buyerId, width / (float)21 * (float)2.5, height / (float)14.8 * (float)10.4 + top, 0);
                 //地址(左: 3.3cm, 高: 9.5cm)
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地　　址：", width / (float)21 * (float)0.5, height / (float)14.8 * (float)9.6 + top, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].buyerAddr, width / (float)21 * (float)2.8, height / (float)14.8 * (float)9.6 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].buyerAddr, width / (float)21 * (float)2.5, height / (float)14.8 * (float)9.6 + top, 0);
                 //頁碼
                 if (deatilCount>0)
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + (page + 1).ToString() + "頁／共" + (deatilCount + 1).ToString() + "頁", width / (float)21 * (float)20.5, height / (float)14.8 * (float)9.6 + top, 0);
@@ -317,7 +342,7 @@
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計新台幣", width / (float)21 * (float)0.8, height / (float)14.8 * (float)1.35 + top, 0);
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "(中文大寫)", width / (float)21 * (float)0.8, height / (float)14.8 * (float)0.85 + top, 0);
                 cb.SetFontAndSize(bfChinese, 14);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].amountinwords, width / (float)21 * (float)4, height / (float)14.8 * (float)1.1 + top, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, bbm[n].amountinwords+"元整", width / (float)21 * (float)3, height / (float)14.8 * (float)1.1 + top, 0);
 
                 cb.SetFontAndSize(bfChinese, 8);
 

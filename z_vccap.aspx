@@ -40,9 +40,16 @@
 						type : '8',        //4
 						name : 'xautoprint',
 						value : ["1@自動列印"]
+					}, {
+						type : '1', //5
+						name : 'xdate'
 					}]
 				});
 				q_popAssign();
+				$('#txtXdate1').mask(r_picd);
+				$('#txtXdate1').datepicker();
+				$('#txtXdate2').mask(r_picd);
+				$('#txtXdate2').datepicker();
 				
 				switch(q_getPara('sys.project').toUpperCase()){
 					case 'XY':
@@ -72,6 +79,9 @@
 					var einvono = $.trim($('#txtXnoa2').val());
 					var detail = $('#chkXdetail').children().eq(0).prop('checked')?"true":"false";
 					var autoprint = $('#chkXautoprint').children().eq(0).prop('checked')?"true":"false";
+					var bdate = $.trim($('#txtXdate1').val());
+					var edate = $.trim($('#txtXdate2').val());
+					
 					switch($('#q_report').data('info').radioIndex) {
 						case 0:
 							switch(q_getPara('sys.project').toUpperCase()){
@@ -96,7 +106,7 @@
 						case 3:
 							switch(q_getPara('sys.project').toUpperCase()){
 								case 'RS':
-									pdf_vcca01_rs(binvono,einvono);
+									pdf_vcca01_rs(binvono,einvono,bdate,edate);
 									break;
 								default:
 									window.open("./pdf_Einvo02.aspx?table=vcc&noa="+$('#txtYnoa').val()+"&noq=&db="+q_db);
@@ -177,9 +187,9 @@
                     }
                 });	
 			}
-			function pdf_vcca01_rs(binvono,einvono){
+			function pdf_vcca01_rs(binvono,einvono,bdate,edate){
 				$.ajax({
-					url: "pdf_vcca01_rs.aspx?db="+q_db+"&binvono="+binvono+"&einvono="+einvono,
+					url: "pdf_vcca01_rs.aspx?db="+q_db+"&binvono="+binvono+"&einvono="+einvono+"&bdate="+bdate+"&edate="+edate,
                     type: 'POST',
                     data: JSON.stringify(""),
                     dataType: 'text',
