@@ -822,7 +822,13 @@ z_einvoice04:--z_einvoice04
 	declare @t_bzdate nvarchar(20) = case when '#non' = [9] then '' else [9] end
 	declare @t_ezdate nvarchar(20) = case when '#non' = [10] then char(255) else [10] end
 	declare @t_option nvarchar(max) = case when '#non' = [13] then '' else [13] end
-	-------------------------------------------------------------------
+	-----------------------------------------------------------------------------------------
+	--zdate 憑證產生的日期,西元年格式
+	if len(@t_bzdate)=9
+		set @t_bzdate = convert(nvarchar,dbo.ChineseEraName2AD(@t_bzdate),111)  
+	if len(@t_ezdate)=9
+		set @t_ezdate = convert(nvarchar,dbo.ChineseEraName2AD(@t_ezdate),111) 
+	-----------------------------------------------------------------------------------------
 	declare @tmpRc2a table(
 		sel int identity(1,1)
 		,recno int
@@ -873,11 +879,15 @@ z_einvoice04:--z_einvoice04
 	outer apply(select top 1 * from tgg where serial=a.serial order by noa) c
 	outer apply(select * from acomp where noa=a.cno) d
 	outer apply(select * from tgg where noa=a.tggno) e
-	outer apply(select top 1 x.noa,y.datea 
+	outer apply(select top 1 x.noa,y.datea,y.zdate  
 		from vccbs x 
 		left join vccb y on x.noa=y.noa where x.invono=a.noa) f
-	where (f.noa is not null and f.datea between @t_bdate and @t_edate)   
-		or (f.noa is null and a.taxtype!='6' and (a.datea between @t_bdate and @t_edate)) 
+	where (f.noa is not null 
+			and f.datea between @t_bdate and @t_edate
+			and f.zdate between @t_bzdate and @t_ezdate)   
+		or (f.noa is null and a.taxtype!='6' 
+			and (a.datea between @t_bdate and @t_edate)
+			and (a.zdate between @t_bzdate and @t_ezdate)) 
 		or (f.noa is null and a.taxtype='6' and (a.canceldate between @t_bdate and @t_edate))
 	order by a.noa
 	
@@ -1206,11 +1216,12 @@ z_einvoice02:--z_einvoice02
 	declare @t_ezdate nvarchar(20) = case when '#non' = [10] then char(255) else [10] end
 	declare @t_option nvarchar(max) = case when '#non' = [13] then '' else [13] end
 	-----------------------------------------------------------------------------------------
+	--2018/01/09 08:58
 	--zdate 憑證產生的日期,西元年格式
 	if len(@t_bzdate)=9
-		set @t_bzdate = convert(nvarchar,dbo.ChineseEraName2AD(@t_bdate),111)  
+		set @t_bzdate = convert(nvarchar,dbo.ChineseEraName2AD(@t_bzdate),111)  
 	if len(@t_ezdate)=9
-		set @t_ezdate = convert(nvarchar,dbo.ChineseEraName2AD(@t_edate),111) 
+		set @t_ezdate = convert(nvarchar,dbo.ChineseEraName2AD(@t_ezdate),111) 
 	-----------------------------------------------------------------------------------------
 	declare @tmpVcca table(
 		sel int identity(1,1)
