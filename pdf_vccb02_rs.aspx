@@ -436,7 +436,7 @@ from @bbs
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.tax.ToString(), width / (float)21 * (float)17.3, height / (float)29.7 * (float)5.7, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.total.ToString(), width / (float)21 * (float)19.7, height / (float)29.7 * (float)5.7, 0);
 
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.nob + "("+vccb.custno+")", width / (float)21 * (float)19.7, height / (float)29.7 * (float)0.65, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, vccb.noa + "("+vccb.custno+")", width / (float)21 * (float)19.7, height / (float)29.7 * (float)0.65, 0);
             cb.EndText();
         }
     </script>
