@@ -2136,6 +2136,7 @@
 						<td><input id="txtCanceltime" type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblRtdn' class="lbl">專案作廢核准文號</a></td>
 						<td><input id="txtRtdn" type="text" class="txt c1" title="若發票的作廢時間超過申報期間，則此欄位為必填欄位。"/></td>
+						<td> </td>
 					</tr>
 					<tr>
 						<td><span> </span><a id='lblMoney' class="lbl"> </a></td>
@@ -2172,6 +2173,7 @@
 						<td><select id="cmbPrintmark" class="txt c1"> </select></td>
 						<td><span> </span><a class="lbl">隨機碼</a></td>
 						<td><input type="text" id="txtRandnumber" class="txt c1"/></td>
+						<td> </td>
 					</tr>
 					<tr class="einvoice" style="display:none;background-color:pink;">
 						<td><span> </span><a class="lbl">載具類別號碼</a></td>
@@ -2180,12 +2182,16 @@
 						<td><input type="text" id="txtCarrierid1" class="txt c1"/></td>
 						<td><span> </span><a class="lbl">載具隱碼</a></td>
 						<td><input type="text" id="txtCarrierid2" class="txt c1"/></td>
+						<td> </td>
 					</tr>
 					<tr class="einvoice" style="display:none;background-color:pink;">
 						<td> </td>
 						<td><input type="checkbox" style="float:left;" id="chkDonatemark"/><span style="display:block;width:100px;float:left;">捐贈發票</span></td>
 						<td><span> </span><a class="lbl">捐贈對象(愛心碼)</a></td>
 						<td><input type="text" id="txtNpoban" class="txt c1"/></td>
+						<td> </td>
+						<td> </td>
+						<td> </td>
 					</tr>
 					<tr class="einvoice" style="display:none;background-color:pink;">
 						<td> </td>
@@ -2193,7 +2199,8 @@
 						<td><input type="checkbox" style="float:left;" id="chkIssendconfirm"/><span style="display:block;width:120px;float:left;">電子檔接收確認</span></td>
 						<td><input type="checkbox" style="float:left;" id="chkIscancel"/><span style="display:block;width:120px;float:left;">產生作廢電子檔</span></td>
 						<td><input type="checkbox" style="float:left;" id="chkIscancelconfirm"/><span style="display:block;width:120px;float:left;">作廢接收確認</span></td>
-						
+						<td> </td>
+						<td> </td>
 					</tr>
 					<tr class="einvoice" style="display:none;background-color:pink;">
 						<td><input type="checkbox" style="float:left;" id="chkIsvoid"/>
@@ -2205,6 +2212,7 @@
 						<td><input id="txtVoidtime" type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblVoidreason' class="lbl">註銷原因</a></td>
 						<td><input id="txtVoidreason" type="text" class="txt c1"/></td>
+						<td> </td>
 					</tr>
 					<tr style="display:none;">
 						<td> </td>
