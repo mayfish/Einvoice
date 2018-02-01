@@ -839,11 +839,24 @@
 			function q_popPost(id) {
 				switch(id) {
 					case 'txtInvono_':
-						var n = b_seq;	
-						$('#cmbCno').val($('#txtCno_'+n).val());
-						$('#txtCustno').val($('#txtCustno_'+n).val());
-						$('#txtComp').val($('#txtComp_'+n).val());
-						$('#txtSerial').val($('#txtSerial_'+n).val());
+						var n = b_seq;
+						if($('#cmbTypea').val()=='1' || $('#cmbTypea').val()=='2'){
+							if(emp($('#txtCustno').val())){
+								$('#txtCustno').val($('#txtCustno_'+n).val());
+								$('#txtComp').val($('#txtComp_'+n).val());
+							}
+						}else{
+							if(emp($('#txtTggno').val())){
+								$('#txtTggno').val($('#txtCustno_'+n).val());
+								$('#txtTgg').val($('#txtComp_'+n).val());
+							}
+						}
+						if(emp($('#cmbCno').val())){
+							$('#cmbCno').val($('#txtCno_'+n).val());
+						}
+						if(emp($('#txtSerial').val())){
+							$('#txtSerial').val($('#txtSerial_'+n).val());
+						}
 						break;
 				}
 			}
