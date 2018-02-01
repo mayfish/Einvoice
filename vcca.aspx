@@ -2129,7 +2129,7 @@
 							<input id="txtBuyer" type="text"  style="float:left; width:70%;"/>
 						</td>
 					</tr>
-					<tr class="cancelInvoice" style="display:none;">
+					<tr class="cancelInvoice" style="display:none;background-color:pink;">
 						<td><span> </span><a id='lblCanceldate' class="lbl">作廢日期</a></td>
 						<td><input id="txtCanceldate" type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblCanceltime' class="lbl">作廢時間</a></td>
@@ -2165,7 +2165,7 @@
 						<td><span> </span><a id='lblVccno' class="lbl btn"> </a></td>
 						<td><input id="txtVccno"  type="text" class="txt c1"/></td>
 					</tr>
-					<tr class="einvoice" style="display:none;">
+					<tr class="einvoice" style="display:none;background-color:pink;">
 						<td><span> </span><a class="lbl" id="lblCcm">通關方式註記</a></td>
 						<td><select id="cmbCcm" class="txt c1" title="若為零稅率發票，此為必填欄位(CustomsClearanceMark)"> </select></td>
 						<td><span> </span><a class="lbl">列印註記</a></td>
@@ -2173,7 +2173,7 @@
 						<td><span> </span><a class="lbl">隨機碼</a></td>
 						<td><input type="text" id="txtRandnumber" class="txt c1"/></td>
 					</tr>
-					<tr class="einvoice" style="display:none;">
+					<tr class="einvoice" style="display:none;background-color:pink;">
 						<td><span> </span><a class="lbl">載具類別號碼</a></td>
 						<td><input type="text" id="txtCarriertype" class="txt c1" list="listCarriertype"/></td>
 						<td><span> </span><a class="lbl">載具顯碼</a></td>
@@ -2181,21 +2181,21 @@
 						<td><span> </span><a class="lbl">載具隱碼</a></td>
 						<td><input type="text" id="txtCarrierid2" class="txt c1"/></td>
 					</tr>
-					<tr class="einvoice" style="display:none;">
+					<tr class="einvoice" style="display:none;background-color:pink;">
 						<td> </td>
 						<td><input type="checkbox" style="float:left;" id="chkDonatemark"/><span style="display:block;width:100px;float:left;">捐贈發票</span></td>
 						<td><span> </span><a class="lbl">捐贈對象(愛心碼)</a></td>
 						<td><input type="text" id="txtNpoban" class="txt c1"/></td>
 					</tr>
-					<tr class="einvoice" style="display:none;">
+					<tr class="einvoice" style="display:none;background-color:pink;">
 						<td> </td>
-						<td><input type="checkbox" style="float:left;" id="chkIssend"/><span style="display:block;width:100px;float:left;">產生電子檔</span></td>
-						<td><input type="checkbox" style="float:left;" id="chkIssendconfirm"/><span style="display:block;width:100px;float:left;">電子檔接收確認</span></td>
-						<td><input type="checkbox" style="float:left;" id="chkIscancel"/><span style="display:block;width:100px;float:left;">產生作廢電子檔</span></td>
-						<td><input type="checkbox" style="float:left;" id="chkIscancelconfirm"/><span style="display:block;width:100px;float:left;">作廢接收確認</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIssend"/><span style="display:block;width:120px;float:left;">產生電子檔</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIssendconfirm"/><span style="display:block;width:120px;float:left;">電子檔接收確認</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIscancel"/><span style="display:block;width:120px;float:left;">產生作廢電子檔</span></td>
+						<td><input type="checkbox" style="float:left;" id="chkIscancelconfirm"/><span style="display:block;width:120px;float:left;">作廢接收確認</span></td>
 						
 					</tr>
-					<tr class="einvoice" style="display:none;">
+					<tr class="einvoice" style="display:none;background-color:pink;">
 						<td><input type="checkbox" style="float:left;" id="chkIsvoid"/>
 							<span style="display:block;width:70px;float:left;">註銷</span>
 							<span> </span><a id='lblVoiddate' class="lbl">註銷日期</a>
