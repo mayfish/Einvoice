@@ -58,7 +58,7 @@ insert into @tmp
 	left join vccas b on a.noa=b.noa
 	left join view_vcc c on a.vccno = c.noa
 	left join cust d on a.buyerno=d.noa
-	where (a.taxtype != '6') and (a.noa between @t_bnoa and @t_enoa)
+	where not(a.taxtype = '6' or isnull(a.cancel,0)=1) and (a.noa between @t_bnoa and @t_enoa)
 ------------單筆處理<<Start>>-----------
 insert into @tmp(
 		gno,pageno,pageorder,datea,noa,noq,buyer,serial,invoaddr,chkno,
@@ -353,7 +353,7 @@ insert into @tmp(gno,pageno,pageorder,datea,noa,noq,buyer,serial,invoaddr,chkno,
 	left join vccas b on a.noa=b.noa
 	left join view_vcc c on a.vccno = c.noa
 	left join cust d on a.buyerno=d.noa
-	where (a.taxtype != '6') and (a.noa between @t_bnoa and @t_enoa)
+	where not(a.taxtype = '6' or ISNULL(a.cancel,0)=1) and (a.noa between @t_bnoa and @t_enoa)
 ------------單筆處理<<Start>>-----------
 insert into @tmp(
 		gno,pageno,pageorder,datea,noa,noq,buyer,serial,invoaddr,chkno,
