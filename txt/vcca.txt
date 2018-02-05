@@ -124,6 +124,7 @@ vcca_mount:--vcca_mount 產品庫存, 只查詢一個產品, 不分倉庫, 排�
 	and b.datea<=@t_date
 	and a.noa!=@t_vccano
 	and b.cno=@t_cno
+	and isnull(b.cancel,0)=0 --排除作廢
 	
 	insert into @tmp(datea,typea,noa,mount)
 	select b.datea,case when b.typea='1' then '2' else '3' end,a.noa,a.mount
@@ -524,8 +525,9 @@ changeorde_rb:--changeorde_rb
 	declare @ordeno nvarchar(max)=isnull((select trdno from vcca where noa=@vccano),'')
 	declare @accy nvarchar(max)=isnull((select accy from view_orde where noa=@ordeno),'')
 	declare @kind nvarchar(max)=isnull((select kind from view_orde where noa=@ordeno),'')
+	declare @cancel bit = isnull((select cancel from vcca where noa=@vccano),0)
 	
-	if(@typea='E' and @taxtype='6' and  (select count(*) from view_orde where noa=@ordeno and charindex(@vccano,ordbno)>0 )>0 )
+	if(@typea='E' and (@taxtype='6' or @cancel=1) and  (select count(*) from view_orde where noa=@ordeno and charindex(@vccano,ordbno)>0 )>0 )
 	begin
 		exec("update orde"+@accy+" set kind='作廢' where noa='"+@ordeno+"' ")
 	end

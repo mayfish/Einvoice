@@ -157,7 +157,11 @@
 				q_mask(bbmMask);
 				q_xchgForm();
 				q_xchgView(); //106/05/11 預設仍要先顯示vew (前面先執行到Form載入data再跳回VEW)
-				q_cmbParse("cmbTaxtype", q_getPara('vcca.taxtype'));
+				//作廢改用CHECKBOX   chkCancel
+				//q_cmbParse("cmbTaxtype", q_getPara('vcca.taxtype'));
+				q_cmbParse("cmbTaxtype", q_getPara('1@應稅,2@零稅率,4@免稅,5@自訂,3@內含'));
+				
+
 				q_cmbParse("cmbPrintmark","N,Y");
 				q_cmbParse("cmbCcm","@,1@非經海關出口,2@經海關出口");
 				
@@ -245,7 +249,7 @@
 					if(q_xchg!=2){
 						$('#btnXchg').click();
 					}
-					if($('#cmbTaxtype').val()!='6'){
+					if(!$('#chkCancel').prop('checked')){
 						alert('錯誤:發票未修改為作廢。');
 						return;
 					}
@@ -283,11 +287,12 @@
 	                    			alert(tmp.msg);	                    		
 	                    		}else if(this.invoiceNumber==$.trim($('#txtNoa').val())){
 	                    			$('#chkIscancel').prop('checked',true);
-	                    			$('#cmbTaxtype').val('6');
+	                    			$('#chkCancel').prop('checked',true);
+	                    			/*$('#cmbTaxtype').val('6');
 	                    			$('#txtTotal').val(0);
 	                    			for(var i=0;i<q_bbsCount;i++){
 	                    				$('#txtMoney_'+i).val(0);
-	                    			}
+	                    			}*/
 	                    			alert('OK');	
 	                    		}
 	                    	}catch(e){
@@ -390,7 +395,7 @@
 					if(q_xchg!=2){
 						$('#btnXchg').click();
 					}
-					if($('#cmbTaxtype').val()!='6'){
+					if(!$('#chkCancel').prop('checked')){
 						alert('錯誤:發票未修改為作廢。');
 						return;
 					}
@@ -717,7 +722,6 @@
 				}).click(function(e) {
 					sum();
 					refreshBbs();
-					
 				});
 				
 				$('#txtNoa').change(function(e) {
@@ -1139,7 +1143,7 @@
 					return;
 				}
 				
-				if($('#cmbTaxtype').val()=='6' && $.trim($('#txtMemo').val()).length==0){
+				if($('#chkCancel').prop('checked') && $.trim($('#txtMemo').val()).length==0){
 					alert('作廢需在"備註"填寫作廢原因。');
 					Unlock(1);
 					return;
@@ -1525,6 +1529,11 @@
 						}
 						break;
 					case '6':
+						/*由於電子發票產生電子檔可能會比作廢時間還晚
+						,因此不能清空資料,需要先產生發票電子檔,然後才能有作廢電子檔
+						,現在作廢改由 vcca.cancel 來判斷
+						*/
+						break;
 						// 作廢-清空資料
 						t_money = 0, t_tax = 0, t_total = 0;
 						/*//銷貨客戶
@@ -1679,6 +1688,11 @@
 						t_total = t_money + t_tax;
 						break;
 					case '6':
+						/*由於電子發票產生電子檔可能會比作廢時間還晚
+						,因此不能清空資料,需要先產生發票電子檔,然後才能有作廢電子檔
+						,現在作廢改由 vcca.cancel 來判斷
+						*/
+						break;
 						//只清總金額....2017/08/16
 						// 作廢-清空資料
 						t_money = 0, t_tax = 0, t_total = 0;
@@ -1814,7 +1828,7 @@
 			
 			function refreshBbs() {
 				//作廢時顯示作廢日期和時間
-				if($('#cmbTaxtype').val()=='6'){
+				if($('#chkCancel').prop('checked')){
 					$('.cancelInvoice').show();
 				}else{
 					$('.cancelInvoice').hide();
@@ -2085,6 +2099,8 @@
 					<tr>
 						<td><span> </span><a id='lblDatea' class="lbl"> </a></td>
 						<td>
+							<input type="checkbox" style="float:left;" id="chkCancel"/>
+							<span style="display:block;width:70px;float:left;">作廢</span>
 							<input id="txtDatea"  type="text" class="txt c1"/>
 							<!-- timea  B2C用 -->
 							<input id="txtTimea"  type="text" style="display:none;"/>
