@@ -159,7 +159,7 @@
 				q_xchgView(); //106/05/11 預設仍要先顯示vew (前面先執行到Form載入data再跳回VEW)
 				//作廢改用CHECKBOX   chkCancel
 				//q_cmbParse("cmbTaxtype", q_getPara('vcca.taxtype'));
-				q_cmbParse("cmbTaxtype", q_getPara('1@應稅,2@零稅率,4@免稅,5@自訂,3@內含'));
+				q_cmbParse("cmbTaxtype", '1@應稅,2@零稅率,4@免稅,5@自訂,3@內含');
 				
 
 				q_cmbParse("cmbPrintmark","N,Y");
@@ -695,7 +695,25 @@
 	                });
 				});
 //*********************************************************************************************				
-				
+				$('#chkCancel').click(function(e){
+					if($('#chkCancel').prop('checked')){
+						if( $('#txtCanceldate').val().length == 0 && $('#txtCanceltime').val().length == 0){
+							$('#txtCanceldate').val(q_date());
+							var a = new Date();
+							var hh = ''+a.getHours();
+							var mm = ''+a.getMinutes();
+							var ss = ''+a.getSeconds();
+							
+							hh = (hh.length==1?'0':'') + hh;
+							mm = (mm.length==1?'0':'') + mm;
+							ss = (ss.length==1?'0':'') + ss;
+							
+							$('#txtCanceltime').val(hh+':'+mm+':'+ss);
+						}
+					}
+					sum();
+					refreshBbs();
+				});
 				
 				$('#cmbTaxtype').focus(function() {
 					var len = $("#cmbTaxtype").children().length > 0 ? $("#cmbTaxtype").children().length : 1;
@@ -2097,10 +2115,12 @@
 						<td class="tdZ"> </td>
 					</tr>
 					<tr>
-						<td><span> </span><a id='lblDatea' class="lbl"> </a></td>
 						<td>
 							<input type="checkbox" style="float:left;" id="chkCancel"/>
 							<span style="display:block;width:70px;float:left;">作廢</span>
+							<span> </span><a id='lblDatea' class="lbl"> </a>
+						</td>
+						<td>
 							<input id="txtDatea"  type="text" class="txt c1"/>
 							<!-- timea  B2C用 -->
 							<input id="txtTimea"  type="text" style="display:none;"/>
