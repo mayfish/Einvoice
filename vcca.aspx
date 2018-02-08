@@ -2202,9 +2202,11 @@
 						<td><span> </span><a id='lblVccno' class="lbl btn"> </a></td>
 						<td><input id="txtVccno"  type="text" class="txt c1"/></td>
 					</tr>
-					<tr class="einvoice" style="display:none;background-color:pink;">
+					<tr>
 						<td><span> </span><a class="lbl" id="lblCcm">通關方式註記</a></td>
 						<td><select id="cmbCcm" class="txt c1" title="若為零稅率發票，此為必填欄位(CustomsClearanceMark)"> </select></td>
+					</tr>
+					<tr class="einvoice" style="display:none;background-color:pink;">
 						<td><span> </span><a class="lbl">列印註記</a></td>
 						<td><select id="cmbPrintmark" class="txt c1"> </select></td>
 						<td><span> </span><a class="lbl">隨機碼</a></td>
