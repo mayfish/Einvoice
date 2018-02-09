@@ -18,7 +18,7 @@
 			q_tables = 't';
 			var q_name = "vcca";
 			var q_readonly = ['txtMoney', 'txtTotal', 'txtChkno', 'txtTax', 'txtAccno', 'txtWorker', 'txtTrdno', 'txtVccno'
-				,'chkIssend','chkIssendconfirm','chkIscancel','chkIscancelconfirm','txtRandnumber'];
+				,'chkIssend','chkIssendconfirm','chkIscancel','chkIscancelconfirm','txtRandnumber','txtStatus'];
 			var q_readonlys = [];
 			var q_readonlyt = ['txtVccaccy','txtVccno','txtVccnoq'];
 			var bbmNum = [['txtMoney', 15, 0,1], ['txtTax', 15, 0,1], ['txtTotal', 15, 0,1]];
@@ -2211,6 +2211,8 @@
 						<td><select id="cmbPrintmark" class="txt c1"> </select></td>
 						<td><span> </span><a class="lbl">隨機碼</a></td>
 						<td><input type="text" id="txtRandnumber" class="txt c1"/></td>
+						<td> </td>
+						<td><input type="text" id="txtStatus" class="txt c1"/></td></td>
 						<td> </td>
 					</tr>
 					<tr class="einvoice" style="display:none;background-color:pink;">
