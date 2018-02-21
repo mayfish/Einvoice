@@ -153,7 +153,7 @@
 					}
 					$.ajax({
 						vccbno : t_vccbno,
-	                    url: "../einvoice/A0301g.aspx?vccbno="+t_vccbno,
+	                    url: "../einvoice/A0301g.aspx?vccbno="+t_vccbno+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -216,7 +216,7 @@
 					}
 					$.ajax({
 						vccbno : t_vccbno,
-	                    url: "../einvoice/A0302g.aspx?vccbno="+t_vccbno,
+	                    url: "../einvoice/A0302g.aspx?vccbno="+t_vccbno+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -280,7 +280,7 @@
 					}
 					$.ajax({
 						vccbno : t_vccbno,
-	                    url: "../einvoice/B0101g.aspx?vccbno="+t_vccbno,
+	                    url: "../einvoice/B0101g.aspx?vccbno="+t_vccbno+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -344,7 +344,7 @@
 					}
 					$.ajax({
 						vccbno : t_vccbno,
-	                    url: "../einvoice/B0102g.aspx?vccbno="+t_vccbno,
+	                    url: "../einvoice/B0102g.aspx?vccbno="+t_vccbno+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -420,7 +420,7 @@
 					}
 					$.ajax({
 						vccbno : t_vccbno,
-	                    url: "../einvoice/B0201g.aspx?vccbno="+t_vccbno,
+	                    url: "../einvoice/B0201g.aspx?vccbno="+t_vccbno+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -484,7 +484,7 @@
 					}
 					$.ajax({
 						vccbno : t_vccbno,
-	                    url: "../einvoice/B0202g.aspx?vccbno="+t_vccbno,
+	                    url: "../einvoice/B0202g.aspx?vccbno="+t_vccbno+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -548,7 +548,7 @@
 					}
 					$.ajax({
 						vccbno : t_vccbno,
-	                    url: "../einvoice/B0401.aspx?vccbno="+t_vccbno,
+	                    url: "../einvoice/B0401.aspx?vccbno="+t_vccbno+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -624,7 +624,7 @@
 					}
 					$.ajax({
 						vccbno : t_vccbno,
-	                    url: "../einvoice/B0501.aspx?vccbno="+t_vccbno,
+	                    url: "../einvoice/B0501.aspx?vccbno="+t_vccbno+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -688,7 +688,7 @@
 					}
 					$.ajax({
 						vccbno : t_vccbno,
-	                    url: "../einvoice/D0401.aspx?vccbno="+t_vccbno,
+	                    url: "../einvoice/D0401.aspx?vccbno="+t_vccbno+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -760,7 +760,7 @@
 					}
 					$.ajax({
 						vccbno : t_vccbno,
-	                    url: "../einvoice/D0501.aspx?vccbno="+t_vccbno,
+	                    url: "../einvoice/D0501.aspx?vccbno="+t_vccbno+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',

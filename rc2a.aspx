@@ -192,7 +192,7 @@
 					}
 					$.ajax({
 						invoiceNumber : t_invoiceNumber,
-	                    url: "../einvoice/A0202g.aspx?invoice="+t_invoiceNumber,
+	                    url: "../einvoice/A0202g.aspx?invoice="+t_invoiceNumber+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -293,7 +293,7 @@
 					}
 					$.ajax({
 						invoiceNumber : t_invoiceNumber,
-	                    url: "../einvoice/A0102g.aspx?invoice="+t_invoiceNumber,
+	                    url: "../einvoice/A0102g.aspx?invoice="+t_invoiceNumber+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',

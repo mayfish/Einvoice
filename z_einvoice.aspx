@@ -32,8 +32,8 @@
 			
 			function getDate_SummaryResult(){
 				$.ajax({
-                    url: "../einvoice/SummaryResult.aspx",
-                    headers: { 'db': q_db },
+                    url: "../einvoice/SummaryResult.aspx?db="+q_db,
+                    headers: {},
                     type: 'POST',
                     //data: JSON.stringify(datea[0]),
                     dataType: 'text',
@@ -65,43 +65,6 @@
                         }
                     }
                 });
-			}
-			function getDate_ProcessResult(){
-				$.ajax({
-                    url: "../einvoice/ProcessResult.aspx",
-                    headers: { 'db': q_db },
-                    type: 'POST',
-                    //data: JSON.stringify(datea[0]),
-                    dataType: 'text',
-                    timeout: 10000,
-                    success: function(data){
-                        if(data.length>0){
-                        	ydate = JSON.parse(data);
-                        }
-                    },
-                    complete: function(){ 
-                    	finish();
-                    },
-                    error: function(jqXHR, exception) {
-                        var errmsg = this.url+'資料寫入異常。\n';
-                        if (jqXHR.status === 0) {
-                            alert(errmsg+'Not connect.\n Verify Network.');
-                        } else if (jqXHR.status == 404) {
-                            alert(errmsg+'Requested page not found. [404]');
-                        } else if (jqXHR.status == 500) {
-                            alert(errmsg+'Internal Server Error [500].');
-                        } else if (exception === 'parsererror') {
-                            alert(errmsg+'Requested JSON parse failed.');
-                        } else if (exception === 'timeout') {
-                            alert(errmsg+'Time out error.');
-                        } else if (exception === 'abort') {
-                            alert(errmsg+'Ajax request aborted.');
-                        } else {
-                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
-                        }
-                    }
-                });
-				
 			}
 			
 			function finish(){
@@ -359,8 +322,8 @@
                         case 0:
                         	$('#result').show();
                         	$.ajax({
-	                    url: "../einvoice/SummaryResult.aspx?date="+$('#txtXdate').val(),
-	                    headers: { 'db': q_db },
+	                    url: "../einvoice/SummaryResult.aspx?date="+$('#txtXdate').val()+"&db="+q_db,
+	                    headers: {},
 	                    type: 'POST',
 	                    //data: JSON.stringify(datea[0]),
 	                    dataType: 'text',

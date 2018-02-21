@@ -99,6 +99,9 @@
 
 			function mainPost() {
 				switch(q_getPara('sys.project').toUpperCase()){
+					case 'SH':
+						$('.einvoice').show();
+						break;
 					case 'RS':
 						$('.einvoice').show();
 						break;
@@ -207,7 +210,7 @@
 					}
 					$.ajax({
 						invoiceNumber : t_invoiceNumber,
-	                    url: "../einvoice/A0101g.aspx?invoice="+t_invoiceNumber,
+	                    url: "../einvoice/A0101g.aspx?invoice="+t_invoiceNumber+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -275,7 +278,7 @@
 					}
 					$.ajax({
 						invoiceNumber: t_invoiceNumber,
-	                    url: "../einvoice/A0201g.aspx?invoice="+t_invoiceNumber,
+	                    url: "../einvoice/A0201g.aspx?invoice="+t_invoiceNumber+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -352,7 +355,7 @@
 					}
 					$.ajax({
 						invoiceNumber : t_invoiceNumber,
-	                    url: "../einvoice/A0401g.aspx?invoice="+t_invoiceNumber,
+	                    url: "../einvoice/A0401g.aspx?invoice="+t_invoiceNumber+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -421,7 +424,7 @@
 					}
 					$.ajax({
 						invoiceNumber : t_invoiceNumber,
-	                    url: "../einvoice/A0501g.aspx?invoice="+t_invoiceNumber,
+	                    url: "../einvoice/A0501g.aspx?invoice="+t_invoiceNumber+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -532,7 +535,7 @@
 					}
 					$.ajax({
 						invoiceNumber : t_invoiceNumber,
-	                    url: "../einvoice/C0401.aspx?invoice="+t_invoiceNumber,
+	                    url: "../einvoice/C0401.aspx?invoice="+t_invoiceNumber+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -597,7 +600,7 @@
 					}
 					$.ajax({
 						invoiceNumber : t_invoiceNumber,
-	                    url: "../einvoice/C0501.aspx?invoice="+t_invoiceNumber,
+	                    url: "../einvoice/C0501.aspx?invoice="+t_invoiceNumber+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
@@ -654,7 +657,7 @@
 					}
 					$.ajax({
 						invoiceNumber : t_invoiceNumber,
-	                    url: "../einvoice/C0701.aspx?invoice="+t_invoiceNumber,
+	                    url: "../einvoice/C0701.aspx?invoice="+t_invoiceNumber+"&db="+q_db,
 	                    type: 'POST',
 	                    data: '',
 	                    dataType: 'text',
