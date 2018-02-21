@@ -300,10 +300,10 @@
 			or not(ISNULL(d0501,'')='C' or len(ISNULL(d0501,''))=0))
 	end
 		
-	delete @tmp 
+	/*delete @tmp 
 	from @tmp a
 	left join(select noa,no2,count(1) n from @tmp group by noa,no2)	b on a.noa=b.noa and a.no2=b.no2
-	where b.n<=1
+	where b.n<=1*/
 		
 	select * 
 	,dbo.getComma([money],0) mm
