@@ -169,6 +169,9 @@
 					case 'XY':
 						$('.einvoice').show();
 						break;
+					case 'SH':
+						$('.einvoice').show();
+						break;
 				}
 				$('#btnA0202').click(function(e){
 					if(q_xchg!=2){
