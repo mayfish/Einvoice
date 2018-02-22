@@ -75,6 +75,9 @@
                 typea_chg();
                 
                 switch(q_getPara('sys.project').toUpperCase()){
+                	case 'SH':
+						$('.einvoice').show();
+						break;
 					case 'RS':
 						$('.einvoice').show();
 						break;
@@ -941,6 +944,7 @@
 	                	}
 	                }
                 }else if(t_data.table=='VCCA'){
+                	$('#cmbTypea').val('1');
                 	typea_chg();
                 	$('#txtMon').val(t_data.mon);	
                 	$('#cmbCno').val(t_data.cno);
@@ -968,6 +972,7 @@
                 		$('#cmbTaxtype_'+i).val(t_data.taxtype);
                 	}
                 }else if(t_data.table=='RC2A'){
+                	$('#cmbTypea').val('3');
                 	typea_chg();
                 	$('#txtMon').val(t_data.mon);	
                 	$('#cmbCno').val(t_data.cno);
