@@ -13,6 +13,8 @@
 	declare @t_eproductno nvarchar(20) = case when '#non'=[10] then CHAR(255) else [10] end
 	declare @t_type nvarchar(max) = case when '#non'=[11] then '' else [11] end
 	declare @t_cno nvarchar(max) = case when '#non'=[12] then '' else [12] end
+	declare @t_binvono nvarchar(20) = case when '#non'=[16] then '' else [16] end
+	declare @t_einvono nvarchar(20) = case when '#non'=[17] then char(255) else [17] end
 	declare @t_sbtype nvarchar(10) = case when '#non'=[18] then '' else [18] end
 	declare @t_len nvarchar(10) ='[19]'
 	declare @t_lenm int =cast(@t_len as int)+3
@@ -158,6 +160,7 @@
 	close cursor_table
 	deallocate cursor_table
 	
+	delete @tmp where not(invono between @t_binvono and @t_einvono)
 	----------------------------------------------------------------------------------------------------------
 	--發票上傳狀態
 	update @tmp set tnk_type='',invoice_identifier = invono+[invoice_year]
@@ -320,8 +323,6 @@
 	,b0101+b0401+d0401 c01 --折讓開立
 	,b0201+b0501+d0501 c02 --折讓作廢
 	from @tmp order by noa,no2,invono,gno;
-
-
 
 z_vcca07:--z_vcca07
 
