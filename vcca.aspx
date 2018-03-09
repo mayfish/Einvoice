@@ -18,7 +18,7 @@
 			q_tables = 't';
 			var q_name = "vcca";
 			var q_readonly = ['txtMoney', 'txtTotal', 'txtChkno', 'txtTax', 'txtAccno', 'txtWorker', 'txtTrdno', 'txtVccno'
-				,'chkIssend','chkIssendconfirm','chkIscancel','chkIscancelconfirm','txtRandnumber','txtStatus'];
+				,'chkIssendconfirm','chkIscancel','chkIscancelconfirm','txtRandnumber','txtStatus'];
 			var q_readonlys = [];
 			var q_readonlyt = ['txtVccaccy','txtVccno','txtVccnoq'];
 			var bbmNum = [['txtMoney', 15, 0,1], ['txtTax', 15, 0,1], ['txtTotal', 15, 0,1]];
