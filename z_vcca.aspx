@@ -171,20 +171,69 @@
                 if(q_getPara('sys.project').toUpperCase()!='SB')
 	                $('#Sbtype').hide();
                 
-                /*$("input[type='checkbox'][value='checkAll']").click(function() {
-                    if ($(this).next('span').text() == '全選') {
-                        $("input[type='checkbox'][value!='']").attr('checked', true);
-                        $(this).removeAttr('checked');
-                        $(this).next('span').text('取消全選');
-                    } else if ($(this).next('span').text() == '取消全選') {
-                        $("input[type='checkbox'][value!='']").removeAttr('checked');
-                        $(this).next('span').text('全選');
-                    }
-                });*/
+                $('#btnOk').before($('#btnOk').clone().attr('id', 'btnOk2').show()).hide();
+				$('#btnOk2').click(function() {
+					switch($('#q_report').data('info').radioIndex) {
+						case 7:
+							var t_mon = $.trim($('#txtXmon1').val());
+							var t_cno = $.trim($('#txtXcno').val());
+							$.ajax({
+			                    url: "../einvoice/E0402.aspx?db="+q_db+"&cno="+t_cno+"&mon="+t_mon,
+			                    type: 'POST',
+			                    //data: JSON.stringify(datea[0]),
+			                    dataType: 'text',
+			                    timeout: 10000,
+			                    success: function(data){
+			                        try{
+			                			FileName = [];
+			                    		FileName = JSON.parse(data);
+			                    		OpenWindows(0);
+			                    	}catch(e){
+			                    	}
+			                    },
+			                    complete: function(){ 
+			                    	
+			                    },
+			                    error: function(jqXHR, exception) {
+			                        var errmsg = this.url+'資料寫入異常。\n';
+			                        if (jqXHR.status === 0) {
+			                            alert(errmsg+'Not connect.\n Verify Network.');
+			                        } else if (jqXHR.status == 404) {
+			                            alert(errmsg+'Requested page not found. [404]');
+			                        } else if (jqXHR.status == 500) {
+			                            alert(errmsg+'Internal Server Error [500].');
+			                        } else if (exception === 'parsererror') {
+			                            alert(errmsg+'Requested JSON parse failed.');
+			                        } else if (exception === 'timeout') {
+			                            alert(errmsg+'Time out error.');
+			                        } else if (exception === 'abort') {
+			                            alert(errmsg+'Ajax request aborted.');
+			                        } else {
+			                            alert(errmsg+'Uncaught Error.\n' + jqXHR.responseText);
+			                        }
+			                    }
+			                });
+									break;
+					}
+				});
             }
 
             function q_boxClose(s2) {
             }
+            
+            FileName = [];
+			var OpenWindows=function(n){
+			    if(n>=FileName.length){
+			    	//done
+			        return;
+			    }
+			    else {
+			    	console.log("../htm/htm/"+FileName[n].filename);
+			    	window.open("../htm/htm/"+FileName[n].filename);
+			    	n++;
+			        setTimeout("OpenWindows("+n+")", 1500);
+			    }
+			};
 
 		</script>
 	</head>
