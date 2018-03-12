@@ -21,7 +21,7 @@
 	declare @t_option nvarchar(max) = case when '#non'=[21] then '' else [21] end
 	------------------------------------------------------------
 	declare @n int
-	
+
 	declare @tmp table(
 		gno nvarchar(3),
 		noa nvarchar(20),
