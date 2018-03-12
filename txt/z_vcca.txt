@@ -38,15 +38,15 @@
 		[money] float,
 		tax float,
 		total float,
-		memo nvarchar(max)
-		,issend bit
-		,issendconfirm bit
-		,iscancel bit
-		,iscancelconfirm bit
+		memo nvarchar(max),
+		issend bit,
+		issendconfirm bit,
+		iscancel bit,
+		iscancelconfirm bit,
 		
-		,invoice_year nvarchar(20)
-		,invoice_identifier nvarchar(30)
-		,tnk_type nvarchar(max)
+		invoice_year nvarchar(20),
+		invoice_identifier nvarchar(30),
+		tnk_type nvarchar(max)
 		--B2B 交換
 		,a0101 nvarchar(20) --開立
 		,a0201 nvarchar(20) --作廢
