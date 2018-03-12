@@ -46,26 +46,26 @@
 		
 		invoice_year nvarchar(20),
 		invoice_identifier nvarchar(30),
-		tnk_type nvarchar(max)
+		tnk_type nvarchar(max),
 		--B2B 交換
-		,a0101 nvarchar(20) --開立
-		,a0201 nvarchar(20) --作廢
-		,a0301 nvarchar(20) --退回
-		,b0101 nvarchar(20) --折讓
-		,b0201 nvarchar(20) --折讓作廢
+		a0101 nvarchar(20), --開立
+		a0201 nvarchar(20), --作廢
+		a0301 nvarchar(20), --退回
+		b0101 nvarchar(20), --折讓
+		b0201 nvarchar(20), --折讓作廢
 		--B2B 存證
-		,a0401 nvarchar(20) --開立
-		,a0501 nvarchar(20) --作廢
-		,a0601 nvarchar(20) --退回
-		,b0401 nvarchar(20) --折讓
-		,b0501 nvarchar(20) --折讓作廢
+		a0401 nvarchar(20), --開立
+		a0501 nvarchar(20), --作廢
+		a0601 nvarchar(20), --退回
+		b0401 nvarchar(20), --折讓
+		b0501 nvarchar(20), --折讓作廢
 		--B2C 存證
-		,c0401 nvarchar(20) --開立
-		,c0501 nvarchar(20) --作廢
-		,c0601 nvarchar(20) --退回
-		,c0701 nvarchar(20) --註銷
-		,d0401 nvarchar(20) --折讓
-		,d0501 nvarchar(20) --折讓作廢
+		c0401 nvarchar(20), --開立
+		c0501 nvarchar(20), --作廢
+		c0601 nvarchar(20), --退回
+		c0701 nvarchar(20), --註銷
+		d0401 nvarchar(20), --折讓
+		d0501 nvarchar(20) --折讓作廢
 	)
 	declare @noa nvarchar(20)
 	declare @no2 nvarchar(10)
