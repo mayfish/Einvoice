@@ -959,7 +959,10 @@ z_vcca03:--z_vcca03
 	
 	insert into @tmp(rr,noa,noq,custno,cust,nick,datea,productno,product,unit,mount,price,[money])
 	select ROW_NUMBER()over(partition by isnull(a.productno,'') order by isnull(b.datea,''),isnull(b.noa,''))
-		,a.noa,a.noq,b.custno,b.comp,b.nick,b.datea,a.productno,a.product,a.unit,a.mount,a.price,a.[money]
+		,a.noa,a.noq,b.custno,b.comp,b.nick,b.datea,a.productno,a.product,a.unit
+		,case when ISNULL(b.cancel,0)=1 then 0 else isnull(a.mount,0) end
+		,a.price
+		,case when ISNULL(b.cancel,0)=1 then 0 else isnull(a.[money],0) + isnull(a.tax,0) end
 	from vccas a
 	left join vcca b on a.noa=b.noa
 	where a.noa is not null
@@ -980,51 +983,25 @@ z_vcca03:--z_vcca03
 	,a.productno ppno
 	,a.product ppt
 	,dbo.getComma(a.[money],0) mm
-	--,reverse(substring(reverse(convert(nvarchar(15),CONVERT(money,a.[money]),1)),4,12)) mm
-	,case when a.mount>=0 
-		then  --reverse(substring(reverse(convert(nvarchar(15),CONVERT(money,floor(a.mount)),1)),4,12))
-				dbo.getComma(floor(a.mount),2)
-				+ RIGHT(CAST(a.mount as nvarchar),0)
-		else --reverse(substring(reverse(convert(nvarchar(15),CONVERT(money,ceiling(a.mount)),1)),4,12))
-				dbo.getComma(ceiling(a.mount),2)
-				+ RIGHT(CAST(a.mount as nvarchar),0) end mt
-	,case when a.price>=0 
-		then  --reverse(substring(reverse(convert(nvarchar(15),CONVERT(money,floor(a.price)),1)),4,12))
-				dbo.getComma(floor(a.price),2)
-				+ RIGHT(CAST(a.price as nvarchar),0)
-		else --reverse(substring(reverse(convert(nvarchar(15),CONVERT(money,ceiling(a.price)),1)),4,12))
-				dbo.getComma(ceiling(a.price),2)
-				+ RIGHT(CAST(a.price as nvarchar),0) end pe
+	,dbo.getComma(a.mount,2) mt
+	,dbo.getComma(a.price,2) pe
 	from @tmp a order by productno,gno,datea,noa,noq;
 --*********************************************************************************************
 z_vcca04:--z_vcca04
 	SET QUOTED_IDENTIFIER OFF
 	declare @cmd nvarchar(max)
-	declare @t_accy nvarchar(10)
-	declare @t_worker nvarchar(max)
-	declare @t_bmon nvarchar(10)
-	declare @t_emon nvarchar(10)
-	declare @t_bdate nvarchar(10)
-	declare @t_edate nvarchar(10)
-	declare @t_bcustno nvarchar(20)
-	declare @t_ecustno nvarchar(20)
-	declare @t_bproductno nvarchar(20)
-	declare @t_eproductno nvarchar(20)
-	declare @t_type nvarchar(max)
-	declare @t_cno nvarchar(max)
-	
-	set @t_accy = '[1]'
-	set @t_worker = '[2]'
-	set @t_bmon = case when '#non'=[3] then '' else [3] end
-	set @t_emon = case when '#non'=[4] then CHAR(255) else [4] end
-	set @t_bdate = case when '#non'=[5] then '' else [5] end
-	set @t_edate = case when '#non'=[6] then CHAR(255) else [6] end
-	set @t_bcustno = case when '#non'=[7] then '' else [7] end
-	set @t_ecustno = case when '#non'=[8] then CHAR(255) else [8] end
-	set @t_bproductno = case when '#non'=[9] then '' else [9] end
-	set @t_eproductno = case when '#non'=[10] then CHAR(255) else [10] end
-	set @t_type = case when '#non'=[11] then '' else [11] end
-	set @t_cno = case when '#non'=[12] then '' else [12] end
+	declare @t_accy nvarchar(10) = '[1]'
+	declare @t_worker nvarchar(max) = '[2]'
+	declare @t_bmon nvarchar(10) = case when '#non'=[3] then '' else [3] end
+	declare @t_emon nvarchar(10) = case when '#non'=[4] then CHAR(255) else [4] end
+	declare @t_bdate nvarchar(10) = case when '#non'=[5] then '' else [5] end
+	declare @t_edate nvarchar(10) = case when '#non'=[6] then CHAR(255) else [6] end
+	declare @t_bcustno nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[8] then CHAR(255) else [8] end
+	declare @t_bproductno nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_eproductno nvarchar(20) = case when '#non'=[10] then CHAR(255) else [10] end
+	declare @t_type nvarchar(max) = case when '#non'=[11] then '' else [11] end
+	declare @t_cno nvarchar(max) = case when '#non'=[12] then '' else [12] end
 	------------------------------------------------------------------------------------------------
 	declare @tmp table(
 		gno nvarchar(10),
@@ -1059,7 +1036,7 @@ z_vcca04:--z_vcca04
 		,ROW_NUMBER()over(partition by isnull(b.datea,''),isnull(a.noa,'') order by isnull(b.datea,''),isnull(a.noa,''),isnull(a.noq,''))
 		,ROW_NUMBER()over(partition by isnull(b.datea,''),isnull(a.noa,''),isnull(a.noq,'') order by isnull(b.datea,''),isnull(a.noa,''),isnull(a.noq,''))
 		,a.noa,a.noq,b.custno,left(b.comp,9),b.nick,b.datea,b.taxtype,b.tax,b.[money]
-		,a.productno,a.product,a.unit,a.mount,a.price,(b.tax+b.money),a.[money]
+		,a.productno,a.product,a.unit,a.mount,a.price,(b.tax+b.money),isnull(a.[money],0)+ISNULL(a.tax,0)
 		,ISNULL(b.cancel,0)
 	from vccas a
 	left join vcca b on a.noa=b.noa
@@ -1083,26 +1060,12 @@ z_vcca04:--z_vcca04
 	select a.* ,case when '[20]' ='SB' then 'vcca_sb?noa=$noa?' else 'vcca?noa=$noa?' end ghref
 	,a.productno ppno
 	,a.product ppt
-	,dbo.getComma(a.tax,0) tt
-	,dbo.getComma(a.[money],0) mm
-	,case when a.mount>=0 
-		then  --reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,floor(a.mount)),1)),4,18))
-				dbo.getComma(floor(a.mount),2)
-				+ RIGHT(CAST(a.mount as nvarchar),0)
-		else --reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,ceiling(a.mount)),1)),4,18))
-				dbo.getComma(ceiling(a.mount),2)
-				+ RIGHT(CAST(a.mount as nvarchar),0) end mt
-	,case when a.price>=0 
-		then  --reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,floor(a.price)),1)),4,18))
-				dbo.getComma(floor(a.price),2)
-				+ RIGHT(CAST(a.price as nvarchar),0)
-		else --reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,ceiling(a.price)),1)),4,18))
-				dbo.getComma(ceiling(a.price),2)
-				+ RIGHT(CAST(a.price as nvarchar),0) end pe
-	--,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,a.total),1)),4,18)) ppm
-	--,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,a.moneys),1)),4,12)) ms
-	,dbo.getComma(a.total,0) ppm
-	,dbo.getComma(a.moneys,0) ms
+	,dbo.getComma(a.tax,-1) tt
+	,dbo.getComma(a.[money],-1) mm
+	,dbo.getComma(a.mount,2) mt   
+	,dbo.getComma(a.price,2) pe
+	,dbo.getComma(a.total,-1) ppm
+	,dbo.getComma(a.moneys,-1) ms
 	from @tmp a;
 --*********************************************************************************************
 z_vcca05:--z_vcca05
