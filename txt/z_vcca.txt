@@ -1040,7 +1040,7 @@ z_vcca04:--z_vcca04
 		price decimal(15,3),
 		total decimal(15,3),
 		moneys float,
-		cancle bit
+		cancel bit
 	)
 	
 	insert into @tmp(r1,r2,r3
