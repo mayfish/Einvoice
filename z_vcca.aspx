@@ -24,7 +24,6 @@
                 q_gt('acomp', 'stop=1 ', 0, 0, 0);
                 
                 
-                
             });
             
             function q_gfPost() {
