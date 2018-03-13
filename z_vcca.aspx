@@ -214,6 +214,10 @@
 			                    }
 			                });
 									break;
+						default:
+                  			$('#result').hide();
+                  			$('#btnOk').click();
+                  			break;
 					}
 				});
             }
