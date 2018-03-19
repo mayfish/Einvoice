@@ -1400,9 +1400,9 @@
 					case 'XY':
 						q_box('z_vccp_xy.aspx' + "?;;;noa=" + trim($('#txtNoa').val()) + ";"+ r_accy, '', "95%", "95%", q_getMsg("popPrint"));
 						break;
-					case 'SH':
+					/*case 'SH':
 						q_box('z_vccap_sh.aspx' + "?;;;noa=" + trim($('#txtNoa').val())+";" + r_accy, '', "95%", "95%", q_getMsg("popPrint"));
-						break;
+						break;*/
 					case 'PK':
 						q_box('z_vccap_pk.aspx' + "?;;;noa=" + trim($('#txtNoa').val())+";" + r_accy, '', "95%", "95%", q_getMsg("popPrint"));
 						break;
