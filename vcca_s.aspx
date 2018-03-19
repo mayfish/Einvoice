@@ -58,6 +58,7 @@
 				t_bdate = $('#txtBdate').val();
 				t_edate = $('#txtEdate').val();
 				t_mon = $('#txtMon').val();
+				t_memo = $('#txtMemo').val();
 				
 				t_key = $('#txtKey').val();
 				
@@ -66,7 +67,11 @@
 					+ q_sqlPara2("mon", t_mon)
 					+ q_sqlPara2("noa", t_noa)
 					+ q_sqlPara2("datea", t_bdate, t_edate);
-
+					
+			    if(t_memo.length>0){
+                    t_where += " and charindex('" + t_memo + "',memo)>0";
+                }
+                   
 				if(t_key.length>0){
 					t_where +=" and (";
 					t_where += "charindex('" + t_key + "',custno)>0";
@@ -123,7 +128,12 @@
 					<input class="txt" id="txtKey" type="text" style="width:215px; font-size:medium;" />
 					</td>
 				</tr>
-				
+				<tr class='seek_tr'>
+                    <td><span> </span><a id="lblMemo" class="lbl" >備註</a></td>
+                    <td>
+                    <input class="txt" id="txtMemo" type="text" style="width:215px; font-size:medium;" />
+                    </td>
+                </tr>
 			</table>
 			<!--#include file="../inc/seek_ctrl.inc"-->
 		</div>
