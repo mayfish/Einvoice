@@ -99,6 +99,9 @@
 
 			function mainPost() {
 				switch(q_getPara('sys.project').toUpperCase()){
+					case 'FP':
+						$('.einvoice').show();
+						break;
 					case 'SH':
 						$('.einvoice').show();
 						break;

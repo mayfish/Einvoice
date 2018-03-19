@@ -163,6 +163,9 @@
                 q_mask(bbmMask);
 //*********************************************************************************************
 				switch(q_getPara('sys.project').toUpperCase()){
+					case 'FP':
+						$('.einvoice').show();
+						break;
 					case 'RS':
 						$('.einvoice').show();
 						break;
