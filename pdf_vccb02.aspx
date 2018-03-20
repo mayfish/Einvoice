@@ -4,12 +4,15 @@
         static string connString = @"Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
         //static string connStringTNK = @"Data Source=127.0.0.1,1798;Persist Security Info=True;User ID=sa;Password=1qaz2wsx;Database=TNK";
 
+//static string connString = @"Data Source=220.135.3.159,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
+
         public class Vccb
         {
             public string noa;
             public string serial;
             public string comp;
             public string addr;
+            public string datea;
             public string money;
             public string tax;
             public string total;
@@ -51,6 +54,10 @@
                 bvccbno = Request.QueryString["bvccbno"];
             if (Request.QueryString["evccbno"] != null && Request.QueryString["evccbno"].Length > 0)
                 evccbno = Request.QueryString["evccbno"];
+
+   /* db = "st";
+    bvccbno = "GB1070313001";
+    evccbno = "GB1070313001";   */         
             //檢查是否有輸入參數
             if (bvccbno.Length == 0 || evccbno.Length == 0 || db.Length == 0)
             {
@@ -106,11 +113,12 @@
                 System.Data.SqlClient.SqlDataAdapter adapter = new System.Data.SqlClient.SqlDataAdapter();
                 connSource.Open();
                 string query = @"
-            declare @bbm table(
+declare @bbm table(
 	noa nvarchar(20)
 	,serial nvarchar(10)
 	,comp nvarchar(max)
 	,addr nvarchar(max)
+	,datea nvarchar(20)
 	,[money] decimal(25,7)
 	,tax decimal(25,7)
 	,total decimal(25,7)
@@ -134,8 +142,9 @@ declare @bbs table(
 	,isZero bit
 	,isNone bit
 )
-insert into @bbm(noa,serial,comp,addr)
+insert into @bbm(noa,serial,comp,addr,datea)
 select a.noa,isnull(b.serial,''),isnull(b.acomp,''),isnull(b.addr,'')
+	,convert(nvarchar,dbo.ChineseEraName2AD(a.datea),120)
 from vccb a
 left join acomp b on a.cno=b.noa
 where a.noa between @bvccbno and @evccbno
@@ -145,7 +154,7 @@ insert into @bbs(noa,noq,invoiceType,yy,mm,dd,track,number
 	,product,mount,price,[money],tax,isTax,isZero,isNone)
 select a.noa,a.noq
 	,case c.invoiceType when '07' then '一' when '08' then '特' else isnull(c.invoiceType,'') end invoiceType
-	,left(a.idate,3) yy
+	,right('0000'+cast(Year(dbo.ChineseEraName2AD(a.idate)) as nvarchar),4) yy
 	,SUBSTRING(a.idate,5,2) mm
 	,RIGHT(a.idate,2) dd
 	,LEFT(a.invono,2) track
@@ -168,10 +177,10 @@ update @bbm set n=b.n,[money]=b.[money],tax=b.tax,total=b.total
 from @bbm a
 left join (select noa,count(1) n,SUM([money]) [money],SUM(tax) tax,SUM([money]+tax) total from @bbs group by noa) b on a.noa=b.noa
 
-select noa,serial,comp,addr 
-	,dbo.getComma([money],-1) 
-	,dbo.getComma(tax,-1) 
-	,dbo.getComma(total,-1) 
+select noa,serial,comp,addr,datea
+	,dbo.getComma([money],-1) [money]
+	,dbo.getComma(tax,-1) tax
+	,dbo.getComma(total,-1) total
 	,n
 from @bbm
 select noa,noq,invoiceType,yy,mm,dd,track,number,product
@@ -206,10 +215,11 @@ from @bbs
                 bbm[n].serial = System.DBNull.Value.Equals(r.ItemArray[1]) ? null : (System.String)r.ItemArray[1];
                 bbm[n].comp = System.DBNull.Value.Equals(r.ItemArray[2]) ? null : (System.String)r.ItemArray[2];
                 bbm[n].addr = System.DBNull.Value.Equals(r.ItemArray[3]) ? null : (System.String)r.ItemArray[3];
-                bbm[n].money = System.DBNull.Value.Equals(r.ItemArray[4]) ? null : (System.String)r.ItemArray[4];
-                bbm[n].tax = System.DBNull.Value.Equals(r.ItemArray[5]) ? null : (System.String)r.ItemArray[5];
-                bbm[n].total = System.DBNull.Value.Equals(r.ItemArray[6]) ? null : (System.String)r.ItemArray[6];
-                bbm[n].n = System.DBNull.Value.Equals(r.ItemArray[7]) ? 0 : (System.Int32)r.ItemArray[7];
+                bbm[n].datea = System.DBNull.Value.Equals(r.ItemArray[4]) ? null : (System.String)r.ItemArray[4];
+                bbm[n].money = System.DBNull.Value.Equals(r.ItemArray[5]) ? null : (System.String)r.ItemArray[5];
+                bbm[n].tax = System.DBNull.Value.Equals(r.ItemArray[6]) ? null : (System.String)r.ItemArray[6];
+                bbm[n].total = System.DBNull.Value.Equals(r.ItemArray[7]) ? null : (System.String)r.ItemArray[7];
+                bbm[n].n = System.DBNull.Value.Equals(r.ItemArray[8]) ? 0 : (System.Int32)r.ItemArray[8];
                 bbm[n].bbs = new Vccbs[bbm[n].n];
                 m = 0;
                 foreach (System.Data.DataRow s in ds.Tables[1].Rows)
@@ -373,11 +383,11 @@ from @bbs
             cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
             cb.BeginText();
             cb.SetFontAndSize(bfChinese, 14);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "電子發票銷貨退回、進貨退出或折讓證明單證明聯", width / (float)21 * (float)9.4, height / (float)14.8 * (float)12, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, @"電子發票銷貨退回、進貨退出或折讓證明單證明聯", width / (float)21 * (float)9.4, height / (float)14.8 * (float)12, 0);
             cb.SetFontAndSize(bfChinese, 10);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "原", width / (float)21 * (float)1.1, height / (float)14.8 * (float)13, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "開", width / (float)21 * (float)1.1, height / (float)14.8 * (float)12.55, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "立", width / (float)21 * (float)1.1, height / (float)14.8 * (float)12.1, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, @"原", width / (float)21 * (float)1.1, height / (float)14.8 * (float)13, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, @"開", width / (float)21 * (float)1.1, height / (float)14.8 * (float)12.55, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, @"立", width / (float)21 * (float)1.1, height / (float)14.8 * (float)12.1, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "銷", width / (float)21 * (float)1.1, height / (float)14.8 * (float)11.65, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "貨", width / (float)21 * (float)1.1, height / (float)14.8 * (float)11.2, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "發", width / (float)21 * (float)1.5, height / (float)14.8 * (float)13, 0);
@@ -440,13 +450,15 @@ from @bbs
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.comp, width / (float)21 * (float)4.3, height / (float)14.8 * (float)12, 0);
             cb.SetFontAndSize(bfChinese, 8);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.addr, width / (float)21 * (float)4.3, height / (float)14.8 * (float)11.25, 0);
-
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.datea, width / (float)21 * (float)13.5, height / (float)14.8 * (float)11.25, 0);
             cb.SetFontAndSize(bfChinese, 8);
             float bbsH = (float)8.32;
             for (int i = 0; i < vccb.bbs.Length && bbsH>0; i++)
             {
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].invocieType, width / (float)21 * (float)1.05, height / (float)14.8 * (float)bbsH, 0);
+                cb.SetFontAndSize(bfChinese, 6);
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].yy, width / (float)21 * (float)1.55, height / (float)14.8 * (float)bbsH, 0);
+                cb.SetFontAndSize(bfChinese, 8);
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].mm, width / (float)21 * (float)2.3, height / (float)14.8 * (float)bbsH, 0);
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].dd, width / (float)21 * (float)2.9, height / (float)14.8 * (float)bbsH, 0);
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.bbs[i].track, width / (float)21 * (float)3.58, height / (float)14.8 * (float)bbsH, 0);
