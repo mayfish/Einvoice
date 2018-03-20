@@ -109,7 +109,7 @@
 									pdf_vcca01_rs(binvono,einvono,bdate,edate);
 									break;
 								default:
-									window.open("./pdf_Einvo02.aspx?table=vcc&noa="+$('#txtYnoa').val()+"&noq=&db="+q_db);
+									window.open("./pdf_Einvo02.aspx?db="+q_db+"&bno="+$('#txtXnoa1').val()+"&eno="+$('#txtXnoa2').val()+"&bdate="+$('#txtXdate1').val()+"&edate="+$('#txtXdate2').val());
 									break;
 							}
                             break;

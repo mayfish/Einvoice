@@ -254,7 +254,7 @@
 				update a set a.total2 = b.total
 				from @tmp a
 				outer apply (select SUM(total) as total,noa from @tmp where noa=a.noa group by noa)b
-				
+				update @tmp set datea = convert(nvarchar,dbo.ChineseEraName2AD(datea),120)
 				select * from @tmp";
 				
                 System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(queryString, connSource);

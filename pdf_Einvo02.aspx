@@ -3,10 +3,16 @@
     	//電子發票證明聯
         public class ParaIn
         {
-            public string noa="", noq="",acomp="";
+            public string bno="", eno="",bdate="",edate="";
         }
 
-        public class Para
+        public class Invoice
+        {
+            public string noa;
+            public Item[] item;
+        }
+        
+        public class Item
         {
             public string accy, noa, noq;
             public string datea,invono,cust,serial,addr,product;
@@ -69,7 +75,7 @@
             cb.LineTo(375, 70);
             cb.Stroke();
         }
-        public void inputTitle(iTextSharp.text.pdf.PdfContentByte cb ,ArrayList vccLabel,int page)
+        public void inputTitle(iTextSharp.text.pdf.PdfContentByte cb ,Item[] item,int page)
         {
             iTextSharp.text.pdf.BaseFont bfChinese,bold;
             if(Environment.OSVersion.Version.Major>6){
@@ -82,60 +88,60 @@
             cb.BeginText();
             cb.SetFontAndSize(bfChinese, 14);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "電子發票證明聯", 210, 425, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).datea, 225, 405, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Item)item[0]).datea, 225, 405, 0);
             cb.SetFontAndSize(bfChinese, 10);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "發票號碼:" + ((Para)vccLabel[0]).invono, 25, 380, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "發票號碼:" + ((Item)item[0]).invono, 25, 380, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "格    式:25", 450, 380, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "買方:" + ((Para)vccLabel[0]).cust, 25, 355, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號:" + ((Para)vccLabel[0]).serial, 25, 330, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址:" + ((Para)vccLabel[0]).addr, 25, 305, 0);
-            if (vccLabel.Count <= 6)
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "買方:" + ((Item)item[0]).cust, 25, 355, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號:" + ((Item)item[0]).serial, 25, 330, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址:" + ((Item)item[0]).addr, 25, 305, 0);
+            if (item.Length <= 6)
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第1頁/共1頁", 503, 305, 0);
-            else if (vccLabel.Count > 6 && vccLabel.Count % 6 != 0)
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + page + "頁/" + "共" + ((vccLabel.Count / 6) + 1) + "頁", 503, 305, 0);
-            else if (vccLabel.Count > 6 && vccLabel.Count % 6 == 0)
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + page + "頁/" + "共" + (vccLabel.Count / 6) + "頁", 503, 305, 0);
+            else if (item.Length > 6 && item.Length % 6 != 0)
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + page + "頁/" + "共" + ((item.Length / 6) + 1) + "頁", 503, 305, 0);
+            else if (item.Length > 6 && item.Length % 6 == 0)
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + page + "頁/" + "共" + (item.Length / 6) + "頁", 503, 305, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品名", 75, 280, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "數量", 175, 280, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "金額", 325, 280, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "單價", 250, 280, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "備註", 425, 280, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "銷售量合計", 30, 158, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[0]).total2.ToString(), 370, 160, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Item)item[0]).total2.ToString(), 370, 160, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業稅", 31, 120, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "應稅", 80, 120, 0);
-            if(((Para)vccLabel[0]).taxtype=="1")
+            if (((Item)item[0]).taxtype == "1")
 				cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "√", 125, 120, 0);
-			else if(((Para)vccLabel[0]).taxtype=="2")
+            else if (((Item)item[0]).taxtype == "2")
 				cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "√", 200, 120, 0);
-			else if(((Para)vccLabel[0]).taxtype=="4")
+            else if (((Item)item[0]).taxtype == "4")
 				cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "√", 275, 120, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "零稅率", 153, 120, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "免稅", 236, 120, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[0]).total3.ToString(), 370, 120, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Item)item[0]).total3.ToString(), 370, 120, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計", 30, 80, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[0]).total4.ToString(), 370, 80, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Item)item[0]).total4.ToString(), 370, 80, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業人蓋統一發票專用章", 385, 160, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計新台幣(中文大寫)", 30, 42, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ConvertInt(((Para)vccLabel[0]).total4.ToString()), 370, 42, 0);
-            if (((Para)vccLabel[0]).comp.Length > 10)
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ConvertInt(((Item)item[0]).total4.ToString()), 370, 42, 0);
+            if (((Item)item[0]).comp.Length > 10)
             {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方:" + ((Para)vccLabel[0]).comp.Substring(0, 10), 378, 138, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).comp.Substring(10, ((Para)vccLabel[0]).comp.Length - 10), 378, 128, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方:" + ((Item)item[0]).comp.Substring(0, 10), 378, 138, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Item)item[0]).comp.Substring(10, ((Item)item[0]).comp.Length - 10), 378, 128, 0);
             }
             else
             {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方:" + ((Para)vccLabel[0]).comp, 378, 138, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方:" + ((Item)item[0]).comp, 378, 138, 0);
             }
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號:" + ((Para)vccLabel[0]).comp_serial, 378, 115, 0);
-            if (((Para)vccLabel[0]).comp_addr.Length > 10)
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號:" + ((Item)item[0]).comp_serial, 378, 115, 0);
+            if (((Item)item[0]).comp_addr.Length > 10)
             {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址:" + ((Para)vccLabel[0]).comp_addr.Substring(0, 10), 378, 90, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).comp_addr.Substring(10, ((Para)vccLabel[0]).comp_addr.Length - 10), 378, 80, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址:" + ((Item)item[0]).comp_addr.Substring(0, 10), 378, 90, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Item)item[0]).comp_addr.Substring(10, ((Item)item[0]).comp_addr.Length - 10), 378, 80, 0);
             }
             else
             {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址:" + ((Para)vccLabel[0]).comp_addr, 378, 90, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址:" + ((Item)item[0]).comp_addr, 378, 90, 0);
             }
             cb.EndText();
         }
@@ -196,101 +202,125 @@
         	connectionString = "Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database="+db;
 
 			var item = new ParaIn();
-			if (Request.QueryString["noa"] != null && Request.QueryString["noa"].Length > 0)
+            if (Request.QueryString["bno"] != null && Request.QueryString["bno"].Length > 0)
             {
-                item.noa = Request.QueryString["noa"];
+                item.bno = Request.QueryString["bno"];
             }
-            if (Request.QueryString["noq"] != null && Request.QueryString["noq"].Length > 0)
+            if (Request.QueryString["eno"] != null && Request.QueryString["eno"].Length > 0)
             {
-                item.noq = Request.QueryString["noq"];
+                item.eno = Request.QueryString["eno"];
             }
-            if (Request.QueryString["acomp"] != null && Request.QueryString["acomp"].Length > 0)
+            if (Request.QueryString["bdate"] != null && Request.QueryString["bdate"].Length > 0)
             {
-                item.acomp = Request.QueryString["acomp"];
+                item.bdate = Request.QueryString["bdate"];
             }
-            //item.noa = "D1050729001";
-            
+            if (Request.QueryString["edate"] != null && Request.QueryString["edate"].Length > 0)
+            {
+                item.edate = Request.QueryString["edate"];
+            }
             //資料
-            System.Data.DataTable dt = new System.Data.DataTable();
+            System.Data.DataSet ds = new System.Data.DataSet();
+            
             using (System.Data.SqlClient.SqlConnection connSource = new System.Data.SqlClient.SqlConnection(connectionString))
             {
                 System.Data.SqlClient.SqlDataAdapter adapter = new System.Data.SqlClient.SqlDataAdapter();
                 connSource.Open();
                 string queryString = @"
-		            		            declare @tmp table(
-		            accy nvarchar(10),
-		            noa nvarchar(200),
-		            noq nvarchar(100),
-		   			datea nvarchar(30),
-					
-					invono nvarchar(50),
-					cust nvarchar(300),
-					serial nvarchar(50),
-					addr nvarchar(300),
-					product nvarchar(300),
-					mount float,
-					price float, --單價
-					total float, --金額
-					memo nvarchar(300),
-					
-					total2 float,
-					total3 float,
-					total4 float,
-					
-					comp nvarchar(300),
-					comp_serial nvarchar(50),
-					comp_addr nvarchar(300),
-					taxtype nvarchar(10)
-				)
-				insert into @tmp(noa,noq,datea,invono,cust,serial,addr,product,mount,price,total,memo,comp,comp_serial,comp_addr,total3,taxtype,total4)
-				select b.noa,b.noq,a.datea,a.noa,a.comp,a.serial,c.addr_comp,b.product,b.mount,b.price,b.money,a.memo,e.acomp,e.serial,e.addr,a.tax,a.taxtype,a.money
-				from vcca a
-				left join vccas b on a.noa = b.noa
-				left join cust c on a.custno = c.noa
-				left join acomp e on a.cno = e.noa
-				where a.noa=@t_noa
-   				and (len(@t_noq)=0 or b.noq=@t_noq)
-				
-				update a set a.total2 = b.total
-				from @tmp a
-				outer apply (select SUM(total) as total,noa from @tmp where noa=a.noa group by noa)b
-				
-				select * from @tmp";
+		        set @t_eno = case when len(@t_eno)=0 then char(255) else @t_eno end
+                set @t_edate = case when len(@t_edate)=0 then char(255) else @t_edate end
+declare @tmpa table(
+	noa nvarchar(20)
+	,n int
+)
+declare @tmpb table(
+    noa nvarchar(20),
+    noq nvarchar(10),
+	datea nvarchar(30),
+	
+	invono nvarchar(50),
+	cust nvarchar(max),
+	serial nvarchar(50),
+	addr nvarchar(max),
+	product nvarchar(max),
+	mount float,
+	price float, --單價
+	total float, --金額
+	memo nvarchar(max),
+	
+	total2 float,
+	total3 float,
+	total4 float,
+	
+	comp nvarchar(max),
+	comp_serial nvarchar(50),
+	comp_addr nvarchar(max),
+	taxtype nvarchar(10)
+)
+insert into @tmpb(noa,noq,datea,invono,cust,serial,addr,product,mount,price,total,memo,comp,comp_serial,comp_addr,total3,taxtype,total4)
+select top 50 b.noa,b.noq,a.datea,a.noa,a.comp,a.serial,c.addr_comp,b.product,b.mount,b.price,b.money,a.memo,e.acomp,e.serial,e.addr,a.tax,a.taxtype,a.money
+from vcca a
+left join vccas b on a.noa = b.noa
+left join cust c on a.custno = c.noa
+left join acomp e on a.cno = e.noa
+where a.noa between @t_bno and @t_eno
+and a.datea between @t_bdate and @t_edate
+order by a.noa,b.noq
+
+insert into @tmpa(noa,n)select noa,count(1) from @tmpb group by noa order by noa
+
+update @tmpb set total2 = b.total
+from @tmpb a
+outer apply (select SUM(total) as total,noa from @tmpb where noa=a.noa group by noa)b
+update @tmpb set datea = convert(nvarchar,dbo.ChineseEraName2AD(datea),120)
+select * from @tmpa
+select * from @tmpb";
 				
                 System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(queryString, connSource);
-                cmd.Parameters.AddWithValue("@t_noa", item.noa);
-                cmd.Parameters.AddWithValue("@t_noq", item.noq);
+                cmd.Parameters.AddWithValue("@t_bno", item.bno);
+                cmd.Parameters.AddWithValue("@t_eno", item.eno);
+                cmd.Parameters.AddWithValue("@t_bdate", item.bdate);
+                cmd.Parameters.AddWithValue("@t_edate", item.edate);
                 adapter.SelectCommand = cmd;
-                adapter.Fill(dt);
+                adapter.Fill(ds);
                 connSource.Close();
             }
-            ArrayList vccLabel = new ArrayList();
-            foreach (System.Data.DataRow r in dt.Rows)
+            Invoice[] invoice = new Invoice[ds.Tables[0].Rows.Count];
+
+            for (int i = 0; i < invoice.Length; i++)
             {
-                
-                Para pa = new Para();
-                pa.accy = System.DBNull.Value.Equals(r.ItemArray[0]) ? "" : (System.String)r.ItemArray[0];
-                pa.noa = System.DBNull.Value.Equals(r.ItemArray[1]) ? "" : (System.String)r.ItemArray[1];
-                pa.noq = System.DBNull.Value.Equals(r.ItemArray[2]) ? "" : (System.String)r.ItemArray[2];
-                pa.datea = System.DBNull.Value.Equals(r.ItemArray[3]) ? "" : (System.String)r.ItemArray[3];
-                pa.invono = System.DBNull.Value.Equals(r.ItemArray[4]) ? "" : (System.String)r.ItemArray[4];
-                pa.cust = System.DBNull.Value.Equals(r.ItemArray[5]) ? "" : (System.String)r.ItemArray[5];
-                pa.serial = System.DBNull.Value.Equals(r.ItemArray[6]) ? "" : (System.String)r.ItemArray[6];
-                pa.addr = System.DBNull.Value.Equals(r.ItemArray[7]) ? "" : (System.String)r.ItemArray[7];
-                pa.product = System.DBNull.Value.Equals(r.ItemArray[8]) ? "" : (System.String)r.ItemArray[8];
-                pa.mount = System.DBNull.Value.Equals(r.ItemArray[9]) ? 0 : (float)(System.Double)r.ItemArray[9];
-                pa.price = System.DBNull.Value.Equals(r.ItemArray[10]) ? 0 : (float)(System.Double)r.ItemArray[10];
-                pa.total = System.DBNull.Value.Equals(r.ItemArray[11]) ? 0 : (float)(System.Double)r.ItemArray[11];
-                pa.memo = System.DBNull.Value.Equals(r.ItemArray[12]) ? "" : (System.String)r.ItemArray[12];
-                pa.total2 = System.DBNull.Value.Equals(r.ItemArray[13]) ? 0 : (float)(System.Double)r.ItemArray[13];
-                pa.total3 = System.DBNull.Value.Equals(r.ItemArray[14]) ? 0 : (float)(System.Double)r.ItemArray[14];
-                pa.total4 = System.DBNull.Value.Equals(r.ItemArray[15]) ? 0 : (float)(System.Double)r.ItemArray[15];
-                pa.comp = System.DBNull.Value.Equals(r.ItemArray[16]) ? "" : (System.String)r.ItemArray[16];
-                pa.comp_serial = System.DBNull.Value.Equals(r.ItemArray[17]) ? "" : (System.String)r.ItemArray[17];
-                pa.comp_addr = System.DBNull.Value.Equals(r.ItemArray[18]) ? "" : (System.String)r.ItemArray[18];
-				pa.taxtype = System.DBNull.Value.Equals(r.ItemArray[19]) ? "" : (System.String)r.ItemArray[19];
-                vccLabel.Add(pa);
+                invoice[i] = new Invoice();
+                invoice[i].noa = System.DBNull.Value.Equals(ds.Tables[0].Rows[i].ItemArray[0]) ? "" : (System.String)ds.Tables[0].Rows[i].ItemArray[0];
+                invoice[i].item = new Item[System.DBNull.Value.Equals(ds.Tables[0].Rows[i].ItemArray[1]) ? 0 : (System.Int32)ds.Tables[0].Rows[i].ItemArray[1]];
+                int n = 0;
+                for(int j=0;j<ds.Tables[1].Rows.Count;j++){
+                    if(invoice[i].noa == (System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[0]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[0])){
+                        invoice[i].item[n] = new Item();        
+                       
+                        invoice[i].item[n].noa = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[0]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[0];
+                        invoice[i].item[n].noq = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[1]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[1];
+                        invoice[i].item[n].datea = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[2]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[2];
+                        invoice[i].item[n].invono = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[3]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[3];
+                        invoice[i].item[n].cust = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[4]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[4];
+                        invoice[i].item[n].serial = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[5]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[5];
+                        invoice[i].item[n].addr = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[6]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[6];
+                        invoice[i].item[n].product = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[7]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[7];
+                        invoice[i].item[n].mount = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[8]) ? 0 : (float)(System.Double)ds.Tables[1].Rows[j].ItemArray[8];
+                        invoice[i].item[n].price = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[9]) ? 0 : (float)(System.Double)ds.Tables[1].Rows[j].ItemArray[9];
+                        invoice[i].item[n].total = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[10]) ? 0 : (float)(System.Double)ds.Tables[1].Rows[j].ItemArray[10];
+                        invoice[i].item[n].memo = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[11]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[11];
+                        invoice[i].item[n].total2 = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[12]) ? 0 : (float)(System.Double)ds.Tables[1].Rows[j].ItemArray[12];
+                        invoice[i].item[n].total3 = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[13]) ? 0 : (float)(System.Double)ds.Tables[1].Rows[j].ItemArray[13];
+                        invoice[i].item[n].total4 = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[14]) ? 0 : (float)(System.Double)ds.Tables[1].Rows[j].ItemArray[14];
+                        invoice[i].item[n].comp = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[15]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[15];
+                        invoice[i].item[n].comp_serial = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[16]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[16];
+                        invoice[i].item[n].comp_addr = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[17]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[17];
+				        invoice[i].item[n].taxtype = System.DBNull.Value.Equals(ds.Tables[1].Rows[j].ItemArray[18]) ? "" : (System.String)ds.Tables[1].Rows[j].ItemArray[18];
+                        n++;
+                    }  
+                }
             }
+            
+            
             //-----PDF--------------------------------------------------------------------------------------------------
             var doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(525, 450), 0, 0, 0, 0);
             iTextSharp.text.pdf.PdfWriter pdfWriter = iTextSharp.text.pdf.PdfWriter.GetInstance(doc1, stream);
@@ -307,7 +337,7 @@
             
             doc1.Open();
             iTextSharp.text.pdf.PdfContentByte cb = pdfWriter.DirectContent;
-            if (vccLabel.Count == 0)
+            if (invoice.Length == 0)
             {
                 cb.SetColorFill(iTextSharp.text.BaseColor.RED);
                 cb.BeginText();
@@ -317,36 +347,42 @@
             }
             else
             {
-                for (int i = 0,y=260,page=1; i < vccLabel.Count; i++,y-=15)
+                for (int j = 0; j < invoice.Length; j++)
                 {
-                    if (i == 0)
-                    {
-                        drawLine(cb);
-                        inputTitle(cb,vccLabel,page);
-                    }
-                    if (i >= 6 && i % 6 == 0)
-                    {
+                    if(j>0)
                         doc1.NewPage();
-                        page++;
-                        y = 260;
-                        drawLine(cb);
-                        inputTitle(cb, vccLabel,page);
+                    for (int i = 0, y = 260, page = 1; i < invoice[j].item.Length; i++, y -= 15)
+                    {
+                        if (i == 0)
+                        {
+                            drawLine(cb);
+                            inputTitle(cb, invoice[j].item, page);
+                        }
+                        if (i >= 6 && i % 6 == 0)
+                        {
+                            doc1.NewPage();
+                            page++;
+                            y = 260;
+                            drawLine(cb);
+                            inputTitle(cb, invoice[j].item, page);
+                        }
+                        //TEXT
+                        cb.BeginText();
+                        cb.SetFontAndSize(bfChinese, 10);
+                        cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Item)invoice[j].item[i]).product, 30, y, 0);
+                        cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Item)invoice[j].item[i]).mount.ToString(), 210, y, 0);
+                        cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Item)invoice[j].item[i]).price.ToString(), 290, y, 0);
+                        cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Item)invoice[j].item[i]).total.ToString(), 370, y, 0);
+                        cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Item)invoice[j].item[i]).memo, 380, y, 0);
+                        cb.EndText();
                     }
-                    //TEXT
-                    cb.BeginText();
-                    cb.SetFontAndSize(bfChinese, 10);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[i]).product, 30, y, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[i]).mount.ToString(), 210, y, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[i]).price.ToString(), 290, y, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[i]).total.ToString(), 370, y, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[i]).memo, 380, y, 0);
-                    cb.EndText();
                 }
+                    
             }
             doc1.Close();
             Response.ContentType = "application/octec-stream;";
             Response.AddHeader("Content-transfer-encoding", "binary");
-            Response.AddHeader("Content-Disposition", "attachment;filename=invo2_" + item.noa + ".pdf");
+            Response.AddHeader("Content-Disposition", "attachment;filename=EinvoiceA5.pdf");
             Response.BinaryWrite(stream.ToArray());
             Response.End();
         }
