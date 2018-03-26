@@ -556,7 +556,7 @@
 		,total decimal(15,5)
 	)
 	insert into @tmps(InvoiceNumber,product,mount,price,total)
-	select a.noa,replace(a.product,':','') --移除 :
+	select a.noa,ltrim(rtrim(replace(a.product,':',''))) --移除 :
         ,a.mount,a.price,isnull(a.[money],0)+isnull(a.[tax],0)
 	from vccas a
 	left join @tmp b on b.InvoiceNumber=a.noa
