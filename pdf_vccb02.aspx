@@ -4,7 +4,7 @@
         static string connString = @"Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
         //static string connStringTNK = @"Data Source=127.0.0.1,1798;Persist Security Info=True;User ID=sa;Password=1qaz2wsx;Database=TNK";
 
-//static string connString = @"Data Source=220.135.3.159,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database=";
+
 
         public class Vccb
         {
@@ -55,9 +55,9 @@
             if (Request.QueryString["evccbno"] != null && Request.QueryString["evccbno"].Length > 0)
                 evccbno = Request.QueryString["evccbno"];
 
-   /* db = "st";
-    bvccbno = "GB1070313001";
-    evccbno = "GB1070313001";   */         
+   /* db = "dc";
+    bvccbno = "GB1070301002";
+    evccbno = "GB1070301002";*/           
             //檢查是否有輸入參數
             if (bvccbno.Length == 0 || evccbno.Length == 0 || db.Length == 0)
             {
@@ -316,8 +316,8 @@ from @bbs
             cb.MoveTo(width / (float)21 * (float)2, height / (float)14.8 * (float)13.4);
             cb.LineTo(width / (float)21 * (float)2, height / (float)14.8 * (float)11);
 
-            cb.MoveTo(width / (float)21 * (float)4.2, height / (float)14.8 * (float)13.4);
-            cb.LineTo(width / (float)21 * (float)4.2, height / (float)14.8 * (float)11);
+            cb.MoveTo(width / (float)21 * (float)3.6, height / (float)14.8 * (float)13.4);
+            cb.LineTo(width / (float)21 * (float)3.6, height / (float)14.8 * (float)11);
 
             cb.MoveTo(width / (float)21 * (float)1.45, height / (float)14.8 * (float)10.4);
             cb.LineTo(width / (float)21 * (float)1.45, height / (float)14.8 * (float)5.8);
@@ -395,11 +395,11 @@ from @bbs
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "單", width / (float)21 * (float)1.5, height / (float)14.8 * (float)11.8, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "位", width / (float)21 * (float)1.5, height / (float)14.8 * (float)11.2, 0);
 
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營利事業", width / (float)21 * (float)2.4, height / (float)14.8 * (float)13, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號", width / (float)21 * (float)2.4, height / (float)14.8 * (float)12.6, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "名　　稱", width / (float)21 * (float)2.4, height / (float)14.8 * (float)12, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業所在", width / (float)21 * (float)2.4, height / (float)14.8 * (float)11.45, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地　　址", width / (float)21 * (float)2.4, height / (float)14.8 * (float)11.05, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營利事業", width / (float)21 * (float)2.1, height / (float)14.8 * (float)13, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號", width / (float)21 * (float)2.1, height / (float)14.8 * (float)12.6, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "名　　稱", width / (float)21 * (float)2.1, height / (float)14.8 * (float)12, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業所在", width / (float)21 * (float)2.1, height / (float)14.8 * (float)11.45, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地　　址", width / (float)21 * (float)2.1, height / (float)14.8 * (float)11.05, 0);
             cb.SetFontAndSize(bfChinese, 12);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "開　立　發　票", width / (float)21 * (float)2.3, height / (float)14.8 * (float)10.55, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "退　貨　或　折　讓　內　容", width / (float)21 * (float)9.7, height / (float)14.8 * (float)10.55, 0);
@@ -446,10 +446,10 @@ from @bbs
             cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
             cb.BeginText();
             cb.SetFontAndSize(bfChinese, 10);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.serial, width / (float)21 * (float)4.3, height / (float)14.8 * (float)12.8, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.comp, width / (float)21 * (float)4.3, height / (float)14.8 * (float)12, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.serial, width / (float)21 * (float)3.65, height / (float)14.8 * (float)12.8, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.comp, width / (float)21 * (float)3.65, height / (float)14.8 * (float)12, 0);
             cb.SetFontAndSize(bfChinese, 8);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.addr, width / (float)21 * (float)4.3, height / (float)14.8 * (float)11.25, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.addr, width / (float)21 * (float)3.65, height / (float)14.8 * (float)11.25, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, vccb.datea, width / (float)21 * (float)13.5, height / (float)14.8 * (float)11.25, 0);
             cb.SetFontAndSize(bfChinese, 8);
             float bbsH = (float)8.32;

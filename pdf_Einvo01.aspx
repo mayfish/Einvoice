@@ -21,22 +21,22 @@
             cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
             cb.SetColorStroke(iTextSharp.text.BaseColor.BLACK);
             cb.SetLineWidth(1);
-            cb.MoveTo(25, 535);//外框線
-            cb.LineTo(503, 535);
-            cb.LineTo(503, 20);
+            cb.MoveTo(25, 655);//外框線
+            cb.LineTo(570, 655);
+            cb.LineTo(570, 20);
             cb.LineTo(25, 20);
-            cb.LineTo(25, 535);
+            cb.LineTo(25, 655);
 
-            cb.MoveTo(25, 515);//內框線(橫上)
-            cb.LineTo(503, 515);
+            cb.MoveTo(25, 635);//內框線(橫上)
+            cb.LineTo(570, 635);
 
-            cb.MoveTo(150, 535);//內框線(直)
+            cb.MoveTo(150, 655);//內框線(直)
             cb.LineTo(150, 175);
-            cb.MoveTo(225, 535);
+            cb.MoveTo(225, 655);
             cb.LineTo(225, 175);
-            cb.MoveTo(300, 535);
+            cb.MoveTo(300, 655);
             cb.LineTo(300, 70);
-            cb.MoveTo(375, 535);
+            cb.MoveTo(375, 655);
             cb.LineTo(375, 20);
 
             cb.MoveTo(70, 150);
@@ -58,9 +58,9 @@
             cb.LineTo(265, 95);
 
             cb.MoveTo(25, 175);//內框線(橫下)
-            cb.LineTo(503, 175);
+            cb.LineTo(570, 175);
             cb.MoveTo(25, 150);
-            cb.LineTo(503, 150);
+            cb.LineTo(570, 150);
 
             cb.MoveTo(25, 95);
             cb.LineTo(375, 95);
@@ -80,26 +80,26 @@
             	bold = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\msjhbd.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
             }
             cb.BeginText();
-            cb.SetFontAndSize(bfChinese, 14);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "電子發票證明聯", 210, 700, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).datea, 225, 675, 0);
+            cb.SetFontAndSize(bfChinese, 16);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "電子發票證明聯", 297, 800, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, ((Para)vccLabel[0]).datea, 297, 780, 0);
             cb.SetFontAndSize(bfChinese, 10);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "發票號碼:" + ((Para)vccLabel[0]).invono, 25, 625, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "格    式:25", 450, 625, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "買方:" + ((Para)vccLabel[0]).cust, 25, 600, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號:" + ((Para)vccLabel[0]).serial, 25, 575, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址:" + ((Para)vccLabel[0]).addr, 25, 550, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "發票號碼：" + ((Para)vccLabel[0]).invono, 25, 750, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "格    式：25", 570, 750, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "買　　方：" + ((Para)vccLabel[0]).cust, 25, 725, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號：" + ((Para)vccLabel[0]).serial, 25, 695, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地　　址：" + ((Para)vccLabel[0]).addr, 25, 670, 0);
             if (vccLabel.Count<=22)
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第1頁/共1頁", 503, 550, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第1頁/共1頁", 570, 670, 0);
             else if (vccLabel.Count > 22 && vccLabel.Count % 22 != 0)
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + page + "頁/" + "共" + ((vccLabel.Count / 22)+1) + "頁", 503, 550, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + page + "頁/" + "共" + ((vccLabel.Count / 22) + 1) + "頁", 570, 670, 0);
             else if (vccLabel.Count > 22 && vccLabel.Count % 22 == 0)
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + page + "頁/" + "共" + (vccLabel.Count / 22) + "頁", 503, 550, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品名", 75, 520, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "數量", 175, 520, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "金額", 325, 520, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "單價", 250, 520, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "備註", 425, 520, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "第" + page + "頁/" + "共" + (vccLabel.Count / 22) + "頁", 570, 670, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品名", 75, 640, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "數量", 175, 640, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "金額", 325, 640, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "單價", 250, 640, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "備註", 473, 640, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "銷售量合計", 30, 158, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[0]).total2.ToString(), 370, 160, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業稅", 31, 120, 0);
@@ -115,28 +115,31 @@
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[0]).total3.ToString(), 370, 120, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計", 30, 80, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[0]).total4.ToString(), 370, 80, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業人蓋統一發票專用章", 385, 160, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "營業人蓋統一發票專用章", 473, 160, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計新台幣(中文大寫)", 30, 42, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ConvertInt(((Para)vccLabel[0]).total4.ToString()), 370, 42, 0);
-            if (((Para)vccLabel[0]).comp.Length > 10)
+            if (((Para)vccLabel[0]).comp.Length > 15)
             {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方:" + ((Para)vccLabel[0]).comp.Substring(0, 10), 378, 138, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).comp.Substring(10, ((Para)vccLabel[0]).comp.Length - 10), 378, 128, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方：" + ((Para)vccLabel[0]).comp.Substring(0, 15), 378, 138, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).comp.Substring(15, ((Para)vccLabel[0]).comp.Length - 15), 378, 126, 0);
             }
             else
             {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方:" + ((Para)vccLabel[0]).comp, 378, 138, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方：" + ((Para)vccLabel[0]).comp, 378, 138, 0);
             }
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號:" + ((Para)vccLabel[0]).comp_serial, 378, 115, 0);
-            if (((Para)vccLabel[0]).comp_addr.Length > 10)
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號：" + ((Para)vccLabel[0]).comp_serial, 378, 115, 0);
+            /*if (((Para)vccLabel[0]).comp_addr.Length > 15)
             {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址:" + ((Para)vccLabel[0]).comp_addr.Substring(0, 10), 378, 90, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).comp_addr.Substring(10, ((Para)vccLabel[0]).comp_addr.Length - 10), 378, 80, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址：" + ((Para)vccLabel[0]).comp_addr.Substring(0, 15), 378, 90, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).comp_addr.Substring(15, ((Para)vccLabel[0]).comp_addr.Length - 15), 378, 78, 0);
             }
             else
             {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址:" + ((Para)vccLabel[0]).comp_addr, 378, 90, 0);
-            }
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址：" + ((Para)vccLabel[0]).comp_addr, 378, 90, 0);
+            }*/
+            //地址斷行的方式沒很完善,故先不做換行處理
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "地址：", 378, 90, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).comp_addr, 378, 78, 0);
             cb.EndText();
         }
         
@@ -194,7 +197,7 @@
         	if(Request.QueryString["db"] !=null && Request.QueryString["db"].Length>0)
         	db= Request.QueryString["db"];
         	connectionString = "Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database="+db;
-
+            
 			var item = new ParaIn();
 			if (Request.QueryString["noa"] != null && Request.QueryString["noa"].Length > 0)
             {
@@ -208,7 +211,6 @@
             {
                 item.acomp = Request.QueryString["acomp"];
             }
-            //item.noa = "D1050729001";
             
             //資料
             System.Data.DataTable dt = new System.Data.DataTable();
@@ -292,7 +294,7 @@
                 vccLabel.Add(pa);
             }
             //-----PDF--------------------------------------------------------------------------------------------------
-            var doc1 = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(525, 743), 0, 0, 0, 0);
+            var doc1 = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4);
             iTextSharp.text.pdf.PdfWriter pdfWriter = iTextSharp.text.pdf.PdfWriter.GetInstance(doc1, stream);
             //font
             iTextSharp.text.pdf.BaseFont bfChinese,bold;
@@ -317,7 +319,7 @@
             }
             else
             {
-                for (int i = 0,y=503,page=1; i < vccLabel.Count; i++,y-=15)
+                for (int i = 0,y=615,page=1; i < vccLabel.Count; i++,y-=15)
                 {
                     if (i == 0)
                     {
@@ -328,7 +330,7 @@
                     {
                         doc1.NewPage();
                         page++;
-                        y = 503;
+                        y = 615;
                         drawLine(cb);
                         inputTitle(cb, vccLabel,page);
                     }
@@ -336,7 +338,7 @@
                     cb.BeginText();
                     cb.SetFontAndSize(bfChinese, 10);
                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[i]).product, 30, y, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[i]).mount.ToString(), 210, y, 0);
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[i]).mount.ToString(), 215, y, 0);
                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[i]).price.ToString(), 290, y, 0);
                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Para)vccLabel[i]).total.ToString(), 370, y, 0);
                     cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[i]).memo, 380, y, 0);
