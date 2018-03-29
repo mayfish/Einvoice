@@ -173,6 +173,29 @@
                 $('#btnOk').before($('#btnOk').clone().attr('id', 'btnOk2').show()).hide();
 				$('#btnOk2').click(function() {
 					switch($('#q_report').data('info').radioIndex) {
+						case 6:
+							switch(q_getPara('sys.project').toUpperCase()){
+								case 'FP':
+									$('#result').hide();
+                  					$('#btnOk').click();
+									break;
+								case 'SH':
+									$('#result').hide();
+                  					$('#btnOk').click();
+									break;
+								case 'RS':
+									$('#result').hide();
+                  					$('#btnOk').click();
+									break;
+								case 'XY':
+									$('#result').hide();
+                  					$('#btnOk').click();
+									break;
+								default:
+									alert('未使用電子發票');
+									break;
+							}
+                  			break;
 						case 7:
 							var t_mon = $.trim($('#txtXmon1').val());
 							var t_cno = $.trim($('#txtXcno').val());

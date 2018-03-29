@@ -162,6 +162,7 @@
 	
 	delete @tmp where not(invono between @t_binvono and @t_einvono)
 	----------------------------------------------------------------------------------------------------------
+	begin try
 	--發票上傳狀態
 	update @tmp set tnk_type='',invoice_identifier = invono+[invoice_year]
 	
@@ -266,6 +267,10 @@
 		where invoice_identifier like 'D0501'+a.invoice_identifier+'%'
 		order by message_dts desc ) q
 	where a.gno='1'
+	end try
+	begin catch
+		--nothing
+	end catch
 	
 	--交換、存證不能亂用
 	update @tmp set tnk_type='B2B' 
