@@ -150,6 +150,10 @@
                 isdetail = Request.QueryString["isdetail"].ToUpper()=="TRUE"?true:false;
             if (Request.QueryString["isautoprint"] != null && Request.QueryString["isautoprint"].Length > 0)
                 isautoprint = Request.QueryString["isautoprint"].ToUpper() == "TRUE" ? true : false;
+
+            /*binvono = "CD97111178";
+            einvono = "CD97111178";
+            isdetail = true;*/
             
             //檢查是否有輸入參數
             if (binvono.Length == 0 || einvono.Length == 0 || db.Length==0)
@@ -459,10 +463,10 @@
             cb.SetFontAndSize(bold, 7);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品名/數量", 2, bbsH - 40, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "單價", 90, bbsH - 40, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "金額", 120, bbsH - 40, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "金額", 130, bbsH - 40, 0);
             cb.EndText();
             cb.MoveTo(2, bbsH - 42);
-            cb.LineTo(120, bbsH - 42);
+            cb.LineTo(130, bbsH - 42);
             cb.Stroke();
             cb.BeginText();
             cb.SetFontAndSize(bfChinese, 7);
@@ -471,14 +475,14 @@
             {
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.bbs[i].product + "*" + invoice.bbs[i].cmount, 2, top - i * 10, 0);
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].cprice, 90, top - i * 10, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].ctotal, 120, top - i * 10, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].ctotal, 130, top - i * 10, 0);
 
             }
             //銷售額,營業稅,(應稅、零稅率、免稅),總 計
             top = bbsH - 50f - (invoice.bbs.Length == 0 ? 0 : (invoice.bbs.Length - 1) * 10);
             cb.EndText();
             cb.MoveTo(2, top-2);
-            cb.LineTo(120, top-2);
+            cb.LineTo(130, top-2);
             cb.Stroke();
             cb.BeginText();
             
@@ -487,10 +491,10 @@
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "營業稅：", 2, top - 20, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總 計：", 2, top - 30, 0);
             cb.SetFontAndSize(bfChinese, 7);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.cmoney, 120, top - 10, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.cmoney, 130, top - 10, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "("+invoice.InvoiceTaxtype+")", 50, top - 20, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.ctax, 120, top - 20, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.ctotal, 120, top - 30, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.ctax, 130, top - 20, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.ctotal, 130, top - 30, 0);
             
             cb.EndText();
             doc1.Close();
