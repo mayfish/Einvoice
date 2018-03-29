@@ -150,6 +150,7 @@
                 isdetail = Request.QueryString["isdetail"].ToUpper()=="TRUE"?true:false;
             if (Request.QueryString["isautoprint"] != null && Request.QueryString["isautoprint"].Length > 0)
                 isautoprint = Request.QueryString["isautoprint"].ToUpper() == "TRUE" ? true : false;
+            
             //檢查是否有輸入參數
             if (binvono.Length == 0 || einvono.Length == 0 || db.Length==0)
             {
@@ -456,9 +457,9 @@
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.SellerTel, 22, bbsH - 30, 0);
             //品名,數量,單價
             cb.SetFontAndSize(bold, 7);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品名", 2, bbsH - 40, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "數量", 90, bbsH - 40, 0);
-            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "單價", 120, bbsH - 40, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品名/數量", 2, bbsH - 40, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "單價", 90, bbsH - 40, 0);
+            cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "金額", 120, bbsH - 40, 0);
             cb.EndText();
             cb.MoveTo(2, bbsH - 42);
             cb.LineTo(120, bbsH - 42);
@@ -468,9 +469,9 @@
             float top = bbsH - 50f;
             for (int i = 0; i < invoice.bbs.Length; i++)
             {
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.bbs[i].product, 2, top - i * 10, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].cmount, 90, top - i * 10, 0);
-                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].cprice, 120, top - i * 10, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, invoice.bbs[i].product + "*" + invoice.bbs[i].cmount, 2, top - i * 10, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].cprice, 90, top - i * 10, 0);
+                cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, invoice.bbs[i].ctotal, 120, top - i * 10, 0);
 
             }
             //銷售額,營業稅,(應稅、零稅率、免稅),總 計
