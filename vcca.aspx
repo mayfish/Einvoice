@@ -750,7 +750,8 @@
 				
 				$('#txtNoa').change(function(e) {
 					$('#txtNoa').val($('#txtNoa').val().toUpperCase());
-					q_func('qtxt.query.checkdata', 'vcca.txt,checkdata,' +q_cur+';'+$('#txtNoa').val()+';'+$('#txtCno').val()+';'+$('#txtDatea').val());
+					if($.trim($('#txtNoa').val()).length>0)
+						q_func('qtxt.query.checkdata', 'vcca.txt,checkdata,' +q_cur+';'+$('#txtNoa').val()+';'+$('#txtCno').val()+';'+$('#txtDatea').val());
 				});
 				$('#txtTax').change(function() {
 					sum();
@@ -938,7 +939,8 @@
                 		$('#txtBuyer').val($('#txtBuyer').val().replace(/(.*)\+(.*)/,'$2'));
                 		break;
                     case 'txtCno':
-                        q_func('qtxt.query.checkdata', 'vcca.txt,checkdata,' +q_cur+';'+$('#txtNoa').val()+';'+$('#txtCno').val()+';'+$('#txtDatea').val());
+                    	if($.trim($('#txtNoa').val()).length>0)
+                        	q_func('qtxt.query.checkdata', 'vcca.txt,checkdata,' +q_cur+';'+$('#txtNoa').val()+';'+$('#txtCno').val()+';'+$('#txtDatea').val());
                         break;
                 	case 'txtProductno_':
                 		var n = b_seq;
