@@ -1044,6 +1044,9 @@
 	                			case 'ES':
 	                				//再興不檢查庫存
 	                				break;
+	                			case 'FP':
+	                				//榮泉不檢查庫存
+	                				break;
 	                			default:
 	                				if(t_curmount>t_mount){
 			                			alert('產品【'+t_productno+'】'+t_date+' 庫存：'+t_mount);
