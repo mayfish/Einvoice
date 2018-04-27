@@ -109,7 +109,11 @@
 									pdf_vcca01_rs(binvono,einvono,bdate,edate);
 									break;
 								default:
-									window.open("./pdf_Einvo02.aspx?db="+q_db+"&bno="+$('#txtXnoa1').val()+"&eno="+$('#txtXnoa2').val()+"&bdate="+$('#txtXdate1').val()+"&edate="+$('#txtXdate2').val());
+								    if (q_getPara('sys.project').toUpperCase()=='FP'){
+                                        window.open("./pdf_Einvo02_half.aspx?db="+q_db+"&bno="+$('#txtXnoa1').val()+"&eno="+$('#txtXnoa2').val()+"&bdate="+$('#txtXdate1').val()+"&edate="+$('#txtXdate2').val());
+                                    }else{
+                                        window.open("./pdf_Einvo02.aspx?db="+q_db+"&bno="+$('#txtXnoa1').val()+"&eno="+$('#txtXnoa2').val()+"&bdate="+$('#txtXdate1').val()+"&edate="+$('#txtXdate2').val());
+                                    }
 									break;
 							}
                             break;
