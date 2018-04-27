@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" Debug="true"%>
+﻿﻿<%@ Page Language="C#" Debug="true"%>
     <script language="c#" runat="server">     
     	//電子發票證明聯
         public class ParaIn
@@ -86,10 +86,10 @@
             	bold = iTextSharp.text.pdf.BaseFont.CreateFont(@"C:\windows\fonts\msjhbd.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
             }
             cb.BeginText();
-            cb.SetFontAndSize(bfChinese, 14);
+            cb.SetFontAndSize(bfChinese, 15);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "電子發票證明聯", 297, 390, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, ((Item)item[0]).datea, 297, 370, 0);
-            cb.SetFontAndSize(bfChinese, 10);
+            cb.SetFontAndSize(bfChinese, 11);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "發票號碼：" + ((Item)item[0]).invono, 25, 360, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, "格    式：25", 570, 360, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "買　　方：" + ((Item)item[0]).cust, 25, 340, 0);
@@ -371,7 +371,7 @@ select * from @tmpb";
                         }
                         //TEXT
                         cb.BeginText();
-                        cb.SetFontAndSize(bfChinese, 10);
+                        cb.SetFontAndSize(bfChinese, 11);
                         cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Item)invoice[j].item[i]).product, 30, y, 0);
                         cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Item)invoice[j].item[i]).mount.ToString(), 210, y, 0);
                         cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ((Item)invoice[j].item[i]).price.ToString(), 290, y, 0);
