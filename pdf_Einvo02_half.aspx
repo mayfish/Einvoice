@@ -326,7 +326,7 @@
                         if (i >= 6 && i % 6 == 0){
                             doc1.NewPage();
                             page++;
-                            y = 260;
+                            y = 235;
                             drawLine(cb);
                             inputTitle(cb, invoice[j].item, page);
                         }
