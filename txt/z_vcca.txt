@@ -1030,19 +1030,21 @@ z_vcca04:--z_vcca04
 		price decimal(15,3),
 		total decimal(15,3),
 		moneys float,
-		cancel bit
+		cancel bit,
+		memos nvarchar(max)
 	)
 	
 	insert into @tmp(r1,r2,r3
 		,noa,noq,custno,cust,nick,datea,taxtype,tax,[money]
 		,productno,product,unit,mount,price,total,moneys
-		,cancel)
+		,cancel,memos)
 	select ROW_NUMBER()over(partition by isnull(b.datea,'') order by isnull(b.datea,''),isnull(a.noa,''),isnull(a.noq,'')) 
 		,ROW_NUMBER()over(partition by isnull(b.datea,''),isnull(a.noa,'') order by isnull(b.datea,''),isnull(a.noa,''),isnull(a.noq,''))
 		,ROW_NUMBER()over(partition by isnull(b.datea,''),isnull(a.noa,''),isnull(a.noq,'') order by isnull(b.datea,''),isnull(a.noa,''),isnull(a.noq,''))
 		,a.noa,a.noq,b.custno,left(b.comp,9),b.nick,b.datea,b.taxtype,b.tax,b.[money]
 		,a.productno,a.product,a.unit,a.mount,a.price,(b.tax+b.money),isnull(a.[money],0)+ISNULL(a.tax,0)
 		,ISNULL(b.cancel,0)
+		,a.memo
 	from vccas a
 	left join vcca b on a.noa=b.noa
 	where a.noa is not null
@@ -1071,6 +1073,7 @@ z_vcca04:--z_vcca04
 	,dbo.getComma(a.price,2) pe
 	,dbo.getComma(a.total,-1) ppm
 	,dbo.getComma(a.moneys,-1) ms
+	,a.memos memos
 	from @tmp a;
 --*********************************************************************************************
 z_vcca05:--z_vcca05
