@@ -21,22 +21,7 @@
             var z_cno=r_cno,z_acomp=r_comp,t_invoicetype='';
             $(document).ready(function() {
                 q_getId();
-                q_gt('acomp', 'stop=1 ', 0, 0, 0);
-                
-                if(q_getPara('sys.project').toUpperCase()=='ES'){
-                        for(var i=0;i<$('#q_report').data().info.reportData.length;i++){
-                            if(
-                                $('#q_report').data().info.reportData[i].report=='z_vcca03' 
-                                || $('#q_report').data().info.reportData[i].report=='z_vcca04' 
-                                || $('#q_report').data().info.reportData[i].report=='z_vcca05' 
-                                || $('#q_report').data().info.reportData[i].report=='z_vcca06'
-                                || $('#q_report').data().info.reportData[i].report=='z_vcca07'
-                            ){ 
-                                $('#q_report div div').eq(i).hide();
-                            }
-                        }
-    
-                }     
+                q_gt('acomp', 'stop=1 ', 0, 0, 0);                
             });
             
             function q_gfPost() {
@@ -255,6 +240,21 @@
                   			break;
 					}
 				});
+				
+				if(q_getPara('sys.project').toUpperCase()=='ES'){
+                        for(var i=0;i<$('#q_report').data().info.reportData.length;i++){
+                            if(
+                                $('#q_report').data().info.reportData[i].report=='z_vcca03' 
+                                || $('#q_report').data().info.reportData[i].report=='z_vcca04' 
+                                || $('#q_report').data().info.reportData[i].report=='z_vcca05' 
+                                || $('#q_report').data().info.reportData[i].report=='z_vcca06'
+                                || $('#q_report').data().info.reportData[i].report=='z_vcca08'
+                            ){ 
+                                $('#q_report div div').eq(i).hide();
+                            }
+                        }
+    
+                }
             }
 
             function q_boxClose(s2) {
