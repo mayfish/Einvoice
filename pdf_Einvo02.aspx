@@ -259,10 +259,12 @@ declare @tmpb table(
 	taxtype nvarchar(10)
 )
 insert into @tmpb(noa,noq,datea,invono,cust,serial,addr,product,mount,price,total,memo,comp,comp_serial,comp_addr,total3,taxtype,total4)
-select top 50 b.noa,b.noq,a.datea,a.noa,a.comp,a.serial,a.address,b.product,b.mount,b.price,b.money,b.memo,e.acomp,e.serial,e.addr,a.tax,a.taxtype,a.total
+select top 50 b.noa,b.noq,a.datea,a.noa
+	,case when len(ltrim(rtrim(a.buyer)))>0 then ltrim(rtrim(a.buyer)) else ltrim(rtrim(a.comp)) end
+	,a.serial,a.address,b.product,b.mount,b.price,b.money,b.memo,e.acomp,e.serial,e.addr,a.tax,a.taxtype,a.total
 from vcca a
 left join vccas b on a.noa = b.noa
-left join cust c on a.custno = c.noa
+left join cust c on c.noa = case when len(isnull(a.buyerno,''))>0 then a.buyerno else a.custno end 
 left join acomp e on a.cno = e.noa
 where a.noa between @t_bno and @t_eno
 and a.datea between @t_bdate and @t_edate
