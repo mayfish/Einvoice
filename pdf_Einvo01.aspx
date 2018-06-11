@@ -1,13 +1,11 @@
 ﻿<%@ Page Language="C#" Debug="true"%>
     <script language="c#" runat="server">     
     	//電子發票證明聯
-        public class ParaIn
-        {
+        public class ParaIn{
             public string noa="", noq="",acomp="";
         }
 
-        public class Para
-        {
+        public class Para{
             public string accy, noa, noq;
             public string datea,invono,cust,serial,addr,product;
             public float mount,price,total,total2,total3,total4;
@@ -16,8 +14,7 @@
             public string comp, comp_serial, comp_addr,taxtype;
        }
 
-        public void drawLine(iTextSharp.text.pdf.PdfContentByte cb)
-        {
+        public void drawLine(iTextSharp.text.pdf.PdfContentByte cb){
             cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
             cb.SetColorStroke(iTextSharp.text.BaseColor.BLACK);
             cb.SetLineWidth(1);
@@ -118,13 +115,11 @@
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_CENTER, "營業人蓋統一發票專用章", 473, 160, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "總計新台幣(中文大寫)", 30, 42, 0);
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_RIGHT, ConvertInt(((Para)vccLabel[0]).total4.ToString()), 370, 42, 0);
-            if (((Para)vccLabel[0]).comp.Length > 15)
-            {
+            if (((Para)vccLabel[0]).comp.Length > 15){
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方：" + ((Para)vccLabel[0]).comp.Substring(0, 15), 378, 138, 0);
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)vccLabel[0]).comp.Substring(15, ((Para)vccLabel[0]).comp.Length - 15), 378, 126, 0);
             }
-            else
-            {
+            else{
                 cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "賣方：" + ((Para)vccLabel[0]).comp, 378, 138, 0);
             }
             cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "統一編號：" + ((Para)vccLabel[0]).comp_serial, 378, 115, 0);
@@ -145,8 +140,7 @@
         
 		private static string[] cstr = { "零", "壹", "貳", "叁", "肆", "伍", "陸", "柒", "捌", "玖" };
         private static string[] wstr = { "", "", "拾", "佰", "仟", "萬", "拾", "佰", "仟", "億", "拾", "佰", "仟" };
-        public string ConvertInt(string str)
-        {
+        public string ConvertInt(string str){
             int len = str.Length;
 
             int i;
@@ -155,33 +149,22 @@
 
             rstr = "";
 
-            for (i = 1; i <= len; i++)
-            {
-
+            for (i = 1; i <= len; i++){
                 tmpstr = str.Substring(len - i, 1);
-
                 rstr = string.Concat(cstr[Int32.Parse(tmpstr)] + wstr[i], rstr);
-
             }
 
             rstr = rstr.Replace("拾零", "拾");
-
             rstr = rstr.Replace("零拾", "零");
-
             rstr = rstr.Replace("零佰", "零");
-
             rstr = rstr.Replace("零仟", "零");
-
             rstr = rstr.Replace("零萬", "萬");
 
             for (i = 1; i <= 6; i++)
 
             rstr = rstr.Replace("零零", "零");
-
             rstr = rstr.Replace("零萬", "零");
-
             rstr = rstr.Replace("零億", "億");
-
             rstr = rstr.Replace("零零", "零");
 
             rstr += "元整";
@@ -191,31 +174,26 @@
 		
         System.IO.MemoryStream stream = new System.IO.MemoryStream();
         string connectionString = "";
-        public void Page_Load()
-        {
+        public void Page_Load(){
         	string db = "st";
         	if(Request.QueryString["db"] !=null && Request.QueryString["db"].Length>0)
         	db= Request.QueryString["db"];
         	connectionString = "Data Source=127.0.0.1,1799;Persist Security Info=True;User ID=sa;Password=artsql963;Database="+db;
-            
+			
 			var item = new ParaIn();
-			if (Request.QueryString["noa"] != null && Request.QueryString["noa"].Length > 0)
-            {
+			if (Request.QueryString["noa"] != null && Request.QueryString["noa"].Length > 0){
                 item.noa = Request.QueryString["noa"];
             }
-            if (Request.QueryString["noq"] != null && Request.QueryString["noq"].Length > 0)
-            {
+            if (Request.QueryString["noq"] != null && Request.QueryString["noq"].Length > 0){
                 item.noq = Request.QueryString["noq"];
             }
-            if (Request.QueryString["acomp"] != null && Request.QueryString["acomp"].Length > 0)
-            {
+            if (Request.QueryString["acomp"] != null && Request.QueryString["acomp"].Length > 0){
                 item.acomp = Request.QueryString["acomp"];
             }
             
             //資料
             System.Data.DataTable dt = new System.Data.DataTable();
-            using (System.Data.SqlClient.SqlConnection connSource = new System.Data.SqlClient.SqlConnection(connectionString))
-            {
+            using (System.Data.SqlClient.SqlConnection connSource = new System.Data.SqlClient.SqlConnection(connectionString)){
                 System.Data.SqlClient.SqlDataAdapter adapter = new System.Data.SqlClient.SqlDataAdapter();
                 connSource.Open();
                 string queryString = @"
@@ -233,7 +211,7 @@
 					mount float,
 					price float, --單價
 					total float, --金額
-					memo nvarchar(300),
+					memo nvarchar(max),
 					
 					total2 float,
 					total3 float,
@@ -245,12 +223,10 @@
 					taxtype nvarchar(10)
 				)
 				insert into @tmp(noa,noq,datea,invono,cust,serial,addr,product,mount,price,total,memo,comp,comp_serial,comp_addr,total3,taxtype,total4)
-				select b.noa,b.noq,a.datea,a.noa
-					,case when len(ltrim(rtrim(a.buyer)))>0 then ltrim(rtrim(a.buyer)) else ltrim(rtrim(a.comp)) end
-					,a.serial,a.address,b.product,b.mount,b.price,b.money,a.memo,e.acomp,e.serial,e.addr,a.tax,a.taxtype,a.total
+				select b.noa,b.noq,a.datea,a.noa,a.comp,a.serial,c.addr_comp,b.product,b.mount,b.price,b.money,b.memo,e.acomp,e.serial,e.addr,a.tax,a.taxtype,a.money
 				from vcca a
 				left join vccas b on a.noa = b.noa
-				left join cust c on c.noa = case when len(isnull(a.buyerno,''))>0 then a.buyerno else a.custno end 
+				left join cust c on a.custno = c.noa
 				left join acomp e on a.cno = e.noa
 				where a.noa=@t_noa
    				and (len(@t_noq)=0 or b.noq=@t_noq)
